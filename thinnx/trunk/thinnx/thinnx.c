@@ -176,11 +176,6 @@ quit_prog (GtkWidget *w, gpointer data)
 }
 
 void
-clear_dialog (GtkWidget *w, gpointer data)
-{
-}
-
-void
 input_dialog (gchar **user, gchar **pass)
 {
   GtkWidget *dialog;
