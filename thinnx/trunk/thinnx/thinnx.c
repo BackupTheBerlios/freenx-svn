@@ -755,12 +755,9 @@ main (int argc, char **argv)
 	}
       else
 	{
-	  if (!strcmp (buffer, "NX> 404"))
-	    {
-	      message_dialog ("Login ou senha incorretos!");
-	      exit (1);
-	    }
-	  
+	  message_dialog ("Login ou senha incorretos!");
+	  exit (1);
+
 	  protocol_error ("you mean I did not log in successfully?");
 	}
 
