@@ -20,12 +20,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <errno.h>
 
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include <sys/select.h>
@@ -350,11 +352,10 @@ get_session_info (gint out, gchar *code)
       g_free (buffer);
       return retval;
     }
-  else
-    {
-      g_warning ("Waiting for %s, got %s\n", code, buffer);
-      protocol_error ("session info!");
-    }
+
+  g_warning ("Waiting for %s, got %s\n", code, buffer);
+  protocol_error ("session info!");
+  return NULL;
 }
 
 int
@@ -392,7 +393,7 @@ main (int argc, char **argv)
   int parent_pipe[2];	/* For talking to the parent */
   int child_pipe[2];	/* For talking to the child */
 
-  gint in, out;
+  gint in = 0, out = 0;
 
   gtk_init (&argc, &argv);
 
@@ -822,7 +823,7 @@ main (int argc, char **argv)
 	g_free (dirname);
 
 	if (use_ssl)
-	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,listen=20000:%d", pcookie, homedir, session, session_id, session_display);
+	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,listen=20000:%d", pcookie, homedir, session, session_id, 12345); /* last arg should be a free port */
 	else
 	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,connect=%s:%s", pcookie, homedir, session, session_id, host, session_display);
 
