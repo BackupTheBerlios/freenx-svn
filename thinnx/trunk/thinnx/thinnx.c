@@ -475,6 +475,13 @@ main (int argc, char **argv)
     pclose (xauth_output);
     g_free (tmp);
 
+    if (!strcmp (xauth, ""))
+      {
+	message_dialog ("Não foi possível obter um cookie de autenticação\n"
+			"do servidor X. Impossível continuar.");
+	exit (1);
+      }
+
     cookie = g_strdup (xauth);
   }
 
