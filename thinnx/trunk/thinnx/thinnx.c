@@ -153,6 +153,15 @@ drop_line (gint fd)
 }
 
 void
+drop_lines (gint fd, gint max)
+{
+  gint count;
+
+  for (count = 0; count < max; count++)
+    drop_line (fd);
+}
+
+void
 protocol_error (gchar *msg)
 {
   flush_buffer (buffer);
@@ -319,7 +328,7 @@ message_dialog (gchar *message)
 }
 
 gchar*
-get_info_after_colon (gchar *buffer)
+get_info_after_char (gchar *buffer, gchar c)
 {
   gchar *split_str;
   gchar *retval;
@@ -327,13 +336,25 @@ get_info_after_colon (gchar *buffer)
   printf ("%s", buffer);
 
   split_str = buffer+(strlen(buffer) - 1);
-  while (*(split_str-1) != ':')
+  while (*(split_str-1) != c)
     *split_str--;
 
   retval = g_strdup (split_str);
   g_strstrip (retval);
   
   return retval;
+}
+
+gchar*
+get_info_after_colon (gchar *buffer)
+{
+  return get_info_after_char (buffer, ':');
+}
+
+gchar*
+get_restore_id (gchar *line)
+{
+  return get_info_after_char (line, '\t');
 }
 
 /* Handle session start information */  
@@ -387,6 +408,8 @@ main (int argc, char **argv)
   gchar *pcookie = NULL;
   
   gchar **nxssh_argv = (gchar**) g_malloc (sizeof(gchar*) * 9);
+
+  gchar *restore_id = NULL;
 
   pid_t pid;
 
@@ -762,21 +785,50 @@ main (int argc, char **argv)
       buffer = read_code (out);
       if (!strcmp (buffer, "NX> 105"))
 	{
-	  gchar *cmdline;
+	  gchar *m;
 
 	  flush_buffer (buffer);
 	  drop_chars (out, 1);
 
-	  cmdline = g_strdup_printf ("startsession --session=\"%s\" --type=\"%s\" --cache=\"8M\" --images=\"32M\" --cookie=\"%s\" --link=\"%s\" --kbtype=\"%s\" --nodelay=\"1\" --backingstore=\"never\" --geometry=\"%s\" --media=\"0\" --agent_server=\"\" --agent_user=\"\" --agent_password=\"\" --screeninfo=\"%s\" --encryption=\"%d\"", session, type, cookie, link, kbdtype, geometry, screeninfo, use_ssl);
-	  write_line (in, cmdline);
-	  g_free (cmdline);
+	  m = g_strdup_printf ("list %s", user);
+	  write_line (in, m);
+	  g_free (m);
 
-	  drop_line (out);
-	  drop_line (out);
-	  drop_line (out);
+	  drop_lines (out, 5);
+
+	  while (1)
+	    {
+	      buffer = read_code (out);
+	      if (!strcmp (buffer, "NX> 105"))
+		{
+		  flush_buffer (buffer);
+		  drop_chars (out, 1);
+		  break;
+		}
+
+	      flush_buffer (buffer);
+	      buffer = read_line (out);
+	      restore_id = get_restore_id (buffer);
+	    }
 	}
       else
 	protocol_error ("session startup, buddy, I don't want problems!");
+      
+
+      {
+	gchar *cmdline;
+	
+	if (!restore_id)
+	  cmdline = g_strdup_printf ("startsession --session=\"%s\" --type=\"%s\" --cache=\"8M\" --images=\"32M\" --cookie=\"%s\" --link=\"%s\" --kbtype=\"%s\" --nodelay=\"1\" --backingstore=\"never\" --geometry=\"%s\" --media=\"0\" --agent_server=\"\" --agent_user=\"\" --agent_password=\"\" --screeninfo=\"%s\" --encryption=\"%d\"", session, type, cookie, link, kbdtype, geometry, screeninfo, use_ssl);
+	else
+	  cmdline = g_strdup_printf ("restoresession --session=\"%s\" --type=\"%s\" --cache=\"8M\" --images=\"32M\" --cookie=\"%s\" --link=\"%s\" --kbtype=\"%s\" --nodelay=\"1\" --backingstore=\"never\" --geometry=\"%s\" --media=\"0\" --agent_server=\"\" --agent_user=\"\" --agent_password=\"\" --screeninfo=\"%s\" --encryption=\"%d\" --id=\"%s\"", session, type, cookie, link, kbdtype, geometry, screeninfo, use_ssl, restore_id);
+	
+	write_line (in, cmdline);
+	g_free (cmdline);
+	cmdline = NULL;
+	
+	drop_lines (out, 3);
+      }
 
       session_id = get_session_info (out, "NX> 700");
       session_display = get_session_info (out, "NX> 705");
