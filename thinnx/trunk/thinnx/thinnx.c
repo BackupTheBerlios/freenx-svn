@@ -199,7 +199,6 @@ input_dialog (gchar **user, gchar **pass)
   GtkWidget *pass_entry;
 
   GtkWidget *connect_button;
-  GtkWidget *clear_button;
 
   dialog = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 #if GTK_MAJOR_VERSION == 2
@@ -244,11 +243,6 @@ input_dialog (gchar **user, gchar **pass)
 
   hbox = gtk_hbox_new (TRUE, 6);
   gtk_box_pack_start_defaults (GTK_BOX(vbox), hbox);
-
-  clear_button = gtk_button_new_with_label ("Limpar");
-  gtk_signal_connect (GTK_OBJECT(clear_button), "clicked",
-		      GTK_SIGNAL_FUNC(clear_dialog), NULL);
-  gtk_box_pack_start_defaults (GTK_BOX(hbox), clear_button);
 
   connect_button = gtk_button_new_with_label ("Conectar!");
   gtk_signal_connect (GTK_OBJECT(connect_button), "clicked",
