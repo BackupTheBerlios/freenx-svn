@@ -767,6 +767,7 @@ main (int argc, char **argv)
 	}
       else
 	{
+	  flush_buffer (buffer);
 	  message_dialog ("Login ou senha incorretos!");
 	  exit (1);
 	}
@@ -816,7 +817,7 @@ main (int argc, char **argv)
 	g_free (cmdline);
 	cmdline = NULL;
 	
-	drop_lines (out, 3);
+	drop_lines (out, 4);
       }
 
       session_id = get_session_info (out, "NX> 700");
@@ -842,48 +843,50 @@ main (int argc, char **argv)
       /* now prepare to run nxproxy */
       {
 	FILE *options;
-
+		
 	gchar *dirname;
 	gchar *fname;
 	gchar *cmdline;
-
+		
 	dirname = g_strdup_printf ("%s/.nx/S-%s", homedir, session_id);
 	fname = g_strdup_printf ("%s/options", dirname);
-
+		
 	g_print ("Dir: %s\nFname: %s\n", dirname, fname);
-
+		
 	if (mkdir (dirname, 0777) == -1)
 	  {
 	    /* BOMB or handle 'directory already exists' */
 	  }
 	g_free (dirname);
-
+		
 	if (use_ssl)
-	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,listen=20000:%d", pcookie, homedir, session, session_id, 12345); /* last arg should be a free port */
+	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,listen=%d:%s", pcookie, homedir, session, session_id, 8008, session_display);
 	else
 	  buffer = g_strdup_printf ("cookie=%s,root=%s/.nx,session=%s,id=%s,connect=%s:%s", pcookie, homedir, session, session_id, host, session_display);
-
+		
 	options = fopen (fname, "w");
 	fwrite (buffer, sizeof(char), strlen (buffer), options);
 	fclose (options);
-
+		
 	g_free (buffer);
-
+		
 	cmdline = g_strdup_printf (BINDIR"/nxproxy -S options=%s:%s", fname, session_display);
 	system (cmdline);
 	g_free (cmdline);
-
+		
 	g_free (fname);
       }
     }
 
-  write_line (in, "exit");
-  drop_line (out);
-  drop_line (out);
-  drop_line (out);
+  write_line (in, "bye");
   drop_line (out);
 
-  wait (&pid);
+  if (use_ssl)
+    write_line (in, "switch");
+
+  drop_line (out);
+  drop_line (out);
+  drop_line (out);
 
   return 0;
 }
