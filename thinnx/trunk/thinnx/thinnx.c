@@ -757,8 +757,6 @@ main (int argc, char **argv)
 	{
 	  message_dialog ("Login ou senha incorretos!");
 	  exit (1);
-
-	  protocol_error ("you mean I did not log in successfully?");
 	}
 
       buffer = read_code (out);
