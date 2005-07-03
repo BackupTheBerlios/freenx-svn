@@ -190,6 +190,21 @@
 #ENABLE_NOMACHINE_FORWARD_PORT="0"
 #NOMACHINE_FORWARD_PORT="22"
 
+# To do loadbalancing setup some hosts in SERVER_LOADBALANCING and
+# make:
+#
+#   - either sure that all incoming connections are sent to the master
+#     server by using forwarding directives on the "slave" servers.
+#
+#   - or share the session database space via NFS between the servers.
+#
+# By setting ENABLE_LOADBALANCE="1" you can let users choose their
+# preferred host, while being forwarded to another server. Of course
+# this is just a preference. The loadbalancing algorithm can completely
+# choose to ignore the users choice.
+
+#SERVER_LOADBALANCING=""
+#ENABLE_LOADBALANCE_PREFERENCE="0"
 
 #########################################################################
 # Services directives

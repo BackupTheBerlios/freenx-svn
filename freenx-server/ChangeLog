@@ -1,3 +1,6 @@
+XX.07.2005 FreeNX 0.5.0
+	* Initial support for load-balancing.
+
 24.06.2005 FreeNX 0.4.1 "LinuxTag Edition"
 	* Fixed a small security problem giving access to session database.
 	* Added support for 1.5.0 OSS components. (especially rootless mode)
