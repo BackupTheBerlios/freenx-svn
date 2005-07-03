@@ -197,6 +197,8 @@
 #     server by using forwarding directives on the "slave" servers.
 #
 #   - or share the session database space via NFS between the servers.
+#     (not recommended at the moment as race conditions for DISPLAYs can 
+#      occur)
 #
 # By setting ENABLE_LOADBALANCE="1" you can let users choose their
 # preferred host, while being forwarded to another server. Of course
