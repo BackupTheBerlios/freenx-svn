@@ -47,23 +47,18 @@ void _init(void)
 
 int connect(CONNECT_SIGNATURE) 
 {
-	int cups, samba;
-	
 	if (realconnect == NULL) {
                 perror("Unresolved symbol: connect\n");
                 return(-1);
         }
 
-	cups=atoi(getenv("NXCUPS_PORT"));
-	samba=atoi(getenv("NXSAMBA_PORT"));
-
 	/* CUPS */
-	if (cups != 0 && ((struct sockaddr_in*)__addr)->sin_port==htons(631))
-		((struct sockaddr_in*)__addr)->sin_port=htons(8632);
+	if ((getenv("NXCUPS_PORT") != NULL) && ((struct sockaddr_in*)__addr)->sin_port==htons(631))
+		((struct sockaddr_in*)__addr)->sin_port=htons(atoi(getenv("NXCUPS_PORT")));
 
 	/* SAMBA */
-	if (samba != 0 && (((struct sockaddr_in*)__addr)->sin_port==htons(139) || ((struct sockaddr_in*)__addr)->sin_port==htons(445)))
-		((struct sockaddr_in*)__addr)->sin_port=htons(samba);
+	if ((getenv("NXSAMBA_PORT") != NULL) && (((struct sockaddr_in*)__addr)->sin_port==htons(139) || ((struct sockaddr_in*)__addr)->sin_port==htons(445)))
+		((struct sockaddr_in*)__addr)->sin_port=htons(atoi(getenv("NXSAMBA_PORT")));
 
 	return realconnect(__fd, __addr, __len);
 }
