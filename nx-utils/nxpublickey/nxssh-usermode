@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Simple wrapper for nxssh for freenx-usermode.
+#
+# Copyright (c) 2005 by Fabian Franz.
+#
+# License: GPL
+#
+
+cat <<EOF
+NX> 203 NXSSH running with pid: $$
+NX> 200 Connected to address: 127.0.0.1 on port: 22
+NX> 202 Authenticating user: nx
+NX> 208 Using auth method: publickey
+EOF
+
+CONN=$(echo "$@" | sed 's/.*nx@//g' | cut -d" " -f1)
+
+exec $(dirname $0)/nxssh.orig $CONN -x -2 -B nxserver
