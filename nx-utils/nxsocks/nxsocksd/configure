@@ -1189,7 +1189,7 @@ test "$DEBUG" = 1 && cat >> confdefs.h <<\EOF
 EOF
 
 
-NORELAX=0
+NORELAX=1
 # Check whether --enable-norelax or --disable-norelax was given.
 if test "${enable_norelax+set}" = set; then
   enableval="$enable_norelax"
