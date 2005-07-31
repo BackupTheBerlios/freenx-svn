@@ -8,6 +8,11 @@ $|++;
 
 my $substpath=$ARGV[0];
 
+if ($substpath eq '')
+{
+	$substpath='.';
+}
+
 use strict;
 use POSIX qw(getcwd dup2 strftime);
 $SIG{'CHLD'} = 'IGNORE';
@@ -273,7 +278,7 @@ sub write_loop {
 
 # FIXME: Make it secure
 
-sub unquote { $_ = shift; s/\\(.)/$1/g; s/^/$substpath/g; s/\.\./\//g; return $_; }
+sub unquote { $_ = shift; s/\\(.)/$1/g; s/\.\./\//g; s/^/$substpath/g; return $_; }
 #sub unquote { $_ = shift; s/\\(.)/$1/g; return $_; }
 
 sub filetype {
