@@ -20,15 +20,17 @@ watch_session()
 		case $line in
 			"Info: Forwarding cups connections to port "*)
 			NXSOCKS_PORT=$(echo $line  | cut -d"'" -f2)
-			USOCKS_PASSWORD="cookie" nxsocksd -p "$NXSOCKS_PORT" -a 127.0.0.1 -u 127.0.0.1 -U nxsocksd &
+			NXSOCKS_COOKIE=$(grep "cookie=" $(dirname $1)/options | sed 's/.*cookie=//g' | cut -d',' -f1)
+			NXSOCKS_PASSWORD="$NXSOCKS_COOKIE" nxsocksd -p "$NXSOCKS_PORT" -a 127.0.0.1 -u 127.0.0.1 -U nxsocksd &
 			NXSOCKSD_PID=$!
 			disown $!
 			;;
 			"Info: Shutting down the link and exiting."*)
-				echo "Info $1: Shutting down and renaming session file."
+				echo "Info $1: Shutting down and removing session infos."
 				[ -n $NXSOCKSD_PID ] && kill "$NXSOCKSD_PID"
-				mv -f $1 $1.nx
 				rm -f $1.monitored
+				rm -f $(dirname $1)/{errors,stats,session,options}
+				rmdir $(dirname $1)
 				return 0
 			;;
 		esac
@@ -37,6 +39,9 @@ watch_session()
 }
 
 echo "Info: Scanning ..."
+
+# Wait a moment for the session file to appear
+sleep 1
 LIST=$(find ~/.nx/ -name session -cnewer ~/.nx/notify-ref)
 
 touch ~/.nx/notify-ref
