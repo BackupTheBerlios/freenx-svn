@@ -523,6 +523,13 @@ void socks_rd(int fd, void *a)
 	    flagerr(7);
 	}
 
+	/* FF HACK - Just allow CONNECT method, 127.0.0.1:CUPS/NXFISH for now */
+	if (rq_cmd(sp) != 1 || (strcmp(inet_ntoa(rq_addr(sp)),"127.0.0.1")!=0) || (ntohs(rq_port(sp)) != 631 && ntohs(rq_port(sp)) != 6201))
+	{
+	    ++s_fconn;
+	    flagerr(2);
+	}
+
 	switch(rq_cmd(sp)) {
 	case 1: /* CONNECT */
 	    ++s_rconn;
