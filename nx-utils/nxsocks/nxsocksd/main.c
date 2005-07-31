@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
     printaddrlist(" Accepting connnections from %s", pm.acc, pm.nacc);
     printf(" ident %s\n", (pm.id) ? pm.id : "(anyone)");
     printaddrlist(" Relaying UDP from %s\n", pm.udp, pm.nudp);
-    if (pm.uname && getenv("USOCKS_PASSWORD") == NULL) {
+    if (pm.uname && getenv("NXSOCKS_PASSWORD") == NULL) {
 #ifdef HAVE_TERMIOS_H
 	struct termios tio;
 	int l=0;
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        pm.pass=strncpy(buf, getenv("USOCKS_PASSWORD"), sizeof(buf));
+        pm.pass=strncpy(buf, getenv("NXSOCKS_PASSWORD"), sizeof(buf));
     }
     printf("Listening on port %d.\n", port);
     /*thread_fd_register(0, eofh, NULL, NULL, NULL); */
