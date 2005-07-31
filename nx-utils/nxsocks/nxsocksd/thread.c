@@ -1,5 +1,5 @@
 /*
-   usocksd - user specific SOCKS5 daemon
+   nxsocksd - user specific SOCKS5 daemon
 
    thread.c - generic I/O multiplexing module
 

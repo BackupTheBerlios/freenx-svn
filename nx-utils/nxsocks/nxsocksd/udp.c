@@ -1,5 +1,5 @@
 /*
-   usocksd - user specific SOCKS5 daemon
+   nxsocksd - user specific SOCKS5 daemon
 
    udp.c - UDP proxy
 

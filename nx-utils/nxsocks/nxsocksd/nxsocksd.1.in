@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.\" $Id: usocksd.1.in,v 1.3 1999/05/13 22:28:11 olaf Exp $
+.\" $Id: nxsocksd.1.in,v 1.3 1999/05/13 22:28:11 olaf Exp $
 .\"
 .\" Configuration options
 .ds D @DEBUG@
@@ -8,9 +8,9 @@
 .\"
 .TH USOCKSD 1 "HaDiNet Software"
 .SH NAME
-usocksd \- user specific SOCKS5 daemon
+nxsocksd \- user specific SOCKS5 daemon
 .SH SYNOPSIS
-.B usocksd
+.B nxsocksd
 [
 .BI \-p " port"
 ]
@@ -30,17 +30,17 @@ usocksd \- user specific SOCKS5 daemon
 .BI \-d " debuglevel"
 ]\}
 .SH DESCRIPTION
-.B usocksd
+.B nxsocksd
 is a lightweight SOCKS5 daemon. It is intended to be run by the user
 who wants to use the SOCKS service and facilitates the use of an
 .B ssh
 TCP port redirection to run the SOCKS protocol over.
-.B usocksd
+.B nxsocksd
 is useful in situations where the user has access to a host with less
 restricted connectivity than his own machine, or where the user\'s
 own machine is on an insecure network and all connections should be
 encrypted.
-.B usocksd
+.B nxsocksd
 implements all documented commands, the address types
 .I IPv4 Address
 and
@@ -100,13 +100,13 @@ connection is as follows:
 .nf
 \fCssh -L1080:relayhost:12345 relayhost\\
 .br
- "usocksd -p12345 -arelayhost -umyhost -Ufred"\fP
+ "nxsocksd -p12345 -arelayhost -umyhost -Ufred"\fP
 .fi
 .PP
 where
 .I relayhost
 is the host where
-.B usocksd
+.B nxsocksd
 runs and
 .I myhost
 is the client's host. Note the coincidence of the host name and port
@@ -123,14 +123,14 @@ while the corresponding SOCKS connection seems to come from
 .I relayhost
 itself. This is the reason why a regular SOCKS5 server can not be used
 for UDP in this situation (and the original incentive for writing
-.BR usocksd ).
+.BR nxsocksd ).
 The SOCKS clients will use password authentication as user
 .IR fred.
 The password to use is read from standard input.
 Neither user name nor password need to coincide with the real user
 name and password on any of the machines involved.
 .PP
-.B usocksd
+.B nxsocksd
 terminates when it encounters EOF on standard input. All other input
 on stdin is ignored. If the password should be read from a file
 instead of standard input, the proper way of invocation is
@@ -139,10 +139,10 @@ instead of standard input, the proper way of invocation is
 \fCcat ~/.socks-password - |\\
  ssh -L1080:relayhost:12345 relayhost\\
 .br
- "usocksd -p12345 -arelayhost -umyhost -Ufred"\fP
+ "nxsocksd -p12345 -arelayhost -umyhost -Ufred"\fP
 .fi
 .PP
-.B usocksd
+.B nxsocksd
 does not spawn any child processes,
 .if '\*F'1' \{\
 except for the extended
@@ -174,7 +174,7 @@ temporarily suspend data transfer on existing connections. The same
 applies to diagnostic output if the standard output and standard error
 channels run on a socket or pipe which can block.
 .PP
-.B usocksd
+.B nxsocksd
 does not fully support multi-homed servers. Support for multi-homed
 clients may depend on the client's SOCKS library.
 .PP
@@ -191,7 +191,7 @@ depending on the exact sequence of packets. It is
 assumed that all allowed clients connect to each other directly.
 .PP
 There should be a more elegant method of killing an
-.B usocksd
+.B nxsocksd
 started via
 .B ssh
 than the EOF handling.
@@ -204,7 +204,7 @@ utilities do not work with SOCKS because they use the ICMP protocol.
 The reference implementation SOCKS
 daemon by NEC includes undocumented commands for these applications.
 .ie '\*F'1' \{\
-.B usocksd
+.B nxsocksd
 supports these by calling the
 .B ping
 or
@@ -212,7 +212,7 @@ or
 programs on the host where it runs. \}
 .el \{\
 These are not supported by this configuration of
-.BR usocksd . \}
+.BR nxsocksd . \}
 .SH VERSION
 @VERSION@ as of @DATE@.
 .SH AUTHOR

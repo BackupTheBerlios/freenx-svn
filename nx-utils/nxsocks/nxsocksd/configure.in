@@ -1,4 +1,4 @@
-dnl     configure.in for usocksd. This is -*-fundamental-*-
+dnl     configure.in for nxsocksd. This is -*-fundamental-*-
 dnl     Copyright 1997 Olaf Titz <olaf@bigred.inka.de>
 
 dnl     Process this file with autoconf to produce a configure script.
@@ -183,5 +183,5 @@ AC_SUBST(DATE)
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_DEFINE_UNQUOTED(DATE, "$DATE")
 
-AC_OUTPUT(Makefile usocksd.1)
+AC_OUTPUT(Makefile nxsocksd.1)
 dnl AC_CONFIG_SUBDIRS(libresolv)

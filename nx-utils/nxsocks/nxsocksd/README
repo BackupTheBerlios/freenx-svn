@@ -1,3 +1,7 @@
+This program was adapted for usage by NX by Fabian Franz.
+
+If the user nxsocksd is used, connections are restricted to localhost and certain ports.
+--------
 This is a small SOCKS5 server. While the usual "socksd" runs as a
 system service, perhaps on a firewall machine with no users, this one
 is intended to be run by users themselves.
@@ -9,10 +13,10 @@ the machine he works on.
 
 2. User is on an insecure network and wants all network traffic to be
 enrypted using "ssh", and has access to a machine running "sshd" on a
-more secure network. "usocksd" contains special provisions for this
+more secure network. "nxsocksd" contains special provisions for this
 situation.
 
-More information on how to run "usocksd" is in the man page.
+More information on how to run "nxsocksd" is in the man page.
 
 Installation: sh ./configure; make; make install.
 configure takes additional arguments --enable-debug, --enable-norelax

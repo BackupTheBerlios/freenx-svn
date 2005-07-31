@@ -1,5 +1,5 @@
 /*
-   usocksd - user specific SOCKS5 daemon
+   nxsocksd - user specific SOCKS5 daemon
 
    main.c - initialization, listening socket, ident lookup
 
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
     setunbuf(stdout);
     setunbuf(stderr);
     memset(&pm, 0, sizeof(pm));
-    printf("usocksd version " VERSION " (c) Olaf Titz 1997-1999\n");
+    printf("nxsocksd version " VERSION " (c) Olaf Titz 1997-1999\n");
     while((n=getopt(argc, argv, "p:a:u:i:U:d:f:"))!=EOF) {
 	switch(n) {
 	case 'p': port=atoi(optarg); break;

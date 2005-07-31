@@ -1,4 +1,4 @@
-#  usocksd - user specific SOCKS5 daemon    Prototype for the -*- Makefile -*-
+#  nxsocksd - user specific SOCKS5 daemon    Prototype for the -*- Makefile -*-
 #
 #  Copyright 1997 Olaf Titz <olaf@bigred.inka.de>
 #
@@ -26,11 +26,11 @@ exec_prefix= @exec_prefix@
 bindir	= @bindir@
 mandir	= @mandir@
 
-PROGS	= usocksd
-MANS	= usocksd.1
+PROGS	= nxsocksd
+MANS	= nxsocksd.1
 OBJS	= main.o socks.o udp.o resolv.o thread.o lib.o
 
-SRCS	= README usocksd.1.in Makefile.in configure configure.in config.h.in \
+SRCS	= README nxsocksd.1.in Makefile.in configure configure.in config.h.in \
 		socks.h udp.h thread.h lib.h resolv.h log.h stats.h \
 		socks.c udp.c thread.c lib.c resolv.c main.c aquery.c \
 		install-sh COPYING
@@ -38,8 +38,8 @@ SRCSC	= $(SRCS) Checksums
 
 all: $(PROGS)
 
-usocksd: $(OBJS)
-	$(CC) $(LDFLAGS) -o usocksd $(OBJS) $(LIBS)
+nxsocksd: $(OBJS)
+	$(CC) $(LDFLAGS) -o nxsocksd $(OBJS) $(LIBS)
 
 aquery: aquery.o resolv.o thread.o lib.o
 	$(CC) $(LDFLAGS) -o aquery aquery.o resolv.o thread.o lib.o $(LIBS)
@@ -57,17 +57,17 @@ clean:
 
 distclean: clean
 	rm -f config.cache config.h config.log config.status \
-		Makefile usocksd.1 TAGS
+		Makefile nxsocksd.1 TAGS
 
 Checksums: $(SRCS)
 	makechecksums $(SRCS) > Checksums
 
 shar: $(SRCSC)
-	cd .. && shar $(SRCSC:%=usocksd/%) > usocksd.shar
+	cd .. && shar $(SRCSC:%=nxsocksd/%) > nxsocksd.shar
 
 tgz: $(SRCSC)
-	cd .. && ln -sf usocksd usocksd-@VERSION@ && \
-	  tar czf usocksd-@VERSION@.tar.gz $(SRCSC:%=usocksd-@VERSION@/%)
+	cd .. && ln -sf nxsocksd nxsocksd-@VERSION@ && \
+	  tar czf nxsocksd-@VERSION@.tar.gz $(SRCSC:%=nxsocksd-@VERSION@/%)
 
 configure: configure.in
 	autoconf
