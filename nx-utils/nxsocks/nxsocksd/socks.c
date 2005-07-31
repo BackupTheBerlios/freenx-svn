@@ -529,7 +529,7 @@ void socks_rd(int fd, void *a)
 
 	    if (rq_cmd(sp) != 1 || (strcmp(inet_ntoa(rq_addr(sp)),"127.0.0.1")!=0) || (ntohs(rq_port(sp)) != 631 && ntohs(rq_port(sp)) != 6201))
 	    {
-		++s_fconn;
+		++s_refused;
 		flagerr(2);
             }
 	}
