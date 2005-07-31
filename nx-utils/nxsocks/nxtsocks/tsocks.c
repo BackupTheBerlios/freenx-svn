@@ -278,10 +278,10 @@ int connect(CONNECT_SIGNATURE) {
                       "%s\n", __fd, inet_ntoa(connaddr->sin_addr));
 
    /* If the address is local call realconnect */
-   if (!(is_local(config, &(connaddr->sin_addr)))) {
+   /*if (!(is_local(config, &(connaddr->sin_addr)))) {
       show_msg(MSGDEBUG, "Connection for socket %d is local\n", __fd);
       return(realconnect(__fd, __addr, __len));
-   }
+   }*/
 
    /* Ok, so its not local, we need a path to the net */
    pick_server(config, &path, &(connaddr->sin_addr), ntohs(connaddr->sin_port));
@@ -290,10 +290,11 @@ int connect(CONNECT_SIGNATURE) {
             (path->address ? path->address : "(Not Provided)"));
    if (path->address == NULL) {
       if (path == &(config->defaultserver)) 
-         show_msg(MSGERR, "Connection needs to be made "
+         /*show_msg(MSGERR, "Connection needs to be made "
                           "via default server but "
                           "the default server has not "
-                          "been specified\n");
+                          "been specified\n");*/
+         return(realconnect(__fd, __addr, __len));
       else 
          show_msg(MSGERR, "Connection needs to be made "
                           "via path specified at line "
