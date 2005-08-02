@@ -49,7 +49,7 @@ fi
 # DO NOT TOUCH unless you REALLY know what you are doing
 #########################################################################
 
-NX_VERSION=1.4.0-04-CVS
+NX_VERSION=1.4.0-05-SVN
 NX_LICENSE="OS (GPL)"
 
 # Where can different nx components be found
@@ -125,6 +125,8 @@ NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 ENABLE_NOMACHINE_FORWARD_PORT="0"
 NOMACHINE_FORWARD_PORT="22"
 
+SERVER_LOADBALANCING=""
+ENABLE_LOADBALANCE_PREFERENCE="0"
 
 # Services directives
 

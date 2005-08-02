@@ -17,6 +17,8 @@ set tosend [lindex $argv 5]
 catch {set tosend $env(NXNODE_TOSEND)}
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
+set host "127.0.0.1"
+catch {set host $env(NODE_HOSTNAME)}
 
 expect_user -re "(.*)\n" 
 set password $expect_out(1,string)
@@ -24,7 +26,7 @@ set password $expect_out(1,string)
 set stty_init "raw icrnl -echo"
 
 if { "$auth_method"=="ssh" } { 
-	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "127.0.0.1" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]
+	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]
 } elseif { "$auth_method"=="su" } {
 	set pid [spawn -noecho su - "$user" -c "$executable $command" ]
 } else {

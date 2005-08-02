@@ -456,14 +456,17 @@ echo_x()
 
 # Start!
 [ "$NX_LOG_LEVEL" -ge "1" ] && touch "$NX_LOGFILE" >/dev/null 2>&1
-log 3 "-- NX SERVER START: $@"
+log 3 "-- NX SERVER START: $@ - ORIG_COMMAND=$SSH_ORIGINAL_COMMAND"
 
 if [ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ]
 then
 	log 3 "Info: Forwarding connection to $SERVER_FORWARD_HOST with secret key $SERVER_FORWARD_KEY."
-	$COMMAND_SSH -i "$SERVER_FORWARD_KEY" "nx@$SERVER_FORWARD_HOST:$SERVER_FORWARD_PORT"
+	$COMMAND_SSH -i "$SERVER_FORWARD_KEY" "-p$SERVER_FORWARD_PORT" "nx@$SERVER_FORWARD_HOST" "host=$SERVER_NAME"
 	exit 0
 fi
+
+# Get the hostname out of SSH_ORIGINAL_COMMAND
+PREFERRED_HOST=$(echo $SSH_ORIGINAL_COMMAND | tr '&' '\n' | grep "^host=" | cut -d'=' -f2)
 
 # forward the connection to commercial NoMachine server?
 if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a "$NOMACHINE_FORWARD_PORT" = "$(echo $SSH_CLIENT $SSH2_CLIENT| cut -d' ' -f3)" -a -n "$NOMACHINE_SERVER" ]
@@ -633,6 +636,20 @@ server_nxnode_start()
 	USER="$2"
 	shift
 	shift
+
+	# Find NODE_HOSTNAME
+	
+	NODE_HOSTNAME=""
+	CMDLINE="$@"
+	uniqueid=$(getparam uniqueid)
+	[ -z "$uniqueid" ] && uniqueid=$(getparam sessionid)
+	[ -z "$uniqueid" ] && uniqueid=$(getparam session_id)
+	CMDLINE=$(session_get "$uniqueid")
+	
+	NODE_HOSTNAME="$(getparam host)"
+	[ -z "$NODE_HOSTNAME" ] && NODE_HOSTNAME="127.0.0.1"
+	export NODE_HOSTNAME
+	
 	# Use nxnode-login?
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
@@ -645,7 +662,7 @@ server_nxnode_start()
 	then
 	    echo "$@" | $PATH_BIN/nxnode "$CMD" 2>&1 | log_tee
 	else
-	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
+	    echo "$@" | $COMMAND_SSH -l "$USER" "$NODE_HOSTNAME" -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
 }
 
@@ -762,6 +779,36 @@ server_check_session_count()
 	return 0
 }
 
+# FIXME: Add round-robin algorithm
+server_loadbalance_random_rr()
+{
+	# Pick one based on "round-robin random"
+	SERVER_HOSTS=( $SERVER_LOADBALANCING )
+	SERVER_NR_OF_HOSTS=${#SERVER_HOSTS[@]}
+	let SERVER_NR=(RANDOM % SERVER_NR_OF_HOSTS)
+	SERVER_HOST_RR=${SERVER_HOSTS[$SERVER_NR]}
+	echo $SERVER_HOST_RR
+}
+
+server_loadbalance()
+{
+	SERVER_HOST="127.0.0.1"
+	if [ -n "$SERVER_LOADBALANCING" ]
+	then
+		# FIXME: Add preference host
+		SERVER_HOST=""
+		if [ -n "$PREFERRED_HOST" -a "$ENABLE_LOADBALANCE_PREFERENCE" = "1" ]
+		then
+			stringinstring " $PREFERRED_HOST " " $SERVER_LOADBALANCING " && SERVER_HOST="$PREFERRED_HOST"
+		fi
+		# Fallback if still empty
+		[ -z "$SERVER_HOST" ] && SERVER_HOST=$(server_loadbalance_random_rr)
+		[ -n "$SERVER_HOST" ] && log 5 "Info: Load-Balancing (if possible) to $SERVER_HOST ..."
+		[ -z "$SERVER_HOST" ] && SERVER_HOST="127.0.0.1"
+	fi
+	echo "$SERVER_HOST"
+}	
+
 server_startrestore_session()
 {
 	ACTION="$1"
@@ -858,9 +905,13 @@ server_startrestore_session()
 		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY"
 		log_secure "6" "$FULL_PARAMS"
 
+		# Possibly do loadbalancing
+		
+		SERVER_HOST=$(server_loadbalance)
+
 		# now update the session listing
 		CMDLINE="a=b&$FULL_PARAMS"
-		session_add $uniqueid "sessionName=$(getparam session)&display=$(getparam display)&status=Running&startTime=$(date +%s)&foreignAddress=$(getparam userip)&type=$(getparam type)&sessionId=$uniqueid&creationTime=$(date +%s)&userName=$USER&serverPid=$SERVER_PID&screeninfo=$(getparam screeninfo)&geometry=$(getparam geometry)"
+		session_add $uniqueid "sessionName=$(getparam session)&display=$(getparam display)&status=Running&startTime=$(date +%s)&foreignAddress=$(getparam userip)&type=$(getparam type)&sessionId=$uniqueid&creationTime=$(date +%s)&userName=$USER&serverPid=$SERVER_PID&screeninfo=$(getparam screeninfo)&geometry=$(getparam geometry)&host=$SERVER_HOST"
 	else
 		uniqueid=$(getparam restore)
 		[ -z "$uniqueid" ] && uniqueid=$(getparam id) # 1.4.0-5 compatibility
@@ -869,6 +920,8 @@ server_startrestore_session()
 		CMDLINE=$(session_get "$uniqueid")
 		FULL_PARAMS="$PARAMS&user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)"
 		SESS_DISPLAY=$(getparam display)
+		SERVER_HOST=$(getparam host)
+		[ -z "$SERVER_HOST" ] && SERVER_HOST="127.0.0.1"
 	fi
 
 	# now start the node
@@ -930,7 +983,7 @@ do
 			if [ "$ENCRYPTION" = "1" ] 
 			then 
 				let PROXY_DISPLAY=$SESS_DISPLAY+4000
-				$COMMAND_NETCAT 127.0.0.1 $PROXY_DISPLAY
+				$COMMAND_NETCAT $SERVER_HOST $PROXY_DISPLAY
 				exit 0
 			else
 				echo_x "NX> 1001 Bye."
