@@ -1,0 +1,5 @@
+AuthName "Members Only"
+AuthType Basic
+AuthDBMUserFile /etc/httpd/passwd/passwd_authdb
+AuthDBMGroupFile /etc/httpd/passwd/passwd_authdb
+require group freenx
