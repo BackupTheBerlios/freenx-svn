@@ -22,7 +22,7 @@
 <option key="Desktop" value="console" />
 <option key="Link speed" value="modem" />
 <option key="Remember password" value="false" />
-<option key="Resolution" value="800x600" />
+<option key="Resolution" value="fullscreen" />
 <option key="Resolution height" value="600" />
 <option key="Resolution width" value="800" />
 <option key="Server host" value="82.165.41.51" />
