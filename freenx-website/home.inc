@@ -10,6 +10,12 @@
 	<h2>
 		News
 	</h2>
+	<h3>		<a
+	href="http://www.linuxjournal.com/article/8477">Visit FreeNX on Linux WorldExpo San Francisco Aug 9-11, 2005</a> 
+        - Saturday, August 07, 2005 - 
+	</h3>
+	We also have a nice <a href="http://www.linuxjournal.com/article/8477">article series</a> at the moment, which prepares you for FreeNX during LWE.
+	
 	<h3>
 		<a
 	href="http://mail.kde.org/pipermail/freenx-knx/2005-July/001690.html">FreeNX
