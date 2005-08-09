@@ -211,7 +211,7 @@ install_nx()
 	mkdir -p $NX_HOME_DIR/.ssh
 	chmod 700 $NX_HOME_DIR/ $NX_HOME_DIR/.ssh
 	
-	if [ ! -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ]
+	if [ ! -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS -o "$SETUP_NOMACHINE_KEY" = "yes" ]
 	then
 		SETUP_NX_KEY="yes"
 		if [ "$SETUP_NOMACHINE_KEY" = "yes" ]
