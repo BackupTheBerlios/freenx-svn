@@ -47,11 +47,28 @@ done
 #Check for invalid combinations:
 [ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
-[ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
 [ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
+
+if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ]
+then
+	if [ "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
+	then
+		echo "------> You did select no action."
+		echo "        FreeNX guesses that you want to _install_ the"
+		echo "        server."
+		echo "        Use --help to get help contents."
+		echo ""
+		echo -n "Do you want to abort now? [y/N] "
+		read -n 1 CHOICE
+		echo
+		[ "$CHOICE" = "y" ] && HELP="yes"
+	else
+		HELP="yes"
+	fi
+fi
 
 if [ "$HELP" = "yes" ]
 then
@@ -272,6 +289,11 @@ EOF
 	echo "done"
 }
 
+test_nx()
+{
+	:	
+}
+
 uninstall_nx() 
 {
 	if nx_user_exists
@@ -330,6 +352,8 @@ then
 	[ "$CLEAN" = "yes" ] && uninstall_nx
 	
 	install_nx
+
+	test_nx
 	
 	echo "Ok, nxserver is ready."
 	echo 
