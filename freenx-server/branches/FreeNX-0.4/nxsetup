@@ -22,6 +22,7 @@ UNINSTALL="no"
 PURGE="no"
 SETUP_SSH2_KEY="no"
 BUILD_KNOWN_HOSTS="yes"
+AUTOMATIC="no"
 
 while [ "$1" ]
 do
@@ -37,6 +38,7 @@ do
 		--clean) CLEAN="yes"; shift ;;
 		--uninstall) UNINSTALL="yes"; shift ;;
 		--purge) PURGE="yes"; shift ;;
+		--auto) AUTOMATIC="yes"; shift ;;
 		--) shift ; break ;;
 		*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
 	esac
@@ -86,6 +88,18 @@ then
 	echo "You need to be root to use this program." 
 	exit 1
 fi
+
+if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
+then
+	echo "------> It is recommended that you use the NoMachine key for"
+	echo "        easier setup. At the moment FreeNX would create a custom"
+	echo "        KeyPair and expect you to setup your clients manually. "
+	echo ""
+	echo -n "        Do you really want to use your own keys? [y/N] "
+	read -n 1 CHOICE
+	[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
+fi
+
 
 # Read the config file
 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
@@ -364,6 +378,8 @@ then
 		echo "         Please replace /usr/NX/share/client.id_dsa.key on all clients you want"
 		echo "         to use with $NX_HOME_DIR/.ssh/client.id_dsa.key"
 		echo "         and protect it accordingly."
+		echo ""
+		echo "         Since 1.5.0 you need to import the correct key via the GUI."
 		echo
 		echo "         If you really want to use the NoMachine key please remove"
 		echo "         '$NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS'"
