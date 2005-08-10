@@ -144,7 +144,7 @@ useradd_nx()
 	# no, its a "normal" useradd
 	else
 		USERADD_OPTIONS="-d $NX_HOME_DIR -s $PATH_BIN/nxserver"
-		[ -n $SETUP_GID ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS"
+		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS"
 		# uid specified?
 		if [ -n "$SETUP_UID" ]
 		then
