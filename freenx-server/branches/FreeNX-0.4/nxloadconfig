@@ -493,6 +493,7 @@ then
 		echo "  Errors occured during config check."
 		echo "  Please correct the configuration file."
 		echo
+		exit 1
 	elif [ "$WARNING" = "yes" ]
 	then
 		echo
