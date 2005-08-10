@@ -307,7 +307,7 @@ test_nx()
 	echo "----> Testing your nxserver configuration ..."
 	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check
 	echo "<---- done"
-	
+	echo ""
 	echo "----> Testing your nxserver connection ..."
 	
 	CONNECTION=""
@@ -340,6 +340,7 @@ test_nx()
 		exit 1
 	fi
 	echo "<--- done"
+	echo ""
 }
 
 uninstall_nx() 
