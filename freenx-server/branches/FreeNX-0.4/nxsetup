@@ -127,6 +127,16 @@ nx_user_exists()
 		getent passwd nx >/dev/null
 	fi
 }	
+nx_group_exists()
+{
+	# useradd/adduser need a valid group to add the user to
+	if [ "$SETUP_LOCAL_USER" = "yes" ]
+	then
+		egrep "^nx:" /etc/group >/dev/null
+	else
+		getent group nx >/dev/null
+	fi
+}	
 
 # Tries to add a system user
 useradd_nx()
@@ -139,27 +149,34 @@ useradd_nx()
 	if [ -f /etc/debian_version -a -z "$SETUP_UID" ]
 	then
 		USERADD_OPTIONS="--system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
-		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="--gid $SETUP_GID $USERADD_OPTIONS"
+		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="--gid $SETUP_GID $USERADD_OPTIONS" && GROUPADD_OPTIONS="--gid $SETUP_GID"
+
+		# adduser needs a valid group to add the user to
+		! nx_group_exists && addgroup --system --quiet $GROUPADD_OPTIONS nx
 		adduser $USERADD_OPTIONS nx
+		
 	# no, its a "normal" useradd
 	else
 		USERADD_OPTIONS="-d $NX_HOME_DIR -s $PATH_BIN/nxserver"
-		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS"
+		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS" && GROUPADD_OPTIONS="-g $SETUP_GID"
+
 		# uid specified?
 		if [ -n "$SETUP_UID" ]
 		then
 			USERADD_OPTIONS="-u $SETUP_UID $USERADD_OPTIONS"
+		
 		# Is it a SuSE?
 		elif [ -f /etc/SuSE-release ]
 		then
 			USERADD_OPTIONS="-r $USERADD_OPTIONS"
 		fi
-
+		
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
-			[ -n "$SETUP_GID" ] && /usr/sbin/lgroupadd -g $SETUP_GID nx
+			! nx_group_exists && lgroupadd $GROUPADD_OPTIONS nx 
 			luseradd $USERADD_OPTIONS nx
 		else
+			! nx_group_exists && groupadd $GROUPADD_OPTIONS nx
 			useradd $USERADD_OPTIONS nx
 		fi
 
