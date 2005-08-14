@@ -369,8 +369,10 @@ uninstall_nx()
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
 			luserdel nx
+			lgroupdel nx
 		else
 			userdel nx
+			groupdel nx
 		fi
 			
 		echo "done"
