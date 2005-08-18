@@ -1,7 +1,7 @@
 *****.2005 FreeNX 0.4.5 ???
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
 	* Added --agent to nxnode/nxserver to allow easier debugging.
-	* Added addgroup/groupadd/delgroup to nxsetup
+	* Added addgroup/groupadd to nxsetup
 
 06.08.2005 FreeNX 0.4.4 "UKUUG Enterprise Edition"
 	* Added ENABLE_1_5_0_BACKEND configuration directive:

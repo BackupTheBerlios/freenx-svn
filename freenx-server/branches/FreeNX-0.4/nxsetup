@@ -148,8 +148,8 @@ useradd_nx()
 	# Is it a debian?
 	if [ -f /etc/debian_version -a -z "$SETUP_UID" ]
 	then
-		USERADD_OPTIONS="--system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
-		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="--gid $SETUP_GID $USERADD_OPTIONS" && GROUPADD_OPTIONS="--gid $SETUP_GID"
+		USERADD_OPTIONS="--ingroup nx --system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
+		[ -n "$SETUP_GID" ] && GROUPADD_OPTIONS="--gid $SETUP_GID"
 
 		# adduser needs a valid group to add the user to
 		! nx_group_exists && addgroup --system --quiet $GROUPADD_OPTIONS nx
@@ -157,8 +157,8 @@ useradd_nx()
 		
 	# no, its a "normal" useradd
 	else
-		USERADD_OPTIONS="-d $NX_HOME_DIR -s $PATH_BIN/nxserver"
-		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS" && GROUPADD_OPTIONS="-g $SETUP_GID"
+		USERADD_OPTIONS="-g nx -d $NX_HOME_DIR -s $PATH_BIN/nxserver"
+		[ -n "$SETUP_GID" ] && GROUPADD_OPTIONS="-g $SETUP_GID"
 
 		# uid specified?
 		if [ -n "$SETUP_UID" ]
@@ -369,10 +369,8 @@ uninstall_nx()
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
 			luserdel nx
-			lgroupdel nx
 		else
 			userdel nx
-			groupdel nx
 		fi
 			
 		echo "done"
