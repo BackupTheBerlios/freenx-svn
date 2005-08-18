@@ -52,7 +52,7 @@ done
 [ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
 [ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
 
-if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" ]
+if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
 then
 	echo "------> You did select no action."
 	echo "        FreeNX guesses that you want to _install_ the"
