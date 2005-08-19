@@ -23,12 +23,14 @@ PURGE="no"
 SETUP_SSH2_KEY="no"
 BUILD_KNOWN_HOSTS="yes"
 AUTOMATIC="no"
+IGNORE_ERRORS="no"
 
 while [ "$1" ]
 do
 	case "$1" in
 		--help) HELP="yes"; shift ;;
 		--install) INSTALL="yes"; shift ;;
+		--ignore-errors) IGNORE_ERRORS="yes"; shift;;
 		--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
 		--ssh2) SETUP_SSH2_KEY="yes"; shift;;
 		--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
@@ -76,6 +78,7 @@ then
 	echo
 	echo "  --help                 Displays this help message"
 	echo "  --install              Install nessesary files and add the nx user"
+	echo "	--ignore-errors	       check false configuration, but don't complain"
 	echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
 	echo "                         client. This is not as secure, but it simplifies the "
 	echo "                         configuration of clients."
@@ -322,7 +325,8 @@ test_nx()
 {
 	echo ""
 	echo "----> Testing your nxserver configuration ..."
-	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check
+	[ "$IGNORE_ERRORS" = "yes" ] && $NO_ERRORS="--ignore-errors"
+	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check $NO_ERRORS
 	echo "<---- done"
 	echo ""
 	echo "----> Testing your nxserver connection ..."

@@ -16,12 +16,14 @@
 HELP="no"
 CHECK="no"
 USERCONF="no"
+NXLCFG_IGNORE_ERRORS="no"
 
 while [ "$1" ]
 do
 	case "$1" in
 		--help) HELP="yes"; shift ;;
 		--check) CHECK="yes"; shift ;;
+		--ignore-errors) NXLCFG_IGNORE_ERRORS="yes"; shift;;
 		--userconf) USERCONF="yes" ; 
 					case "$2" in
 						"" | --*) shift ;;
@@ -39,6 +41,7 @@ then
 	echo "        nxloadconfig [--check] [--userconf [<username>]]"
 	echo
 	echo "  --check                  Write errors to standard output."
+	echo "	--ignore-errors		 just warn, and don't exit with a error, if errors occure"
 	echo "  --userconf [<username>]  Parse <username>.node.conf as well as node.conf."
 	echo "                           Assume current user if no username is specified."
 	exit 0
@@ -518,7 +521,7 @@ then
 		echo "  Errors occured during config check."
 		echo "  Please correct the configuration file."
 		echo
-		exit 1
+		[ "$NXLCFG_IGNORE_ERRORS" = "no" ] && echo $NXLCFG_IGNORE_ERRORS exit1 && exit 1 || exit 0
 	elif [ "$WARNING" = "yes" ]
 	then
 		echo
