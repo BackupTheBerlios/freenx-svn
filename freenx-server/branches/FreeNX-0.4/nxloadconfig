@@ -521,7 +521,7 @@ then
 		echo "  Errors occured during config check."
 		echo "  Please correct the configuration file."
 		echo
-		[ "$NXLCFG_IGNORE_ERRORS" = "no" ] && echo $NXLCFG_IGNORE_ERRORS exit1 && exit 1 || exit 0
+		[ "$NXLCFG_IGNORE_ERRORS" = "no" ] && exit 1 || exit 0
 	elif [ "$WARNING" = "yes" ]
 	then
 		echo
