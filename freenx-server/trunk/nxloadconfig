@@ -16,12 +16,14 @@
 HELP="no"
 CHECK="no"
 USERCONF="no"
+NXLCFG_IGNORE_ERRORS="no"
 
 while [ "$1" ]
 do
 	case "$1" in
 		--help) HELP="yes"; shift ;;
 		--check) CHECK="yes"; shift ;;
+		--ignore-errors) NXLCFG_IGNORE_ERRORS="yes"; shift;;
 		--userconf) USERCONF="yes" ; 
 					case "$2" in
 						"" | --*) shift ;;
@@ -39,6 +41,7 @@ then
 	echo "        nxloadconfig [--check] [--userconf [<username>]]"
 	echo
 	echo "  --check                  Write errors to standard output."
+	echo "	--ignore-errors		 just warn, and don't exit with a error, if errors occure"
 	echo "  --userconf [<username>]  Parse <username>.node.conf as well as node.conf."
 	echo "                           Assume current user if no username is specified."
 	exit 0
@@ -260,6 +263,19 @@ then
 	
 	[ ! -d "$PATH_BIN" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"PATH_BIN=$PATH_BIN\""
+	# Check for NX agents ...
+	
+	[ ! -f "$PATH_BIN/nxagent" ] && \
+		ERROR="yes" && echo "Error: Could not find nxagent in $PATH_BIN. Please install some OSS components."
+		
+	[ ! -f "$PATH_BIN/nxdesktop" ] && \
+		WARNING="yes" && echo "Warning: Could not find nxdesktop in $PATH_BIN. RDP sessions won't work."
+		
+	[ ! -f "$PATH_BIN/nxviewer" ] && \
+		WARNING="yes" && echo "Warning: Could not find nxviewer in $PATH_BIN. VNC sessions won't work."
+
+	# Check for paths
+		
 	[ ! -d "$PATH_LIB" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"PATH_LIB=$PATH_LIB\""
 	[ ! -d "$NX_ETC_DIR" ] && \
@@ -469,6 +485,18 @@ then
 
 	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
+		
+	[ -z $(echo "$ENABLE_1_5_0_BACKEND" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_1_5_0_BACKEND=$ENABLE_1_5_0_BACKEND\""
+		
+	[ "$ENABLE_ROOTLESS_MODE" = "1" -a "$ENABLE_1_5_0_BACKEND" = "0" ] && \
+		ERROR="yes" && echo "Error: Rootless mode can just be used with 1.5.0 backend."
+
+	[ "$ENABLE_1_5_0_BACKEND" = "1" -a -z "$(strings $PATH_BIN/nxagent | grep 'NXAGENT - Version 1.5.0')" ] && \
+		ERROR="yes" && echo "Error: Could not find 1.5.0 version string in nxagent. NX 1.5.0 backend option must be used with 1.5.0 OSS components."
+
+	[ "$ENABLE_1_5_0_BACKEND" = "0" -a -n "$(strings $PATH_BIN/nxagent | grep 'NXAGENT - Version 1.5.0')" ] && \
+		WARNING="yes" && echo "Warning: 1.5.0 OSS components found, but ENABLE_1_5_0 backend option is not set."
 
 	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""
@@ -495,6 +523,7 @@ then
 		echo "  Errors occured during config check."
 		echo "  Please correct the configuration file."
 		echo
+		[ "$NXLCFG_IGNORE_ERRORS" = "no" ] && exit 1 || exit 0
 	elif [ "$WARNING" = "yes" ]
 	then
 		echo

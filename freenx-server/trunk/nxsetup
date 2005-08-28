@@ -22,12 +22,15 @@ UNINSTALL="no"
 PURGE="no"
 SETUP_SSH2_KEY="no"
 BUILD_KNOWN_HOSTS="yes"
+AUTOMATIC="no"
+IGNORE_ERRORS="no"
 
 while [ "$1" ]
 do
 	case "$1" in
 		--help) HELP="yes"; shift ;;
 		--install) INSTALL="yes"; shift ;;
+		--ignore-errors) IGNORE_ERRORS="yes"; shift;;
 		--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
 		--ssh2) SETUP_SSH2_KEY="yes"; shift;;
 		--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
@@ -37,6 +40,7 @@ do
 		--clean) CLEAN="yes"; shift ;;
 		--uninstall) UNINSTALL="yes"; shift ;;
 		--purge) PURGE="yes"; shift ;;
+		--auto) AUTOMATIC="yes"; shift ;;
 		--) shift ; break ;;
 		*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
 	esac
@@ -45,11 +49,25 @@ done
 #Check for invalid combinations:
 [ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
-[ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
 [ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
+
+if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
+then
+	echo "------> You did select no action."
+	echo "        FreeNX guesses that you want to _install_ the"
+	echo "        server."
+	echo "        Use --help to get help contents."
+	echo ""
+	echo -n "Do you want to abort now? [y/N] "
+	read -n 1 CHOICE
+	echo
+	[ "$CHOICE" = "y" ] || INSTALL="yes"
+fi
+
+[ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
 
 if [ "$HELP" = "yes" ]
 then
@@ -60,6 +78,7 @@ then
 	echo
 	echo "  --help                 Displays this help message"
 	echo "  --install              Install nessesary files and add the nx user"
+	echo "	--ignore-errors	       check false configuration, but don't complain"
 	echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
 	echo "                         client. This is not as secure, but it simplifies the "
 	echo "                         configuration of clients."
@@ -87,6 +106,18 @@ then
 	exit 1
 fi
 
+if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
+then
+	echo "------> It is recommended that you use the NoMachine key for"
+	echo "        easier setup. At the moment FreeNX would create a custom"
+	echo "        KeyPair and expect you to setup your clients manually. "
+	echo ""
+	echo -n "        Do you really want to use your own keys? [y/N] "
+	read -n 1 CHOICE
+	[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
+fi
+
+
 # Read the config file
 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
 
@@ -97,6 +128,16 @@ nx_user_exists()
 		egrep "^nx:" /etc/passwd >/dev/null
 	else
 		getent passwd nx >/dev/null
+	fi
+}	
+nx_group_exists()
+{
+	# useradd/adduser need a valid group to add the user to
+	if [ "$SETUP_LOCAL_USER" = "yes" ]
+	then
+		egrep "^nx:" /etc/group >/dev/null
+	else
+		getent group nx >/dev/null
 	fi
 }	
 
@@ -110,28 +151,35 @@ useradd_nx()
 	# Is it a debian?
 	if [ -f /etc/debian_version -a -z "$SETUP_UID" ]
 	then
-		USERADD_OPTIONS="--system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
-		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="--gid $SETUP_GID $USERADD_OPTIONS"
+		USERADD_OPTIONS="--ingroup nx --system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
+		[ -n "$SETUP_GID" ] && GROUPADD_OPTIONS="--gid $SETUP_GID"
+
+		# adduser needs a valid group to add the user to
+		! nx_group_exists && addgroup --system --quiet $GROUPADD_OPTIONS nx
 		adduser $USERADD_OPTIONS nx
+		
 	# no, its a "normal" useradd
 	else
-		USERADD_OPTIONS="-d $NX_HOME_DIR -s $PATH_BIN/nxserver"
-		[ -n $SETUP_GID ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS"
+		USERADD_OPTIONS="-g nx -d $NX_HOME_DIR -s $PATH_BIN/nxserver"
+		[ -n "$SETUP_GID" ] && GROUPADD_OPTIONS="-g $SETUP_GID"
+
 		# uid specified?
 		if [ -n "$SETUP_UID" ]
 		then
 			USERADD_OPTIONS="-u $SETUP_UID $USERADD_OPTIONS"
+		
 		# Is it a SuSE?
 		elif [ -f /etc/SuSE-release ]
 		then
 			USERADD_OPTIONS="-r $USERADD_OPTIONS"
 		fi
-
+		
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
-			[ -n "$SETUP_GID" ] && /usr/sbin/lgroupadd -g $SETUP_GID nx
+			! nx_group_exists && lgroupadd $GROUPADD_OPTIONS nx 
 			luseradd $USERADD_OPTIONS nx
 		else
+			! nx_group_exists && groupadd $GROUPADD_OPTIONS nx
 			useradd $USERADD_OPTIONS nx
 		fi
 
@@ -197,7 +245,7 @@ install_nx()
 	mkdir -p $NX_HOME_DIR/.ssh
 	chmod 700 $NX_HOME_DIR/ $NX_HOME_DIR/.ssh
 	
-	if [ ! -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ]
+	if [ ! -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS -o "$SETUP_NOMACHINE_KEY" = "yes" ]
 	then
 		SETUP_NX_KEY="yes"
 		if [ "$SETUP_NOMACHINE_KEY" = "yes" ]
@@ -206,6 +254,21 @@ install_nx()
 no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command="$PATH_BIN/nxserver" ssh-dss AAAAB3NzaC1kc3MAAACBAJe/0DNBePG9dYLWq7cJ0SqyRf1iiZN/IbzrmBvgPTZnBa5FT/0Lcj39sRYt1paAlhchwUmwwIiSZaON5JnJOZ6jKkjWIuJ9MdTGfdvtY1aLwDMpxUVoGwEaKWOyin02IPWYSkDQb6cceuG9NfPulS9iuytdx0zIzqvGqfvudtufAAAAFQCwosRXR2QA8OSgFWSO6+kGrRJKiwAAAIEAjgvVNAYWSrnFD+cghyJbyx60AAjKtxZ0r/Pn9k94Qt2rvQoMnGgt/zU0v/y4hzg+g3JNEmO1PdHh/wDPVOxlZ6Hb5F4IQnENaAZ9uTZiFGqhBO1c8Wwjiq/MFZy3jZaidarLJvVs8EeT4mZcWxwm7nIVD4lRU2wQ2lj4aTPcepMAAACANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfaQU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3mbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8= root@nettuno
 EOF
 			chmod 600 $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS
+			cat << EOF >$NX_HOME_DIR/.ssh/client.id_dsa.key
+-----BEGIN DSA PRIVATE KEY-----
+MIIBuwIBAAKBgQCXv9AzQXjxvXWC1qu3CdEqskX9YomTfyG865gb4D02ZwWuRU/9
+C3I9/bEWLdaWgJYXIcFJsMCIkmWjjeSZyTmeoypI1iLifTHUxn3b7WNWi8AzKcVF
+aBsBGiljsop9NiD1mEpA0G+nHHrhvTXz7pUvYrsrXcdMyM6rxqn77nbbnwIVALCi
+xFdHZADw5KAVZI7r6QatEkqLAoGBAI4L1TQGFkq5xQ/nIIciW8setAAIyrcWdK/z
+5/ZPeELdq70KDJxoLf81NL/8uIc4PoNyTRJjtT3R4f8Az1TsZWeh2+ReCEJxDWgG
+fbk2YhRqoQTtXPFsI4qvzBWct42WonWqyyb1bPBHk+JmXFscJu5yFQ+JUVNsENpY
++Gkz3HqTAoGANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfa
+QU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3
+mbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8CFDIm1xRf
+8xAPsSKs6yZ6j1FNklfu
+-----END DSA PRIVATE KEY-----
+EOF
+			chmod 600 $NX_HOME_DIR/.ssh/client.id_dsa.key
 		else
 			# generate a new key, backup the old and copy it to $SSH_AUTHORIZED_KEYS
 			$PATH_BIN/nxkeygen
@@ -256,6 +319,49 @@ EOF
 	chown -R nx:root $NX_HOME_DIR
 	chown nx:root "$NX_LOGFILE"
 	echo "done"
+}
+
+test_nx()
+{
+	echo ""
+	echo "----> Testing your nxserver configuration ..."
+	[ "$IGNORE_ERRORS" = "yes" ] && $NO_ERRORS="--ignore-errors"
+	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check $NO_ERRORS
+	echo "<---- done"
+	echo ""
+	echo "----> Testing your nxserver connection ..."
+	
+	CONNECTION=""
+	while read -t 3 line
+	do
+		case "$line" in
+			*"HELLO NXSERVER - Version $NX_VERSION"*)
+				CONNECTION="yes"
+			;;
+			*"HELLO NXSERVER - Version"*)
+				echo "Warning: Version Mismatch. Expected $NX_VERSION got: $line."
+				CONNECTION="yes"
+			;;
+			*"NX> 999 Bye"*)
+				break;
+			;;
+		esac
+		echo $line
+	done < <(echo "quit" | ssh -i $NX_HOME_DIR/.ssh/client.id_dsa.key -p "$SSHD_PORT" nx@127.0.0.1 -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" nxserver)
+	if [ -z "$CONNECTION" ]
+	then
+		echo "Fatal error: Could not connect to NX Server."
+		echo 
+		echo "Please check your ssh setup:"
+		echo ""
+		echo "	- Make sure nx is one of the AllowUsers in sshd_config."
+		echo "	- Make sure your sshd allows public key authentication."
+		echo "	- Make sure your sshd is really running on port $SSHD_PORT."
+		echo "	- Make sure your sshd_config AuthorizedKeysFile in sshd_config is set to $SSH_AUTHORIZED_KEYS."
+		exit 1
+	fi
+	echo "<--- done"
+	echo ""
 }
 
 uninstall_nx() 
@@ -316,6 +422,8 @@ then
 	[ "$CLEAN" = "yes" ] && uninstall_nx
 	
 	install_nx
+
+	test_nx
 	
 	echo "Ok, nxserver is ready."
 	echo 
@@ -364,6 +472,8 @@ then
 		echo "         Please replace /usr/NX/share/client.id_dsa.key on all clients you want"
 		echo "         to use with $NX_HOME_DIR/.ssh/client.id_dsa.key"
 		echo "         and protect it accordingly."
+		echo ""
+		echo "         Since 1.5.0 you need to import the correct key via the GUI."
 		echo
 		echo "         If you really want to use the NoMachine key please remove"
 		echo "         '$NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS'"

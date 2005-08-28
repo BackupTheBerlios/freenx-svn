@@ -22,7 +22,7 @@
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
 
-if [ "$1" != "--check" -a "$1" != "--setkey" ]
+if [ "$1" != "--check" -a "$1" != "--setkey" -a "$1" != "--agent" ]
 then 
 	read CMDLINE
 
@@ -861,6 +861,13 @@ case "$1" in
 	;;
 	--check)
 		echo "NX> 716 finished"
+	;;
+	--agent)
+		echo "NX> 716 Starting NX Agent ..."
+		shift
+		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
+		PATH="$PATH:$PATH_BIN" $PATH_BIN/nxagent -name "NX Agent Test - Args: $@" $@
+		echo "NX> 716 NX Agent exited with status: $?"
 	;;
 	--setkey)
 		mkdir -m 700 -p $HOME/.ssh

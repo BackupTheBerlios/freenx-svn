@@ -1403,6 +1403,7 @@ cmd_send()
 
 if [ $UID -ne 0 ]
 then
+	[ "$1" = "--agent" ] && exec $PATH_BIN/nxnode "$@"
 	[ "$1" != "--passwd" ] && cmd_usage
 	cmd_user_passwd
 	exit 0

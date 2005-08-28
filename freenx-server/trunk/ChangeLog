@@ -2,6 +2,12 @@ XX.08.2005 FreeNX 0.5.0
 	* Opened the 0.5.0 branch.
 	* Added load balancing.
 
+*****.2005 FreeNX 0.4.5 ???
+	* Made nxsetup more user-friendly and hopefully finally failsafe.
+	* Added --agent to nxnode/nxserver to allow easier debugging.
+	* Added addgroup/groupadd to nxsetup
+	* Added --ignore-errors support on nxsetup/nxloadconfig
+
 06.08.2005 FreeNX 0.4.4 "UKUUG Enterprise Edition"
 	* Added ENABLE_1_5_0_BACKEND configuration directive:
 		* Fixed fullscreen support in nxdesktop (still feels more like
