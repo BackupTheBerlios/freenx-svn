@@ -464,7 +464,12 @@ then
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_CUPSD=$COMMAND_CUPSD\"" \
 					  && echo "         Users will not be able to enable printing."
 	! which "$COMMAND_MD5SUM" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Warning: Invalid value \"COMMAND_MD5SUM=$COMMAND_MD5SUM\""
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_MD5SUM=$COMMAND_MD5SUM\""
+
+	# Check for expect
+	COMMAND_EXPECT=$(head -n1 $PATH_BIN/nxnode-login | cut -d'!' -f2)
+	! which "$COMMAND_EXPECT" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: expect necessary for $PATH_BIN/nxnode-login could not be found in '$COMMAND_EXPECT'. Please install it or change nxnode-login accordingly."
 
 	# Misc directives
 	
