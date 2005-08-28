@@ -110,6 +110,8 @@ static char *suPath = NULL;
 // disabled: currently not needed. Didn't work reliably.
 // static int isOpenSSH = 0;
 
+static int isNXFish = 0;
+
 #define E(x) ((const char*)remoteEncoding()->encode(x).data())
 
 using namespace KIO;
@@ -145,6 +147,12 @@ int KDE_EXPORT kdemain( int argc, char **argv )
 #endif
     ;
     sigaction(SIGCHLD,&act,NULL);
+
+    if (QString(argv[1])==QString("nxfish")) {
+        // Set NXFish - Mode
+        isNXFish=1;
+        sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("nxfish")));
+    }
 
     fishProtocol slave(argv[2], argv[3]);
     slave.dispatchLoop();
@@ -244,7 +252,7 @@ fishProtocol::fishProtocol(const QCString &pool_socket, const QCString &app_sock
     if (sshPath == NULL) {
         // disabled: currently not needed. Didn't work reliably.
         // isOpenSSH = !system("ssh -V 2>&1 | grep OpenSSH > /dev/null");
-        sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("nxfish")));
+        sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("ssh")));
     }
     if (suPath == NULL) {
         suPath = strdup(QFile::encodeName(KStandardDirs::findExe("su")));
@@ -297,11 +305,11 @@ Connects to a server and logs us in via SSH. Then starts FISH protocol.
 void fishProtocol::openConnection() {
     if (childPid) return;
 
-    /*if (connectionHost.isEmpty())
+    if (connectionHost.isEmpty() && !isNXFish)
     {
        error( KIO::ERR_UNKNOWN_HOST, QString::null );
        return;
-    }*/
+    }
 
     infoMessage(i18n("Connecting..."));
 
@@ -637,9 +645,8 @@ sets connection information for subsequent commands
 void fishProtocol::setHost(const QString & host, int port, const QString & u, const QString & pass){
     QString user(u);
 
-    //local = (host == "localhost" && port == 0);
-
-    local = 0;
+    if (!isNXFish)
+        local = (host == "localhost" && port == 0);
 
     if (port <= 0) port = 0;
     if (user.isEmpty()) user = getenv("LOGNAME");

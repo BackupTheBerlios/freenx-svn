@@ -1,18 +1,18 @@
-kde_module_LTLIBRARIES = kio_nxfish.la
+kde_module_LTLIBRARIES = kio_fish.la
 
 INCLUDES = $(all_includes)
 AM_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 
-kio_nxfish_la_SOURCES = fish.cpp
-kio_nxfish_la_LIBADD = $(LIB_KSYCOCA) #$(LIBUTIL) 
-kio_nxfish_la_LDFLAGS = $(all_libraries) -module $(KDE_PLUGIN)
+kio_fish_la_SOURCES = fish.cpp
+kio_fish_la_LIBADD = $(LIB_KSYCOCA) #$(LIBUTIL) 
+kio_fish_la_LDFLAGS = $(all_libraries) -module $(KDE_PLUGIN)
 noinst_HEADERS = fishcode.h fish.h
 
 EXTRA_DIST = AUTHORS COPYING ChangeLog INSTALL README TODO FAQ fish.pl
 
 DISTCLEANFILES = fishcode.h
 
-kdelnk_DATA = nxfish.protocol
+kdelnk_DATA = fish.protocol nxfish.protocol
 kdelnkdir = $(kde_servicesdir)
 
 METASOURCES = AUTO

@@ -1,5 +1,5 @@
 [Protocol]
-exec=kio_nxfish
+exec=kio_fish
 protocol=nxfish
 input=none
 output=filesystem
@@ -11,7 +11,7 @@ deleting=true
 linking=true
 moving=true
 Icon=remote
-Description=A kioslave for the FISH protocol
+Description=A kioslave for the NXFISH protocol
 Description[bn]=ফিশ (FISH) প্রোটোকল-এর জন্য একটি kioslave
 Description[bs]=kioslave za FISH protokol
 Description[ca]=Un kioslave pel protocol FISH
