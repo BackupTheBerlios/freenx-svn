@@ -148,10 +148,9 @@ int KDE_EXPORT kdemain( int argc, char **argv )
     ;
     sigaction(SIGCHLD,&act,NULL);
 
-    if (QString(argv[1])==QString("nxfish")) {
+    if (qstrcmp(argv[1],"nxfish")==0) {
         // Set NXFish - Mode
         isNXFish=1;
-        sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("nxfish")));
     }
 
     fishProtocol slave(argv[2], argv[3]);
@@ -252,7 +251,10 @@ fishProtocol::fishProtocol(const QCString &pool_socket, const QCString &app_sock
     if (sshPath == NULL) {
         // disabled: currently not needed. Didn't work reliably.
         // isOpenSSH = !system("ssh -V 2>&1 | grep OpenSSH > /dev/null");
-        sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("ssh")));
+	if (isNXFish)
+            sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("nxfish")));
+	else
+            sshPath = strdup(QFile::encodeName(KStandardDirs::findExe("ssh")));
     }
     if (suPath == NULL) {
         suPath = strdup(QFile::encodeName(KStandardDirs::findExe("su")));
