@@ -349,11 +349,7 @@
 #NODE_AUTOSTART=""
 
 # When set to 1 will start nxagent in rootless mode.
-#ENABLE_ROOTLESS_MODE="0"
-
-# When set to 1 enables fake cookie authentication, when a 1.5.0 client 
-# connects.
-#ENABLE_1_5_0_BACKEND="0"
+#ENABLE_ROOTLESS_MODE="1"
 
 # If enabled writes entries via the COMMAND_SESSREG program
 # into utmp/wtmp/lastlog database.

@@ -236,7 +236,7 @@ node_start_agent()
 	[ "$virtualdesktop" = "0" ] && R="-R"
 	vncfullscreen=""
 	[ "$geometry" = "fullscreen" -a "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
-	[ "$geometry" = "fullscreen" -a "$type" = "windows" -a "$ENABLE_1_5_0_BACKEND" = "1" ] && G="-geometry `echo $screeninfo | cut -d"x" -f1,2`"
+	[ "$geometry" = "fullscreen" -a "$type" = "windows" ] && G="-geometry `echo $screeninfo | cut -d"x" -f1,2`"
 
 	if [ "$type" = "windows" ]
 	then
@@ -499,8 +499,7 @@ node_start_monitor()
 		if stringinstring "Info: End of session requested by " "$line" && [ "$RECONNECT" = "0" ] && ! stringinstring "'SIGHUP'" "$line"
 		then
 			echo "NX> 1009 Session status: terminating"
-			[ "$ENABLE_1_5_0_BACKEND" = "1" ] || kill $PROXY_PID 2>/dev/null
-			[ "$ENABLE_1_5_0_BACKEND" = "1" ] && kill -HUP $PROXY_PID 2>/dev/null
+			kill -HUP $PROXY_PID 2>/dev/null
 		fi
 		
 		TERM=""
@@ -636,18 +635,13 @@ node_startsession()
 	agent_domain=$(getparam agent_domain)
 	screeninfo=$(getparam screeninfo)
 
-	if [ "$ENABLE_1_5_0_BACKEND" = "1" ]
-	then
-		rdpcolors=$(getparam rdpcolors)
-		rdpcache=$(getparam rdpcache)
-	else
-		unset rdpcolors rdpcache
-	fi
+	rdpcolors=$(getparam rdpcolors)
+	rdpcache=$(getparam rdpcache)
 	
 	clientproto=$(getparam clientproto)
 
 	fullscreen=""
-	[ "$geometry" = "fullscreen" -a "$ENABLE_1_5_0_BACKEND" = "1" ] && fullscreen="1"
+	[ "$geometry" = "fullscreen" ] && fullscreen="1"
 
 	[ "$EXPORT_USERIP" = "1" ] && export NXUSERIP="$userip"
 
@@ -679,7 +673,7 @@ node_startsession()
 	
 	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | $COMMAND_MD5SUM | cut -d" " -f1)
 
-	if [ "$ENABLE_1_5_0_BACKEND" = "1" -a "$clientproto" = "1.5.0" ]
+	if [ "$clientproto" = "1.5.0" ]
 	then
 		# enable fake cookie authentication
 		cookie=$proxy_cookie
