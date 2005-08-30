@@ -1,0 +1,5 @@
+Malaga, 30th August, aKademy conference,
+
+The FreeNX team is proud to present the 5th release of the 0.4 tree.
+
+This release removes common pitfalls
