@@ -56,6 +56,8 @@ cp -a freenx*/nxsetup ${NXPREFIX}/bin
 cp -a freenx*/nxkeygen ${NXPREFIX}/bin
 cp -a freenx*/nxnode-login ${NXPREFIX}/bin
 cp -a freenx*/nxloadconfig ${NXPREFIX}/bin
+cp -a freenx*/nxprint ${NXPREFIX}/bin
+cp -a freenx*/nxclient ${NXPREFIX}/bin
 
 # config file
 cp -a freenx*/node.conf.sample ${NXPREFIX}/etc/
@@ -63,3 +65,5 @@ cp -a freenx*/node.conf.sample ${NXPREFIX}/etc/
 You should also install the nxclient from NoMachine or also copy the nxclient program from freenx. 
 
 Then you need to run 'nxsetup --install' and follow the instructions given.
+
+If you use 1.5.0 as backend be sure to set ENABLE_1_5_0_BACKEND to 1 in node.conf or nxloadconfig.
