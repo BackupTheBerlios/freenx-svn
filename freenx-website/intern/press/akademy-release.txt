@@ -1,5 +1,22 @@
+This annoucement tries to follow the "Marketing for Geeks" guide, which was recently showcasted by Aaron and Waldo on akademy 2005 KDE conference. 
+
 Malaga, 30th August, aKademy conference,
 
-The FreeNX team is proud to present the 5th release of the 0.4 tree.
+The FreeNX team is proud to release a new version of the remote desktop access server software FreeNX.
 
-This release removes common pitfalls
+This release features for you:
+
+* Easiest installation ever
+
+* Work better, faster, and more colorful (NX 1.5.0)
+	* Resizable Desktop.
+	* Fast single application mode.
+	* Truecolor Windows Sessions.
+
+* Use it in restricted environments
+
+* Easily get help for your problems
+
+* First official FreeNX background picture
+
+* 
