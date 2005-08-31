@@ -35,6 +35,8 @@ KDE/Konqueror developer Daniel Teske says: "It was easy to install, easy to use 
 
 Stephan Kulow was using it since day 2 of aKademy: "I was working in my company all day long once I had it installed".
 
+Martin Konold says: "The NX4Myhome will help FreeNX to conquer the market of ssh-X. FreeNX is just so much faster. I compared the output of a big textfile via cat, NX was 3 times as fast as a normal ssh connection."
+
 [FIXME: More statements?]
 
 Now let us give you some details about the new release:
