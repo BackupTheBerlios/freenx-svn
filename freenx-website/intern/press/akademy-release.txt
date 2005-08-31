@@ -17,6 +17,93 @@ This release features for you:
 
 * Easily get help for your problems
 
+* Better support for big corporate environments
+
+* Lots of bugfixes, more stability and improved security
+
+And last but not least:
+
+THE
+
 * First official FreeNX background picture
 
-* 
+What customers say about FreeNX at aKademy:
+
+""
+
+""
+
+Now let us give you some details about the new release:
+
+Easiest installation ever
+-------------------------
+
+The setup program of FreeNX 0.4.5 is now interactive, checks for a correct configuration, automatic self-tests and a help system were added.
+
+Important changes:
+
+* nxsetup is now interactive. Use --auto to disable this.
+* NoMachine key is now the default, but the user still has to confirm it.
+  [FIXME]
+* nxsetup checks for a correct configuration file. Use --ignore-errors to continue nxsetup even when the check fails.
+* If the automatic self-test fails nxsetup reminds the user of some common pitfalls.
+
+Work better, faster, and more colorful (NX 1.5.0)
+-------------------------------------------------
+
+FreeNX 0.4.5 has full support for the most important 1.5.0 features.
+
+Your virtual Desktop is now resizable. Just drag the borders and if you want to switch to/from fullscreen mode just press Ctrl+Alt+F.
+
+FreeNX 0.4.5 supports the fast single application mode. To enable this feature, set ENABLE_ROOTLESS_MODE="1" in node.conf. From your client select a Unix-Custom "Floating windows" session and booh: You are up and running remote applications blazingly fast. 
+
+Truecolor Windows Sessions are now supported by FreeNX. Just use the 1.5.0 client and select from the Display-box "Use custom settings, Modify, Allowed Colors '16M'".
+
+Use FreeNX in restricted environments
+---------------------------------
+
+Imagine the following scenario:
+
+You have a really nice remote access to a machine in your company and you would love to use FreeNX to do your everyday work. But the problem is: You do not have root access and so you can't use it. FreeNX 0.4.5 enables you do to it nevertheless.
+
+You can install FreeNX 0.4.5 in a special mode to access it directly via your user account. The only problem remaining is patching the client and setting it all up.
+
+Fux has explained this in detail in a howto available from:
+
+http://openfacts.berlios.de/index-en.phtml?title=FreeNX_Howto
+
+FreeNX plans to ship ready-made plug-and-play binary distributions of NX4MyHome as soon as all tests are finished.
+
+Easily get help for your problems
+---------------------------------
+
+We have several scenarios that come up over and over again. There are many different distributions all doing things a bit different. But you can't give "test this" and "test that" instructions without knowing a lot about the environment of the user.
+
+For example starting up nxagent over a ssh -X connection to test if the basic functionality works can now be done via:
+
+nxserver --agent :1000
+
+instead of:
+
+LD_LIBRARY_PATH=/where/nx/libs/live /where/nxagent/is :1000
+
+Better support for big corporate environments
+---------------------------------------------
+
+Thanks to the help of Google and Cisco employees FreeNX does now work also in environments where you have 1000ths of users.
+
+Technically speaking: getent does no longer retrieve the whole database and grep through it, but directly query for the information needed.
+
+Lots of bugfixes, more stability and improved security
+------------------------------------------------------
+
+
+
+And last but not least:
+
+THE
+
+First official FreeNX background picture
+----------------------------------------
+
+This release
