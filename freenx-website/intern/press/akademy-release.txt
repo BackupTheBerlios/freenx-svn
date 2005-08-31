@@ -27,18 +27,22 @@ THE
 
 * First official FreeNX background picture
 
-What customers say about FreeNX at aKademy:
+What customers say about FreeNX at aKademy in Malaga, Spain:
 
-""
+[FIXME: Approve those two statements]
 
-""
+KDE/Konqueror developer Daniel Teske says: "It was easy to install, easy to use and it is blazingly fast. I was working here from Spain on my home machine in Germany without any problems."
+
+Stephan Kulow was using it since day 2 of aKademy: "I was working in my company all day long once I had it installed".
+
+[FIXME: More statements?]
 
 Now let us give you some details about the new release:
 
 Easiest installation ever
 -------------------------
 
-The setup program of FreeNX 0.4.5 is now interactive, checks for a correct configuration, automatic self-tests and a help system were added.
+The setup program of FreeNX 0.4.5 is now interactive, checks for a correct configuration and has automatic self-tests and a help system.
 
 Important changes:
 
@@ -60,7 +64,7 @@ FreeNX 0.4.5 supports the fast single application mode. To enable this feature, 
 Truecolor Windows Sessions are now supported by FreeNX. Just use the 1.5.0 client and select from the Display-box "Use custom settings, Modify, Allowed Colors '16M'".
 
 Use FreeNX in restricted environments
----------------------------------
+-------------------------------------
 
 Imagine the following scenario:
 
@@ -87,18 +91,34 @@ instead of:
 
 LD_LIBRARY_PATH=/where/nx/libs/live /where/nxagent/is :1000
 
+It should now be a lot easier to give advise.
+
 Better support for big corporate environments
 ---------------------------------------------
 
-Thanks to the help of Google and Cisco employees FreeNX does now work also in environments where you have 1000ths of users.
+Thanks to the help of Google and Cisco employees FreeNX does now work also in environments where you have 1000 users or more.
 
 Technically speaking: getent does no longer retrieve the whole database and grep through it, but directly query for the information needed.
 
 Lots of bugfixes, more stability and improved security
 ------------------------------------------------------
 
+We also again had several bugfixes:
 
+	* Fixed support for CUPS forwarding.
+	* Fixed resume with 1.5.0 client.
 
+Stability has been increased in the following fields:
+
+	* Reconnection support. (Yes, again)
+
+Security issues / concerns have been fixed regarding the following topics:
+
+        * Certain passwords for VNC/RDP could have been visible via `ps aux`.
+	* Privacy of passwords is assured. They are no longer shown in log files or re-transmitted to the client.
+	* $USER_FAKE_HOME/.nx is now protected.
+	* The client is no longer able to overwrite parameters set by the server.
+ 
 And last but not least:
 
 THE
@@ -106,4 +126,10 @@ THE
 First official FreeNX background picture
 ----------------------------------------
 
-This release
+This release for the first time features a really nice background picture. Show your appreciation of FreeNX and use it on one of your desktops as a background. 
+
+Whenever you show off FreeNX, be sure to use it and spread the word!
+
+For the FreeNX team,
+
+Fabian
