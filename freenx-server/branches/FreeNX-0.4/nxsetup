@@ -325,7 +325,7 @@ test_nx()
 {
 	echo ""
 	echo "----> Testing your nxserver configuration ..."
-	[ "$IGNORE_ERRORS" = "yes" ] && $NO_ERRORS="--ignore-errors"
+	[ "$IGNORE_ERRORS" = "yes" ] && NO_ERRORS="--ignore-errors"
 	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check $NO_ERRORS
 	echo "<---- done"
 	echo ""
