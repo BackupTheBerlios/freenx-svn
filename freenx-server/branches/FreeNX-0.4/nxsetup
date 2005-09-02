@@ -57,11 +57,12 @@ done
 if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
 then
 	echo "------> You did select no action."
-	echo "        FreeNX guesses that you want to _install_ the"
-	echo "        server."
-	echo "        Use --help to get help contents."
+	echo "        FreeNX guesses that you want to _install_ the server."
+	echo "        Type \"y\" to abort the installation at this point in time."
+	echo "        \"N\" is the default and continues installation."
+	echo "        Use \"${0} --help\" to get more detailed help hints."
 	echo ""
-	echo -n "Do you want to abort now? [y/N] "
+	echo -n " Do you want to abort now? [y/N] "
 	read -n 1 CHOICE
 	echo
 	[ "$CHOICE" = "y" ] || INSTALL="yes"
@@ -76,22 +77,26 @@ then
 	echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
 	echo "        nxsetup --uninstall [--purge]"
 	echo
-	echo "  --help                 Displays this help message"
-	echo "  --install              Install nessesary files and add the nx user"
-	echo "	--ignore-errors	       check false configuration, but don't complain"
+	echo "  --help                 Display this help message."
+	echo "  --install              Install necessary files and add the special user \"nx\"."
+	echo "  --ignore-errors        Check for false configuration, but don't complain."
 	echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
-	echo "                         client. This is not as secure, but it simplifies the "
-	echo "                         configuration of clients."
+	echo "                         client. This is fairly secure, and it simplifies the "
+	echo "                         configuration of clients. (Using a custom key pair."
+	echo "                         increases security even more, but complicates the"
+	echo "                         configuration of clients.)"
 	echo "                         Use this option at your own risk."
-	echo "  --ssh2		       Additionally create commercial pubkey-support, beware"
-	echo "			       own _commercial_ ssh2-key is not supported!."
-	echo "  --uid <number>         The nx user will be given the uid <number>."
-	echo "  --gid <number>         The nx user will be given the gid <number>."
+	echo "  --ssh2                 Create additionally commercial pubkey-support; beware:"
+	echo "                         own _commercial_ ssh2-key is not supported!"
+	echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
+	echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
 	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The nx user will be created locally using luseradd, for use in NIS and NISplus environments."
-	echo "  --clean                Performs an uninstall prior to the installation"
-	echo "  --uninstall            Remove log and session files, as well as the nx user"
-	echo "  --purge                Uninstall will remove extra configuration files and ssh"
-	echo "                         keys as well. Note that node.conf will always be saved."
+	echo "  --clean                Perform an uninstallation prior to installation."
+	echo "  --uninstall            Remove log and session files, as well as the special"
+	echo "                         user \"nx\"."
+	echo "  --purge                Remove extra configuration files and ssh keys when"
+	echo "                         performing a \"--uninstall\"."
+	echo "                         Note that node.conf will always be saved."
 	exit 0
 fi
 #Undocumented
@@ -109,10 +114,11 @@ fi
 if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
 then
 	echo "------> It is recommended that you use the NoMachine key for"
-	echo "        easier setup. At the moment FreeNX would create a custom"
-	echo "        KeyPair and expect you to setup your clients manually. "
+	echo "        easier setup. If you answer \"y\", FreeNX creates a custom"
+	echo "        KeyPair and expects you to setup your clients manually. "
+	echo "        \"N\" is default and uses the NoMachine key for installation."
 	echo ""
-	echo -n "        Do you really want to use your own keys? [y/N] "
+	echo -n " Do you want to use your own custom KeyPair? [y/N] "
 	read -n 1 CHOICE
 	[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
 fi
