@@ -90,7 +90,9 @@ then
 	echo "                         own _commercial_ ssh2-key is not supported!"
 	echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
 	echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
-	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The special user \"nx\" will be created locally using luseradd, for use in NIS and NISplus environments."
+	[ -n "$LOCAL_USER_OPTION" ] && \
+	echo "  --localuser            The special user \"nx\" will be created locally using"
+	echo "                         \"luseradd\", for use in NIS and NISplus environments."
 	echo "  --clean                Perform an uninstallation prior to installation."
 	echo "  --uninstall            Remove log and session files, as well as the special"
 	echo "                         user \"nx\"."
