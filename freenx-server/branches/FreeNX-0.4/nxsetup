@@ -90,7 +90,7 @@ then
 	echo "                         own _commercial_ ssh2-key is not supported!"
 	echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
 	echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
-	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The nx user will be created locally using luseradd, for use in NIS and NISplus environments."
+	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The special user \"nx\" will be created locally using luseradd, for use in NIS and NISplus environments."
 	echo "  --clean                Perform an uninstallation prior to installation."
 	echo "  --uninstall            Remove log and session files, as well as the special"
 	echo "                         user \"nx\"."
@@ -232,7 +232,7 @@ install_nx()
 	
 	if ! nx_user_exists
 	then
-		echo -n "Setting up user nx ..."
+		echo -n "Setting up special user \"nx\" ..."
 		useradd_nx
 		echo "done"
 	fi
@@ -360,7 +360,7 @@ test_nx()
 		echo 
 		echo "Please check your ssh setup:"
 		echo ""
-		echo "	- Make sure nx is one of the AllowUsers in sshd_config."
+		echo "	- Make sure \"nx\" is one of the AllowUsers in sshd_config."
 		echo "	- Make sure your sshd allows public key authentication."
 		echo "	- Make sure your sshd is really running on port $SSHD_PORT."
 		echo "	- Make sure your sshd_config AuthorizedKeysFile in sshd_config is set to $SSH_AUTHORIZED_KEYS."
@@ -374,7 +374,7 @@ uninstall_nx()
 {
 	if nx_user_exists
 	then
-		echo -n "Removing user nx ..."
+		echo -n "Removing special user \"nx\" ..."
 		
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
@@ -404,7 +404,7 @@ uninstall_nx()
 	
 	if [ "$PURGE" = "yes" -a -e "$NX_HOME_DIR" ]
 	then
-		echo -n "Removing nx home directory ..."
+		echo -n "Removing home directory of special user \"nx\" ..."
 		rm -f -r "$NX_HOME_DIR" 2>/dev/null
 		rmdir -p $(dirname "$NX_HOME_DIR") 2>/dev/null
 		echo "done"
@@ -439,8 +439,8 @@ then
 		if [ "$ENABLE_USER_DB" = "1" ]
 		then
 			echo "  Users will be able to login with their normal passwords,"
-			echo "  but they have to be registered in the nx database to do so."
-			echo "  To add new users to the nx database do:"
+			echo "  but they have to be registered in the NX database to do so."
+			echo "  To add new users to the NX user database do:"
 			echo "    nxserver --adduser <username>"
 		else
 			echo "  All users will be able to login with their normal passwords."
@@ -461,9 +461,9 @@ then
 		fi
 	else
 		echo "PAM authentication disabled."
-		echo "  Only users in the nx database will be able to log in."
+		echo "  Only users in the NX user database will be able to log in."
 		echo
-		echo "  To add new users to the nx database do:"
+		echo "  To add new users to the NX user database do:"
 		echo "    nxserver --adduser <username>"
 		echo "  Afterwards change the password with:"
 		echo "    nxserver --passwd <username>"
@@ -495,10 +495,10 @@ then
 	echo 
 	if [ "$PURGE" = "yes" ]
 	then
-		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
+		echo "To complete the uninstallation process, remove the FreeNX scripts in $PATH_BIN"
 		echo "and the $NX_ETC_DIR/node.conf configuration file."
 	else
-		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
+		echo "To complete the uninstallation process, remove the FreeNX scripts in $PATH_BIN"
 		echo
 		echo "Configuration files and ssh keys are saved in case you would like to reinstall"
 		echo "freenx at a later time. To remove them, please run 'nxsetup --uninstall --purge'"
