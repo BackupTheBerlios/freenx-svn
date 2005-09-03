@@ -1,4 +1,4 @@
-*****.2005 FreeNX 0.4.5 ???
+0?.09.2005 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
 	* Added --agent to nxnode/nxserver to allow easier debugging.
 	* Added addgroup/groupadd to nxsetup
