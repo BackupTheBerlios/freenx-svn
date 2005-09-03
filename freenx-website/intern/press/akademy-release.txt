@@ -23,13 +23,13 @@ What FreeNX can do for different users -- some real world use cases:
 ====================================================================
 
 * a travelling salesman can access his own desktop (at home or at his
-  offic) from the hotel room, using a modem (or better) connection.
+  office) from the hotel room, using a modem (or better) connection.
 
 * a helpdesk technician can display any GUI application of a LAN user
   to his own screen and help to properly set up its configuration or
   troubleshoot it.
 
-* a university system administrator can set up a cost efficient and
+* a university system administrator can set up a cost efficient
   Linux Desktop Application Server for students to connect to from
   classes or from home.
 
@@ -47,7 +47,7 @@ What parts FreeNX is composed of:
 
 The FreeNX remote desktop server software *requires* the NX Core 
 components developed by NoMachine.com who have released that source
-code under the GPL license. 
+code under the GPL license.
 
 The NoMachine source code needs to be compiled for your platform by 
 yourself or by your Linux distribution so that FreeNX can work. 
@@ -77,7 +77,7 @@ What improvements this release brings to current FreeNX users:
 
 And last but not least:
 
-* FreeNX 0.5.0 ships with the first official FreeNX background picture
+* FreeNX 0.4.5 ships with the first official FreeNX background picture
   (useful as a wallpaper)
 
 
