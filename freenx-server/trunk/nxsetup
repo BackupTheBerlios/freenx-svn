@@ -57,11 +57,12 @@ done
 if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
 then
 	echo "------> You did select no action."
-	echo "        FreeNX guesses that you want to _install_ the"
-	echo "        server."
-	echo "        Use --help to get help contents."
+	echo "        FreeNX guesses that you want to _install_ the server."
+	echo "        Type \"y\" to abort the installation at this point in time."
+	echo "        \"N\" is the default and continues installation."
+	echo "        Use \"${0} --help\" to get more detailed help hints."
 	echo ""
-	echo -n "Do you want to abort now? [y/N] "
+	echo -n " Do you want to abort now? [y/N] "
 	read -n 1 CHOICE
 	echo
 	[ "$CHOICE" = "y" ] || INSTALL="yes"
@@ -76,22 +77,28 @@ then
 	echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
 	echo "        nxsetup --uninstall [--purge]"
 	echo
-	echo "  --help                 Displays this help message"
-	echo "  --install              Install nessesary files and add the nx user"
-	echo "	--ignore-errors	       check false configuration, but don't complain"
+	echo "  --help                 Display this help message."
+	echo "  --install              Install necessary files and add the special user \"nx\"."
+	echo "  --ignore-errors        Check for false configuration, but don't complain."
 	echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
-	echo "                         client. This is not as secure, but it simplifies the "
-	echo "                         configuration of clients."
+	echo "                         client. This is fairly secure, and it simplifies the "
+	echo "                         configuration of clients. (Using a custom key pair."
+	echo "                         increases security even more, but complicates the"
+	echo "                         configuration of clients.)"
 	echo "                         Use this option at your own risk."
-	echo "  --ssh2		       Additionally create commercial pubkey-support, beware"
-	echo "			       own _commercial_ ssh2-key is not supported!."
-	echo "  --uid <number>         The nx user will be given the uid <number>."
-	echo "  --gid <number>         The nx user will be given the gid <number>."
-	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The nx user will be created locally using luseradd, for use in NIS and NISplus environments."
-	echo "  --clean                Performs an uninstall prior to the installation"
-	echo "  --uninstall            Remove log and session files, as well as the nx user"
-	echo "  --purge                Uninstall will remove extra configuration files and ssh"
-	echo "                         keys as well. Note that node.conf will always be saved."
+	echo "  --ssh2                 Create additionally commercial pubkey-support; beware:"
+	echo "                         own _commercial_ ssh2-key is not supported!"
+	echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
+	echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
+	[ -n "$LOCAL_USER_OPTION" ] && \
+	echo "  --localuser            The special user \"nx\" will be created locally using"
+	echo "                         \"luseradd\", for use in NIS and NISplus environments."
+	echo "  --clean                Perform an uninstallation prior to installation."
+	echo "  --uninstall            Remove log and session files, as well as the special"
+	echo "                         user \"nx\"."
+	echo "  --purge                Remove extra configuration files and ssh keys when"
+	echo "                         performing a \"--uninstall\"."
+	echo "                         Note that node.conf will always be saved."
 	exit 0
 fi
 #Undocumented
@@ -109,10 +116,11 @@ fi
 if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
 then
 	echo "------> It is recommended that you use the NoMachine key for"
-	echo "        easier setup. At the moment FreeNX would create a custom"
-	echo "        KeyPair and expect you to setup your clients manually. "
+	echo "        easier setup. If you answer \"y\", FreeNX creates a custom"
+	echo "        KeyPair and expects you to setup your clients manually. "
+	echo "        \"N\" is default and uses the NoMachine key for installation."
 	echo ""
-	echo -n "        Do you really want to use your own keys? [y/N] "
+	echo -n " Do you want to use your own custom KeyPair? [y/N] "
 	read -n 1 CHOICE
 	[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
 fi
@@ -226,7 +234,7 @@ install_nx()
 	
 	if ! nx_user_exists
 	then
-		echo -n "Setting up user nx ..."
+		echo -n "Setting up special user \"nx\" ..."
 		useradd_nx
 		echo "done"
 	fi
@@ -325,7 +333,7 @@ test_nx()
 {
 	echo ""
 	echo "----> Testing your nxserver configuration ..."
-	[ "$IGNORE_ERRORS" = "yes" ] && $NO_ERRORS="--ignore-errors"
+	[ "$IGNORE_ERRORS" = "yes" ] && NO_ERRORS="--ignore-errors"
 	. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --check $NO_ERRORS
 	echo "<---- done"
 	echo ""
@@ -354,7 +362,7 @@ test_nx()
 		echo 
 		echo "Please check your ssh setup:"
 		echo ""
-		echo "	- Make sure nx is one of the AllowUsers in sshd_config."
+		echo "	- Make sure \"nx\" is one of the AllowUsers in sshd_config."
 		echo "	- Make sure your sshd allows public key authentication."
 		echo "	- Make sure your sshd is really running on port $SSHD_PORT."
 		echo "	- Make sure your sshd_config AuthorizedKeysFile in sshd_config is set to $SSH_AUTHORIZED_KEYS."
@@ -368,7 +376,7 @@ uninstall_nx()
 {
 	if nx_user_exists
 	then
-		echo -n "Removing user nx ..."
+		echo -n "Removing special user \"nx\" ..."
 		
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
@@ -398,7 +406,7 @@ uninstall_nx()
 	
 	if [ "$PURGE" = "yes" -a -e "$NX_HOME_DIR" ]
 	then
-		echo -n "Removing nx home directory ..."
+		echo -n "Removing home directory of special user \"nx\" ..."
 		rm -f -r "$NX_HOME_DIR" 2>/dev/null
 		rmdir -p $(dirname "$NX_HOME_DIR") 2>/dev/null
 		echo "done"
@@ -433,8 +441,8 @@ then
 		if [ "$ENABLE_USER_DB" = "1" ]
 		then
 			echo "  Users will be able to login with their normal passwords,"
-			echo "  but they have to be registered in the nx database to do so."
-			echo "  To add new users to the nx database do:"
+			echo "  but they have to be registered in the NX database to do so."
+			echo "  To add new users to the NX user database do:"
 			echo "    nxserver --adduser <username>"
 		else
 			echo "  All users will be able to login with their normal passwords."
@@ -455,9 +463,9 @@ then
 		fi
 	else
 		echo "PAM authentication disabled."
-		echo "  Only users in the nx database will be able to log in."
+		echo "  Only users in the NX user database will be able to log in."
 		echo
-		echo "  To add new users to the nx database do:"
+		echo "  To add new users to the NX user database do:"
 		echo "    nxserver --adduser <username>"
 		echo "  Afterwards change the password with:"
 		echo "    nxserver --passwd <username>"
@@ -489,10 +497,10 @@ then
 	echo 
 	if [ "$PURGE" = "yes" ]
 	then
-		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
+		echo "To complete the uninstallation process, remove the FreeNX scripts in $PATH_BIN"
 		echo "and the $NX_ETC_DIR/node.conf configuration file."
 	else
-		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
+		echo "To complete the uninstallation process, remove the FreeNX scripts in $PATH_BIN"
 		echo
 		echo "Configuration files and ssh keys are saved in case you would like to reinstall"
 		echo "freenx at a later time. To remove them, please run 'nxsetup --uninstall --purge'"
