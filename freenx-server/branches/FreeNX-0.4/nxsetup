@@ -431,7 +431,7 @@ then
 	
 	install_nx
 
-	test_nx
+	[ "$AUTOMATIC" = "no" ] && test_nx
 	
 	echo "Ok, nxserver is ready."
 	echo 
