@@ -88,18 +88,13 @@ KDE/Konqueror developer Daniel Teske says: "It was easy to install,
 easy to use and it is blazingly fast. I was working here from Spain 
 on my home machine in Germany without any problems."
 
-Stephan Kulow (KDE 3.5 Release Coordinator) was using it since Day 2 
-of aKademy: ["I was working in my company all day long once I had it 
-installed".]
-
 Martin Konold (architect of the Kolab groupware server which already 
-successfully replaced several MS Exchange installations) told us this: 
-["The upcoming NX4Myhome which I had the pleasure to preview, will help 
-FreeNX to conquer the market of ssh-X. FreeNX is just so much faster. 
-I compared the output of a big textfile via cat, NX was 3 times as 
-fast than a normal ssh connection."]
-
-[FIXME: More statements?]
+successfully replaced several MS Exchange installations) told us this,
+after having seen a preview of NX4MyHome: "I am deeply impressed by 
+the ease of use and the performance of NX4Myhome. FreeNX manages to 
+do the impossible: it even speeds up command line operations by a 
+factor of three or more while offering the same security as ssh with 
+full suspend and resume functionality."
 
 
 Now let us give you some details about the new release:
@@ -116,13 +111,13 @@ The "nxsetup" program of FreeNX 0.4.5 now...
 
 Important changes compared to previous releases:
 
-* since "nxsetup" is now interactive, there is a "--auto" commandline 
-  parameter to support the old behaviour you may be accustomed to
+* since "nxsetup" is now interactive, we added an "--auto" commandline 
+  parameter to support the old behaviour you may be accustomed to;
 * since "nxsetup" now uses the NoMachine key by default, the user 
-  installing FreeNX has to confirm its use
+  installing FreeNX has to confirm its use;
 * since "nxsetup" now checks for a correct configuration file, there is 
   a "--ignore-errors" commandline parameter to continue nxsetup even 
-  if the check fails
+  if the check fails;
 * since "nxsetup" now runs an automatic self-test, it also reminds the 
   user of some common pitfalls.
 
