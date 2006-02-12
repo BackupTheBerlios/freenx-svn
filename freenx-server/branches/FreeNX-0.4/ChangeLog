@@ -1,9 +1,10 @@
-0?.09.2005 FreeNX 0.4.5 "aKademy Edition"
+xx.02.2006 FreeNX 0.4.5 "Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
 	* Added --agent to nxnode/nxserver to allow easier debugging.
 	* Added addgroup/groupadd to nxsetup
 	* Added --ignore-errors support on nxsetup/nxloadconfig
 	* Added check for expect.
+	* Security: Added timeout for first stage of authentication to prevent DOS.
 
 06.08.2005 FreeNX 0.4.4 "UKUUG Enterprise Edition"
 	* Added ENABLE_1_5_0_BACKEND configuration directive:

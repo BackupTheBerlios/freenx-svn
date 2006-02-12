@@ -475,6 +475,15 @@ fi
 
 echo_x "HELLO NXSERVER - Version $NX_VERSION $NX_LICENSE"
 
+NX_SERVER_TPID=""
+
+if [ -n "$NX_SERVER_TIMEOUT" -a "$NX_SERVER_TIMEOUT" -gt 0 ]
+then
+	(sleep "$NX_SERVER_TIMEOUT"; echo -e "Quit\nNX> 999 Bye"; kill $PPID) &
+	NX_SERVER_TPID="$!"
+	disown $NX_SERVER_TPID
+fi
+
 # Login stage
 while true
 do
@@ -596,6 +605,8 @@ do
 		;;
 	esac
 done
+
+[ -n "$NX_SERVER_TPID" ] && kill $NX_SERVER_TPID
 
 # remove old session infos from history
 session_cleanup

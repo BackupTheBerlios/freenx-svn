@@ -92,6 +92,11 @@
 #    is not provided.
 #SSHD_CHECK_IP="0"
 
+# If set to greater zero, nxserver will timeout after that many seconds
+# before authentication succeeds.
+#
+#NX_SERVER_TIMEOUT="10"
+
 
 #########################################################################
 # Restriction directives
