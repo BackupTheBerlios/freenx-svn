@@ -1,10 +1,11 @@
-XX.XX.2005 FreeNX 0.5.0
+XX.XX.2006 FreeNX 0.5.0
 	* Opened the 0.5.0 branch.
 	* Added load balancing.
 	* Completely removed support for 1.4.0 backend.
 	* Rootless mode is now the default.
+	* Reworked nxnode / suspend on connection failure should work now.
 
-0?.09.2005 FreeNX 0.4.5 "aKademy Edition"
+XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
 	* Added --agent to nxnode/nxserver to allow easier debugging.
 	* Added addgroup/groupadd to nxsetup

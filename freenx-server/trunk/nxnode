@@ -100,7 +100,6 @@ node_terminate_session()
 	
 	# remove cookie
 	$COMMAND_XAUTH -v source $USER_FAKE_HOME/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
-	# FIXME: What to do on errors ... ?
 	[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$1/
 	[ "$SESSION_LOG_CLEAN" = "0" -a "$2" = "failed" ] && mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/F-C-$1/
 	[ "$SESSION_LOG_CLEAN" = "0" -a "$2" != "failed" ] && mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/T-C-$1/
@@ -210,16 +209,15 @@ node_start_applications()
 		[ "$KILL_DEFAULT_X_WM" = "1" ] || wait $WM_PID
 	fi
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
-	node_terminate_agent $sess_id
+	
+	# FIXME: Do not terminate agent!
+	#node_terminate_agent $sess_id
 }
 
 node_start_agent()
 {
 	# close input and output file descriptors
-	exec 0<&-
-	exec 1>&-
-	exec 2>&-
-	
+
 	export DISPLAY="nx/nx,options=$USER_FAKE_HOME/.nx/C-$sess_id/options:$display"
 	export XAUTHORITY="$USER_FAKE_HOME/.nx/C-$sess_id/authority"
 	export HOME="$USER_FAKE_HOME"
@@ -285,12 +283,22 @@ node_start_agent()
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 	echo "$PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/agent
 	wait $PID
+	AGENT_EXIT_STATUS=$?
+	failed=""
+	if [ $AGENT_EXIT_STATUS -ne 0 ]
+	then
+		echo "NX> 1004 Error: NX Agent exited with exit status 1."
+		failed="failed"
+	fi
+	echo "NX> 1006 Session status: closed"
+	
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/agent
-	[ "$type" = "windows" -o "$type" = "vnc" ] && node_terminate_session "$sess_id"
+	node_terminate_session "$sess_id" $failed
+	
 	# remove possible leftovers of nxagent
 	rm -f /tmp/.X$display-lock
 	rm -f /tmp/.X11-unix/X$display
-	[ -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor ] || node_terminate_session "$sess_id"
+	[ -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor ] && kill "$MONITOR_PID"
 }
 
 node_kill_proxy()
@@ -413,12 +421,8 @@ node_emergency_exit()
 node_start_monitor()
 {
 	RUNNING=0
-	RECONNECT=0
 	TAIL_PID=""
-	TIMEOUT_PID=""
 
-	trap node_emergency_exit EXIT
-	
 	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | while read line 
 	do
 		#
@@ -427,71 +431,48 @@ node_start_monitor()
 		if stringinstring "Info: tail -f running with pid" "$line"
 		then
 			TAIL_PID=$(echo $line | cut -d"'" -f2)
-			# now set a timeout of 60 seconds ...
-			( 
-                          sleep 60
-			  if [ -d "$HOME/.nx/C-$sess_id/" ]
-			  then
-		          	echo "NX> 1004 Error: nxagent failed to start. Session timed out."
-			  	echo "                Blocking $display again ..."
-				touch /tmp/.X$display-lock
-			  	mv $HOME/.nx/C-$sess_id/ $HOME/.nx/F-C-$sess_id/ 2>/dev/null
-			  fi
-			  kill $TAIL_PID 2>/dev/null
-			) &
-			TIMEOUT_PID=$!
-			disown $TIMEOUT_PID
+			trap "kill $TAIL_PID" EXIT
 		fi
 
 		#
 		# Detect nxagent syntax errors
 		#
 		
-		SYNTAX=""
+		#SYNTAX=""
 
-		stringinstring "Unrecognized option:" "$line" && SYNTAX="yes"
-		stringinstring "NXAGENT: Fatal IO error on display" "$line" && SYNTAX="yes"
-		stringinstring "NXAGENT: Unable to open display" "$line" && SYNTAX="yes"
-		if [ -n "$SYNTAX" ]
-		then
-			kill $TAIL_PID 2>/dev/null
-			echo "NX> 1004 Error: nxagent failed to start with: $line"
-			[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
-			[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
-			break
-		fi
+		#stringinstring "Unrecognized option:" "$line" && SYNTAX="yes"
+		#stringinstring "NXAGENT: Fatal IO error on display" "$line" && SYNTAX="yes"
+		#stringinstring "NXAGENT: Unable to open display" "$line" && SYNTAX="yes"
+		#if [ -n "$SYNTAX" ]
+		#then
+		#	kill $TAIL_PID 2>/dev/null
+		#	echo "NX> 1004 Error: nxagent failed to start with: $line"
+		#	[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
+		#	[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
+		#	break
+		#fi
 
 		#
-		# Suspending possibilities
+		# Session suspend
 		#
 
-		SUSP=""
-		stringinstring "Info: Reconnection failed" "$line" && echo "NX> 504 $line"
-		stringinstring "Info: Reconnection failed" "$line" && SUSP="yes"
-
-		stringinstring "Info: Suspending session on user request." "$line" && SUSP="yes"
-		stringinstring "Error: Connection with remote peer broken." "$line" && SUSP="yes"
-		
-		if [ -n "$SUSP" ]
+		if stringinstring "Info: Session suspended." "$line"
 		then
-			kill $TAIL_PID 2>/dev/null
-			echo "NX> 1005 Session status: suspended"
-			kill -HUP $PROXY_PID 2>/dev/null
-			sleep 2
-			break
-		fi
-		
-		#if stringinstring "Info: Disconnected from user display."
-		if stringinstring "Info: Going to sleep waiting for reconnection." "$line"
-		then
-			kill $TAIL_PID 2>/dev/null
-			
 			echo "NX> 1005 Session status: suspended"
 			# umount shares & stop printers
 			node_stop_services
-			break
 		fi
 
+		#
+		# Proxy termination
+		#
+
+		if stringinstring "Info: Waiting for a further signal to complete." "$line"
+		then
+			# Kill the proxy
+			kill -HUP $PROXY_PID 2>/dev/null
+		fi
+		
 		#
 		# Session end
 		#
@@ -502,38 +483,6 @@ node_start_monitor()
 			kill -HUP $PROXY_PID 2>/dev/null
 		fi
 		
-		TERM=""
-		stringinstring "Info: Waiting for a further signal to complete." "$line" && TERM="yes"
-		stringinstring "Info: Aborting procedure due to signal" "$line" && TERM="yes"
-		if [ -n "$TERM" -a "$RECONNECT" = "0" ]
-		then
-			kill $TAIL_PID 2>/dev/null
-			echo "NX> 1006 Session status: closed"
-			# TODO: Need a way to remove session infos ...
-			# especially for windows/vnc mode
-			kill $PROXY_PID 2>/dev/null
-			sleep 2
-			kill -0 $PROXY_PID 2>/dev/null && kill -9 $PROXY_PID 2>/dev/null
-
-			# umount shares & stop printers
-			node_stop_services
-
-			# kill the session
-			node_terminate_session "$sess_id"
-			
-			break
-		fi
-
-		#
-		# Session was suspended before, do not _close_ it, until
-		# it is fully resumed.
-		#
-
-		if stringinstring "Info: Going to reconnect to a new display." "$line"
-		then
-			RECONNECT=1
-		fi
-
 		#
 		# Session is running
 		#
@@ -543,7 +492,6 @@ node_start_monitor()
 			echo "NX> 710 Session status: running"
 			echo "NX> 1002 Commit"
 			echo "NX> 1006 Session status: running"
-			[ -n "$TIMEOUT_PID" ] && kill $TIMEOUT_PID 2>/dev/null
 		fi
 
 		#
@@ -562,7 +510,6 @@ node_start_monitor()
 		if stringinstring "Info: Proxy running in server mode with pid" "$line"
 		then
 			PROXY_PID=$(echo $line | cut -d"'" -f2)
-			#echo "Got $PROXY_PID ... " >> /tmp/nxnode.log
 		fi
 		
 		#
@@ -572,27 +519,45 @@ node_start_monitor()
 		if stringinstring "Info: Reconnection succeded." "$line"
 		then
 			echo "NX> 718 Session restore succeded"
-			RECONNECT=0 # Do no longer block "Connection Close"
+			if [ "$1" = "restore" ]
+			then
+				kill $TAIL_PID
+				break
+			fi
+		fi
+
+		#
+		# Reconnection failure
+		#
+		
+		if stringinstring "Info: Reconnection failed:" "$line"
+		then
+			echo "NX> 1004 Error: Session restore failed. Reason was: $line"
+			if [ "$1" = "restore" ]
+			then
+				kill $TAIL_PID
+				break
+			fi
 		fi
 
 		#
 		# Error handling.
 		#
 
-		if stringinstring "Error: Connection with remote host" "$line" && [ "$RUNNING" = "0" ] 
-		then
-			kill $TAIL_PID 2>/dev/null
-			echo "NX> 1004 Error:"
-			echo "Session '$sess_id' has failed after reaching usable state."
-			[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
-			[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
-			break
-		fi
-	done 
+		#if stringinstring "Error: Connection with remote host" "$line" && [ "$RUNNING" = "0" ] 
+		#then
+		#	kill $TAIL_PID 2>/dev/null
+		#	echo "NX> 1004 Error:"
+		#	echo "Session '$sess_id' has failed after reaching usable state."
+		#	[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
+		#	[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
+		#	break
+		#fi
+	done
 	
 	trap "" EXIT
 	
-	node_stop_services
+	[ "$1" = "restore" ] ||	node_stop_services
 	# close all open file descriptors
 	exec 0<&-
 	exec 1>&-
@@ -725,10 +690,13 @@ exit
 EOF
 
 echo > $USER_FAKE_HOME/.nx/C-$sess_id/session
-node_start_monitor &
-SPID=$!
+node_start_monitor "$1" &
+
+MONITOR_PID=$!
+export MONITOR_PID
+
 mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
-echo "$SPID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
+echo "$MONITOR_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 
 if [ "$1" = "restore" ]
 then
@@ -756,7 +724,7 @@ EOF
 # NX> 1004 Error:
 #Session 'Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' has failed after reaching usable state. Session directory '/home/knoppix/.nx/F-C-Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' will be not deleted to allow for further investigation.
 
-wait $SPID
+wait $MONITOR_PID
 rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 }
 

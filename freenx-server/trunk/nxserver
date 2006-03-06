@@ -983,8 +983,7 @@ do
 			if [ "$ENCRYPTION" = "1" ] 
 			then 
 				let PROXY_DISPLAY=$SESS_DISPLAY+4000
-				$COMMAND_NETCAT $SERVER_HOST $PROXY_DISPLAY
-				exit 0
+				exec $COMMAND_NETCAT $SERVER_HOST $PROXY_DISPLAY
 			else
 				echo_x "NX> 1001 Bye."
 			fi
