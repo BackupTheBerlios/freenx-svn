@@ -787,6 +787,13 @@ server_nxnode_start_wait()
 			"NX> 1004"*)
 				[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
 				KILL_WAIT_PID=0
+				
+				# This fail is correct here as somehow the 
+				# monitor process might have died and we don't 
+				# want the session to be resumed again.
+				
+				session_fail $uniqueid
+				
 				# FIXME: Need correct error code.
 				server_nxnode_echo "NX> 504 Session startup failed."
 				log 4 "NX> 504 Session startup failed."

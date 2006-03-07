@@ -740,7 +740,7 @@ then
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 	echo "$MONITOR_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 
-	node_suspend_session $sess_id || node_fail_restore_session
+	node_suspend_session $sess_id || { echo "Info: Reconnection failed: NX Agent process could not be found." >>$USER_FAKE_HOME'/.nx/C-'$sess_id'/session'; node_fail_restore_session; }
 else
 	node_start_agent &
 	node_start_applications &
