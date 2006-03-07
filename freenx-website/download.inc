@@ -21,7 +21,7 @@
 			Debian/Ubuntu DEBs
 		</dt>
 		<dd>
-			<a href="http://kanotix.com/files/debian/pool/f/freenx/">http://kanotix.com/files/debian/pool/f/freenx/</a>
+			<a href="http://kanotix.com/files/debian/pool/main/f/freenx/">http://kanotix.com/files/debian/pool/main/f/freenx/</a>
 		</dd>
                 <dd>
                         <a href="http://kalyxo-archive.mornfall.net/pool/main/f/freenx/">http://kalyxo-archive.mornfall.net/pool/main/f/freenx/</a>
