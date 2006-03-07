@@ -238,11 +238,15 @@ session_list_user_suspended()
 			available="N/A"
 			udepth=$(echo $3 | cut -d "x" -f3 | cut -d "+" -f1 )
 			urender=$(echo $3 | cut -d "+" -f2 )
+
+			mode="D"
+			[ "$(getparam sessionRootlessMode)" = "1" ] && mode="-"
+			
 			options="-"
 			stringinstring "fullscreen" "$3" && options="F"
 			[ "$(getparam geometry)" = "fullscreen" ] || options="-"
-			[ "$urender" = "render" ] && options="${options}R---PSA"
-			[ "$urender" = "render" ] || options="${options}----PSA"
+			[ "$urender" = "render" ] && options="${options}R${mode}--PSA"
+			[ "$urender" = "render" ] || options="${options}-${mode}--PSA"
 			[ "$udepth" = "$depth" -a "$urender" = "$render" ] && available=$(getparam status)
 			# FIXME: HACK !!! to keep compatibility with old snapshot version (Knoppix 3.6 based for example)
 			if [ -z "$4" -a "$available" != "N/A" ] 
@@ -952,8 +956,10 @@ server_startrestore_session()
 		SERVER_HOST=$(server_loadbalance)
 
 		# now update the session listing
+		sessionRootlessMode=0
+		[ "$(getparam rootless)" = "1" ] && sessionRootlessMode=1
 		CMDLINE="a=b&$FULL_PARAMS"
-		session_add $uniqueid "sessionName=$(getparam session)&display=$(getparam display)&status=Running&startTime=$(date +%s)&foreignAddress=$(getparam userip)&type=$(getparam type)&sessionId=$uniqueid&creationTime=$(date +%s)&userName=$USER&serverPid=$SERVER_PID&screeninfo=$(getparam screeninfo)&geometry=$(getparam geometry)&host=$SERVER_HOST"
+		session_add $uniqueid "sessionName=$(getparam session)&display=$(getparam display)&status=Running&startTime=$(date +%s)&foreignAddress=$(getparam userip)&sessionRootlessMode=$sessionRootlessMode&type=$(getparam type)&sessionId=$uniqueid&creationTime=$(date +%s)&userName=$USER&serverPid=$SERVER_PID&screeninfo=$(getparam screeninfo)&geometry=$(getparam geometry)&host=$SERVER_HOST"
 	else
 		uniqueid=$(getparam restore)
 		[ -z "$uniqueid" ] && uniqueid=$(getparam id) # 1.4.0-5 compatibility

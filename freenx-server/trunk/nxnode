@@ -87,7 +87,7 @@ node_terminate_session()
 	if [ -n "$AGENT_PID" ]
 	then 
 		kill $AGENT_PID 2>/dev/null
-		if ! [ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+		if ! [ "$virtualdesktop" = "0" -a "$rootless" != "1" ]
 		then
 			sleep 1
 			kill -0 $AGENT_PID 2>/dev/null && kill -9 $AGENT_PID 2>/dev/null
@@ -190,7 +190,7 @@ node_start_applications()
 		fi
 	fi
 
-	[ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
+	[ "$virtualdesktop" = "0" -a "$rootless" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
 	if [ "$virtualdesktop" = "1" -a "$type" = "unix-application" -a "$DEFAULT_X_WM" != "" -a -x "$(find_app $DEFAULT_X_WM)" ]
 	then
 		DISPLAY=unix:$display $DEFAULT_X_WM >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
@@ -254,8 +254,8 @@ node_start_agent()
 	[ -n "$backingstore" ] && B="-bs $backingstore"
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
-	R=""
-	[ "$virtualdesktop" = "0" ] && R="-R"
+	R="-D"
+	[ "$rootless" = "1" ] && R="-R"
 	vncfullscreen=""
 	[ "$geometry" = "fullscreen" -a "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
 	[ "$geometry" = "fullscreen" -a "$type" = "windows" ] && G="-geometry `echo $screeninfo | cut -d"x" -f1,2`"
@@ -278,7 +278,7 @@ node_start_agent()
 		mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
 		echo "$agent_password" | $PATH_BIN/nxpasswd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd doit
 		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $vncfullscreen $G $K $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>&3 &
-	elif [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+	elif [ -n "$R" -a "$rootless" != "1" ]
 	then
 		# nxproxy single application mode session
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$PROXY_LIBRARY_PATH:$LD_LIBRARY_PATH"
@@ -636,6 +636,11 @@ node_startsession()
 	rdpcolors=$(getparam rdpcolors)
 	rdpcache=$(getparam rdpcache)
 	
+	# nxclient > 1.5.0-106 variables
+	resize=$(getparam resize)
+	keybd=1
+	rootless=$(getparam rootless)
+	
 	# FreeNX specific variables
 	clientproto=$(getparam clientproto)
 	status=$(getparam status)
@@ -695,7 +700,7 @@ node_startsession()
 	umask 0077
 
 cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
+${kbtype:+kbtype=$kbtype,}${resize:+resize=$resize,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${keybd:+,keybd=$keybd}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
