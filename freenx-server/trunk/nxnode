@@ -446,6 +446,7 @@ node_start_monitor()
 {
 	RUNNING=0
 	TAIL_PID=""
+	SUSPEND_STATUS="$2"
 
 	while read line 
 	do
@@ -484,7 +485,14 @@ node_start_monitor()
 		then
 			echo "NX> 1005 Session status: suspended"
 			# umount shares & stop printers
-			node_stop_services
+
+			if [ "$SUSPEND_STATUS" = "Running" ]
+			then
+				node_suspend_session $sess_id
+				SUSPEND_STATUS=""
+			else
+				node_stop_services
+			fi
 		fi
 
 		#
@@ -628,7 +636,9 @@ node_startsession()
 	rdpcolors=$(getparam rdpcolors)
 	rdpcache=$(getparam rdpcache)
 	
+	# FreeNX specific variables
 	clientproto=$(getparam clientproto)
+	status=$(getparam status)
 
 	fullscreen=""
 	[ "$geometry" = "fullscreen" ] && fullscreen="1"
@@ -717,7 +727,7 @@ EOF
 if [ "$1" = "restore" ]
 then
 	echo > $USER_FAKE_HOME/.nx/C-$sess_id/session
-	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | node_start_monitor "$1" &
+	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | node_start_monitor "$1" "$status" &
 
 	MONITOR_PID=$!
 	export MONITOR_PID

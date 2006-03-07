@@ -960,7 +960,7 @@ server_startrestore_session()
 		session_change "$uniqueid" "foreignAddress" "$USERIP"
 
 		CMDLINE=$(session_get "$uniqueid")
-		FULL_PARAMS="$PARAMS&user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)"
+		FULL_PARAMS="$PARAMS&user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)&status=$(getparam status)"
 		SESS_DISPLAY=$(getparam display)
 		SERVER_HOST=$(getparam host)
 		[ -z "$SERVER_HOST" ] && SERVER_HOST="127.0.0.1"
@@ -1050,7 +1050,8 @@ do
 				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)" | log_tee
 			elif [ "$status" = "suspended,running" -o "$status" = "suspended" ] # since 1.5.0
 			then
-				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)" | log_tee
+				status=$(echo $status | sed 's/,/$|^status=/g; s/suspended/Suspended/g; s/running/Running/g')
+				session_list_user_suspended "$USER" "$status" "$(getparam geometry)" "$(getparam type)" | log_tee
 			else
 				session_list_user "$USER" | log_tee
 			fi
