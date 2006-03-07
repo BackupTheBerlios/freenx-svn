@@ -211,7 +211,7 @@ node_start_applications()
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
 	
 	# FIXME: Do not terminate agent!
-	#node_terminate_agent $sess_id
+	node_terminate_agent $sess_id
 }
 
 node_start_agent()
