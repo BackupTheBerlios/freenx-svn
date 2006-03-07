@@ -216,7 +216,31 @@ node_start_applications()
 
 node_start_agent()
 {
-	# close input and output file descriptors
+	# Ok, now we do some wicked fd magic.
+	#
+	# first part:
+	#	
+	# nxagent's fd #2 -> fd #3
+	
+	# second part:
+	#
+	# fd #1 -> #4
+	# fd #3 -> #1
+	# tee | node_start_monitor
+
+	# third part
+	# fd #4 -> #1
+
+	# => all output of nxagent goes to tee | node_start_monitor, while
+	#    leaving all other output flow through like normally.
+	
+	# preparations
+	exec 3>&2
+	exec 4>&1
+
+	{
+	
+	{
 
 	export DISPLAY="nx/nx,options=$USER_FAKE_HOME/.nx/C-$sess_id/options:$display"
 	export XAUTHORITY="$USER_FAKE_HOME/.nx/C-$sess_id/authority"
@@ -246,19 +270,19 @@ node_start_agent()
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p -"
 		[ -n "$agent_domain" ] && D="-d $agent_domain"
-		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $D $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $D $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>&3 &
 	elif [ "$type" = "vnc" ]
 	then
 		# nxviewer session (VNC RFP)
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
 		mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
 		echo "$agent_password" | $PATH_BIN/nxpasswd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd doit
-		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $vncfullscreen $G $K $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $vncfullscreen $G $K $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>&3 &
 	elif [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
 	then
 		# nxproxy single application mode session
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$PROXY_LIBRARY_PATH:$LD_LIBRARY_PATH"
-		$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>&3 &
 	else
 		# nxagent session (X11)
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
@@ -277,7 +301,7 @@ node_start_agent()
 		IFS=$OLD_IFS
 		FP=""
 		[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
-		PATH="$PATH_BIN:$PATH" $PATH_BIN/nxagent $P $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		PATH="$PATH_BIN:$PATH" $PATH_BIN/nxagent $P $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>&3 &
 	fi
 	PID=$!
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
@@ -298,7 +322,7 @@ node_start_agent()
 	# remove possible leftovers of nxagent
 	rm -f /tmp/.X$display-lock
 	rm -f /tmp/.X11-unix/X$display
-	[ -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor ] && kill "$MONITOR_PID"
+	} 3>&1 1>&4 | tee $USER_FAKE_HOME/.nx/C-$sess_id/session | node_start_monitor; } 4>&1
 }
 
 node_kill_proxy()
@@ -423,15 +447,15 @@ node_start_monitor()
 	RUNNING=0
 	TAIL_PID=""
 
-	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | while read line 
+	while read line 
 	do
 		#
 		# Catch tail pid
 		#
+		
 		if stringinstring "Info: tail -f running with pid" "$line"
 		then
 			TAIL_PID=$(echo $line | cut -d"'" -f2)
-			trap "kill $TAIL_PID" EXIT
 		fi
 
 		#
@@ -532,7 +556,7 @@ node_start_monitor()
 		
 		if stringinstring "Info: Reconnection failed:" "$line"
 		then
-			echo "NX> 1004 Error: Session restore failed. Reason was: $line"
+			echo "NX> 504 Error: Session restore failed. Reason was: $line"
 			if [ "$1" = "restore" ]
 			then
 				kill $TAIL_PID
@@ -689,17 +713,17 @@ remove unix:$display
 exit
 EOF
 
-echo > $USER_FAKE_HOME/.nx/C-$sess_id/session
-node_start_monitor "$1" &
-
-MONITOR_PID=$!
-export MONITOR_PID
-
-mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
-echo "$MONITOR_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
-
 if [ "$1" = "restore" ]
 then
+	echo > $USER_FAKE_HOME/.nx/C-$sess_id/session
+	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | node_start_monitor "$1" &
+
+	MONITOR_PID=$!
+	export MONITOR_PID
+
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
+	echo "$MONITOR_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
+
 	node_suspend_session $sess_id || node_fail_restore_session
 else
 	node_start_agent &
@@ -724,8 +748,12 @@ EOF
 # NX> 1004 Error:
 #Session 'Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' has failed after reaching usable state. Session directory '/home/knoppix/.nx/F-C-Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' will be not deleted to allow for further investigation.
 
-wait $MONITOR_PID
-rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
+if [ -n "$MONITOR_PID" ]
+then
+	wait "$MONITOR_PID"
+	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
+fi
+wait # for all children
 }
 
 cmd_node_terminate()

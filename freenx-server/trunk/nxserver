@@ -699,10 +699,16 @@ server_nxnode_exit_func()
 
 server_nxnode_start_wait()
 {
+	if [ "$1" = "--startsession" ]
+	then
+	
 	server_add_usession
 
 	# Trap did fire unnecessarily according to Sunil, so removed it again.
 	#trap server_nxnode_exit_func EXIT
+
+	# We need to stop sending things when a SIGPIPE arrives
+	trap "SERVER_CHANNEL=0" SIGPIPE
 	
 	SERVER_CHANNEL=1
 	KILL_WAIT_PID=1
@@ -750,12 +756,48 @@ server_nxnode_start_wait()
 		esac
 	done
 
-	trap "" EXIT
+	trap - EXIT
+	trap - SIGPIPE
 	
 	server_remove_usession
 
 	# remove lock file
 	[ -e "/tmp/.nX$SESS_DISPLAY-lock" ] && rm -f /tmp/.nX$SESS_DISPLAY-lock
+
+	else # $1 = restore
+	
+	KILL_WAIT_PID=1
+	SERVER_CHANNEL=1
+	server_nxnode_start "$@" | while read CMD
+	do
+		case "$CMD" in 
+			"NX> 1006"*|"NX> 1005"*|"NX> 1009"*)
+				case "$CMD" in 
+					*running*)
+						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
+						KILL_WAIT_PID=0
+						SERVER_CHANNEL=2
+					;;
+				esac
+			;;
+			"NX> 1004"*)
+				[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
+				KILL_WAIT_PID=0
+				# FIXME: Need correct error code.
+				server_nxnode_echo "NX> 504 Session startup failed."
+				log 4 "NX> 504 Session startup failed."
+				break;
+			;;
+		esac
+	
+		case $CMD in
+			"NX> "*)
+				server_nxnode_echo $CMD
+			;;
+		esac
+	done
+	
+	fi # $1 = start
 }
 
 server_check_session_count()
@@ -925,20 +967,20 @@ server_startrestore_session()
 	fi
 
 	# now start the node
-	(sleep $AGENT_STARTUP_TIMEOUT; exit 1) &
+	sleep $AGENT_STARTUP_TIMEOUT &
 	SERVER_WAIT_PID=$!
 	server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" &
 	SERVER_PID=$!
 	disown $SERVER_PID
 	wait $SERVER_WAIT_PID
 	
-	if [ $? -eq 1 ]
+	if [ $? -eq 0 ]
 	then
 		# Something went wrong ...
 		[ "$ACTION" = "start" ] && session_fail $uniqueid
 		# FIXME: Need correct error code.
 		echo_x "NX> 1004 Error: Session did not start."
-		echo_x "NX> 504 Session startup failed."
+		echo_x "NX> 504 Session $ACTION failed."
 		echo_x "NX> 999 Bye"
 		# FIXME: Send node signal to terminate
 		exit 1
