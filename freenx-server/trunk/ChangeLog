@@ -12,6 +12,9 @@ XX.XX.2006 FreeNX 0.5.0
 	* Fixed one more stray tail process and being able to
 	  cleanup after a hopelessly failed reconnection. (i.e. agent died)
 	* Fixed detection of xauth.
+	* Fixed --terminate / --suspend when hostname has a '-' in it.
+	  (Emmanuel Blindauer <freenx@mooby.net>)
+	
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.

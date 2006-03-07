@@ -94,7 +94,7 @@ node_terminate_session()
 		fi
 	fi
 	# remove possible leftover display ...
-	display=$(echo $1 | cut -d"-" -f2)
+	display=$(echo $1 | rev | cut -d"-" -f2 | rev)
 	rm -f /tmp/.X$display-lock
 	rm -f /tmp/.X11-unix/X$display
 	
@@ -779,7 +779,7 @@ cmd_node_terminate()
 {
 	sessionid=$(getparam_sessionid)
 	echo "NX> 716 Terminating session $sessionid on user request."
-	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | rev |cut -d"-" -f2 |rev)
 	node_terminate_session "$SERVER_NAME-$display-$sessionid"
 }
 
@@ -787,7 +787,7 @@ cmd_node_suspend()
 {
 	sessionid=$(getparam_sessionid)
 	echo "NX> 716 Suspending session $sessionid on user request."
-	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | rev | cut -d"-" -f2 |rev)
 	node_suspend_session "$SERVER_NAME-$display-$sessionid"
 }
 
@@ -801,7 +801,7 @@ cmd_node_smbmount()
 	computername=$(getparam computername)
 	dir=$(getparam dir | sed 's|$(SHARES)|MyShares|g')
 	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
-	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | rev|cut -d"-" -f2| rev)
 	mkdir -p "$HOME/$dir"
 	ERROR=$(PASSWD="$password" "$COMMAND_SMBMOUNT" "//$computername/$rdir" "$HOME/$dir" -o username="$username,ip=127.0.0.1,port=$port" 2>&1)
 	if [ $? -eq 0 ]
@@ -826,7 +826,7 @@ cmd_node_addprinter()
 	public=$(getparam public)
 	model=$(getparam model)
 	defaultPrinter=$(getparam defaultPrinter)
-	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | rev | cut -d"-" -f3 | rev)
 	sess_id="$SERVER_NAME-$display-$sessionid"
 	# this will also setup the userspace cupsd
 	IPP_PORT=$(node_cupsd_get_port)
