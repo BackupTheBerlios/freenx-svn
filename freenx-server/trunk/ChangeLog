@@ -5,6 +5,7 @@ XX.XX.2006 FreeNX 0.5.0
 	* Rootless mode is now the default.
 	* Reworked nxnode / suspend on connection failure should work now.
 	* Added support for "Running" sessions.
+	* Fixed --send command. (Emmanuel Blindauer <freenx@mooby.net>)
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
