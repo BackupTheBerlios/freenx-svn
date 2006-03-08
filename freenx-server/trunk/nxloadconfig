@@ -197,6 +197,7 @@ case "$OS" in
 		COMMAND_XTERM=/usr/openwin/bin/xterm
 		COMMAND_XAUTH=/usr/openwin/bin/xauth
 		COMMAND_CUPSD=/opt/sfw/cups/sbin/cupsd
+       		COMMAND_SED=/opt/csw/bin/gsed
 		COMMAND_MD5SUM=gmd5sum
 		PATH=/usr/xpg4/bin:/usr/openwin/bin:$PATH
 		export PATH
@@ -216,6 +217,10 @@ case "$OS" in
                        done
                        return 1
                }
+
+	       function rev() {
+		       ${COMMAND_SED} '/\n/!G;s/\(.\)\(.*\n\)/&\2\1/;//D;s/.//'
+	       }
        ;;
 esac
 

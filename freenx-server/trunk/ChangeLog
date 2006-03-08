@@ -16,6 +16,8 @@ XX.XX.2006 FreeNX 0.5.0
 	  (Emmanuel Blindauer <freenx@mooby.net>)
 	* ESD_NO_SPAWN is always set when ESPEAKER is set.
 	  ("Felipe Alfaro Solana" <felipe.alfaro@gmail.com>)
+	* Added sed replacement for 'rev' function on Sun OS 5.10.
+	  (Kurt Pfeifle <kpfeifle@danka.de> )
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
