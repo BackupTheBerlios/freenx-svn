@@ -169,13 +169,13 @@ node_start_applications()
 		let ESPEAKER=$display+7000
 		export ESPEAKER="127.0.0.1:$ESPEAKER"
 		
+		# Do not spawn new ESD daemons
+		export ESD_NO_SPAWN="yes"
+			
 		# Check for config file directive
 		if [ "$ENABLE_ESD_PRELOAD" = "1" -a -x "$(find_app $ESD_BIN_PRELOAD)" ]
 		then
 			STARTX="$ESD_BIN_PRELOAD $STARTX"
-			
-			# Do not spawn new ESD daemons
-			export ESD_NO_SPAWN="yes"
 			
 			echo "Info: NXNODE - Using $ESD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
 		fi

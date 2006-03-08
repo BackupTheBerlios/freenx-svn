@@ -14,7 +14,8 @@ XX.XX.2006 FreeNX 0.5.0
 	* Fixed detection of xauth.
 	* Fixed --terminate / --suspend when hostname has a '-' in it.
 	  (Emmanuel Blindauer <freenx@mooby.net>)
-	
+	* ESD_NO_SPAWN is always set when ESPEAKER is set.
+	  ("Felipe Alfaro Solana" <felipe.alfaro@gmail.com>)
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
