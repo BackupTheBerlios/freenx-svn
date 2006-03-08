@@ -638,7 +638,9 @@ node_startsession()
 	
 	# nxclient > 1.5.0-106 variables
 	resize=$(getparam resize)
-	keybd=1
+	keybd=$(getparam keybd)
+	kbload=$(getparam kbload)
+	keymap=$(getparam keymap)
 	rootless=0
 	
 	# Its still the clients decision
@@ -703,7 +705,7 @@ node_startsession()
 	umask 0077
 
 cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${resize:+resize=$resize,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${keybd:+,keybd=$keybd}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
+${kbtype:+kbtype=$kbtype,}${kbload:+kbload=$kbload,}${keymap:+keymap=$keymap,}${resize:+resize=$resize,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${keybd:+,keybd=$keybd}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
