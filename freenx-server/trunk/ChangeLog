@@ -8,7 +8,7 @@ XX.XX.2006 FreeNX 0.5.0
 	* Fixed --send command. (Emmanuel Blindauer <freenx@mooby.net>)
 	* Fixed resume with nxclient >=1.5.0-106 for Windows.
 	* Fixed rootless sessions with Windows nxclient.
-	* Fixed keyboard issues by always enabling the keybd channel.
+	* Fixed keyboard issues by enabling the keybd channel.
 	* Fixed one more stray tail process and being able to
 	  cleanup after a hopelessly failed reconnection. (i.e. agent died)
 	* Fixed detection of xauth.
