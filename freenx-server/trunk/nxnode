@@ -751,7 +751,13 @@ else
 	node_start_applications &
 fi
 
-which "$NODE_AUTOSTART" >/dev/null 2>&1 && "$NODE_AUTOSTART" "$1"
+if which "$NODE_AUTOSTART" >/dev/null 2>&1
+then
+	# go into background immediately
+	DISPLAY=unix:$display "$NODE_AUTOSTART" "$1" >/dev/null 2>&1 &
+	# dont't wait for this child!
+	disown $!
+fi
 	
 cat << EOF
 NX> 700 Session id: $sess_id
