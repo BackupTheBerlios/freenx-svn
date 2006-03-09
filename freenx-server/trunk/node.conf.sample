@@ -342,7 +342,7 @@
 
 # When set to 1 exports NXUSERIP / NXSESSIONID in nxnode
 #EXPORT_USERIP="0"
-#EXPORT_SESSIONID="0"
+#EXPORT_SESSIONID="1"
 
 # This can be set to any executable, which is started after session startup
 # like: $NODE_AUTOSTART {start|restore}
