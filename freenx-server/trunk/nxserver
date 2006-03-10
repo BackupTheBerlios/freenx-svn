@@ -1409,9 +1409,10 @@ cmd_terminate()
 				then
 					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --suspend"
 				fi
-				;;
+			;;
 			--terminate)
 				echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --terminate"
+			;;
 			--force-terminate)
 				echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --terminate"
 				session_close $cmd_sessionid
