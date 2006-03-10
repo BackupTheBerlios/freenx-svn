@@ -18,6 +18,7 @@ XX.XX.2006 FreeNX 0.5.0
 	  ("Felipe Alfaro Solana" <felipe.alfaro@gmail.com>)
 	* Added perl replacement for 'rev' function on Sun OS 5.10.
 	* Fixed NODE_AUTOSTART to be unable to block sessions.
+	* Fixed stale sessions introduced by the new session handling model.
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.

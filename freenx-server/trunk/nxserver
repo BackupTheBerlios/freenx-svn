@@ -358,6 +358,14 @@ session_status()
 	session_change "$1" "status" "$2"
 }
 
+# session_running <session_id>
+# return: true if running, false if not
+
+session_running()
+{
+	test -f "$NX_SESS_DIR/running/sessionId'{'$1'}"
+}
+
 # session_close <session_id> <end-time>
 
 session_close()
@@ -725,7 +733,7 @@ server_nxnode_start_wait()
 						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
 						KILL_WAIT_PID=0
 						session_status $uniqueid "Running"
-						SERVER_CHANNEL=2
+						[ "$SERVER_CHANNEL" = "1" ] && SERVER_CHANNEL=2
 					;;
 					*closed*)
 						session_close $uniqueid
@@ -762,6 +770,9 @@ server_nxnode_start_wait()
 
 	trap - EXIT
 	trap - SIGPIPE
+	
+	# Close it in case the session is still running
+	session_running $uniqueid && session_close $uniqueid
 	
 	server_remove_usession
 
