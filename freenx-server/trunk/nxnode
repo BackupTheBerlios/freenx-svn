@@ -632,9 +632,12 @@ node_startsession()
 	agent_password=$(getparam agent_password)
 	agent_domain=$(getparam agent_domain)
 	screeninfo=$(getparam screeninfo)
+	nodelay=$(getparam nodelay)
 
+	# 1.5.0 options
 	rdpcolors=$(getparam rdpcolors)
 	rdpcache=$(getparam rdpcache)
+	http=$(getparam http)
 	
 	# nxclient > 1.5.0-106 variables
 	resize=$(getparam resize)
@@ -692,6 +695,7 @@ node_startsession()
 	# write options file
 	[ -z "$samba" ] && samba=0
 	[ -z "$media" ] && media=0
+	[ -z "$nodelay" ] && nodelay=1
 
 	CACHE="cache=$cache,"
 	[ -z "$cache" ] && CACHE=""
@@ -705,7 +709,7 @@ node_startsession()
 	umask 0077
 
 cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${kbload:+kbload=$kbload,}${keymap:+keymap=$keymap,}${resize:+resize=$resize,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${keybd:+,keybd=$keybd}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
+${kbtype:+kbtype=$kbtype,}${kbload:+kbload=$kbload,}${keymap:+keymap=$keymap,}${resize:+resize=$resize,}${CACHE}${IMAGES}${PACK}link=$link,nodelay=$nodelay,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${keybd:+,keybd=$keybd}${http:+,http=$http}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
