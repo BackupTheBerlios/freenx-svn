@@ -652,6 +652,7 @@ node_startsession()
 	# FreeNX specific variables
 	clientproto=$(getparam clientproto)
 	status=$(getparam status)
+	host=$(getparam host)
 
 	fullscreen=""
 	[ "$geometry" = "fullscreen" ] && fullscreen="1"
@@ -661,7 +662,13 @@ node_startsession()
 	ssl_tunnel=$(getparam encryption)
 	[ -z "$ssl_tunnel" ] && ssl_tunnel=0
 	
-	[ "$ssl_tunnel" = "1" ] && userip="127.0.0.1"
+	if [ "$ssl_tunnel" = "1" ]
+	then
+		# we need to use the IP of the "calling" server now
+		userip=$(echo $SSH_CLIENT $SSH2_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
+		[ -z "$userip" ] && userip="127.0.0.1"
+		[ -z "$userip" -a "$host" != "127.0.0.1" ] && userip="*"
+	fi
 	
 	# ok, lets make the session dir first:
 	

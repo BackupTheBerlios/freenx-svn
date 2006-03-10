@@ -966,12 +966,13 @@ server_startrestore_session()
 		fi
 	
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | $COMMAND_MD5SUM | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
-		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY"
-		log_secure "6" "$FULL_PARAMS"
 
 		# Possibly do loadbalancing
 		
 		SERVER_HOST=$(server_loadbalance)
+		
+		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY&host=$SERVER_HOST"
+		log_secure "6" "$FULL_PARAMS"
 
 		# now update the session listing
 		sessionRootlessMode=0
