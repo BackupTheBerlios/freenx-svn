@@ -641,8 +641,8 @@ node_startsession()
 	keybd=$(getparam keybd)
 	kbload=$(getparam kbload)
 	keymap=$(getparam keymap)
+
 	rootless=0
-	
 	# Its still the clients decision
 	[ "$ENABLE_ROOTLESS_MODE" = "1" ] &&  rootless=$(getparam rootless)
 	
