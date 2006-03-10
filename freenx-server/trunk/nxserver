@@ -755,9 +755,8 @@ server_nxnode_start_wait()
 				[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
 				KILL_WAIT_PID=0
 				session_fail $uniqueid
-				# FIXME: Need correct error code.
-				server_nxnode_echo "NX> 504 Session startup failed."
-				log 4 "NX> 504 Session startup failed."
+				server_nxnode_echo "NX> 596 Session startup failed."
+				log 4 "NX> 596 Session startup failed."
 			;;
 		esac
 
@@ -805,9 +804,8 @@ server_nxnode_start_wait()
 				
 				session_fail $uniqueid
 				
-				# FIXME: Need correct error code.
-				server_nxnode_echo "NX> 504 Session startup failed."
-				log 4 "NX> 504 Session startup failed."
+				server_nxnode_echo "NX> 596 Session startup failed."
+				log 4 "NX> 596 Session startup failed."
 				break;
 			;;
 		esac
@@ -843,7 +841,6 @@ server_check_session_count()
 	return 0
 }
 
-# FIXME: Add round-robin algorithm
 server_loadbalance_random_rr()
 {
 	# Pick one based on "round-robin random"
@@ -859,7 +856,6 @@ server_loadbalance()
 	SERVER_HOST="127.0.0.1"
 	if [ -n "$SERVER_LOADBALANCING" ]
 	then
-		# FIXME: Add preference host
 		SERVER_HOST=""
 		if [ -n "$PREFERRED_HOST" -a "$ENABLE_LOADBALANCE_PREFERENCE" = "1" ]
 		then
@@ -889,7 +885,7 @@ server_startrestore_session()
 	then 
 		if [ "$SSHD_CHECK_IP" = "1" ]
 		then
-			echo_x "NX> 504 Session startup failed. (Missing SSH_CLIENT environment variable)"
+			echo_x "NX> 596 Session startup failed. (Missing SSH_CLIENT environment variable)"
 			return 1
 		else
 			log 2 "Warning: Failed to determine the client IP."
@@ -902,7 +898,7 @@ server_startrestore_session()
 	
 	if [ "$ENABLE_FORCE_ENCRYPTION" = "1" -a "$ENCRYPTION" != "1" ]
 	then
-			echo_x "NX> 504 Unencrypted sessions are not allowed."
+			echo_x "NX> 596 Unencrypted sessions are not allowed."
 			return 1
 	fi
 
@@ -959,8 +955,7 @@ server_startrestore_session()
 		
 		if [ "$SESS_DISPLAY" -gt "$SESS_DISPLAY_LIMIT" ]
 		then
-			# fixme we need the correct error code
-			echo_x "NX> 504 Error: Display limit exceeded. Please remove some files from /tmp/.X*-lock."
+			echo_x "NX> 596 Error: Display limit exceeded. Please remove some files from /tmp/.X*-lock."
 			rm -f "/tmp/.nX$SESS_DISPLAY-lock"
 			return
 		fi
@@ -1003,9 +998,8 @@ server_startrestore_session()
 	then
 		# Something went wrong ...
 		[ "$ACTION" = "start" ] && session_fail $uniqueid
-		# FIXME: Need correct error code.
 		echo_x "NX> 1004 Error: Session did not start."
-		echo_x "NX> 504 Session $ACTION failed."
+		echo_x "NX> 596 Session $ACTION failed."
 		echo_x "NX> 999 Bye"
 		# FIXME: Send node signal to terminate
 		exit 1

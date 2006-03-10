@@ -565,7 +565,7 @@ node_start_monitor()
 		if stringinstring "Info: Reconnection failed:" "$line"
 		then
 			echo "NX> 1005 Session status: suspended"
-			echo "NX> 504 Error: Session restore failed. Reason was: $line"
+			echo "NX> 596 Error: Session restore failed. Reason was: $line"
 			if [ "$1" = "restore" ]
 			then
 				kill $TAIL_PID
