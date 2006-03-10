@@ -1087,9 +1087,7 @@ do
 			CMDLINE=$PARAMS
 			if session_find_id_user "$(getparam sessionid)" "$USER"
 			then
-				# FIXME: Check for success/error
 				server_nxnode_start --suspend "$USER" "$PARAMS"
-				session_suspend $(getparam sessionid)
 			fi
 		;;
 		terminate*)
@@ -1098,9 +1096,7 @@ do
 			CMDLINE=$PARAMS
 			if session_find_id_user "$(getparam sessionid)" "$USER"
 			then
-				# FIXME: Check for success/error
 				server_nxnode_start --terminate "$USER" "$PARAMS"
-				session_close $(getparam sessionid)
 			fi
 		;;
 		restoresession*)
@@ -1178,7 +1174,7 @@ fi
 
 cmd_usage()
 {
-	echo "NXSERVER - Version $NX_VERSION $NX_LICENSE"
+	echo "NXSERVER - Version $NX_VERSION $NX_LICENSE" 1>&2
 	echo "Usage: nxserver <option>" 1>&2
 
 	if [ "$1" = "root" ]
@@ -1198,6 +1194,7 @@ cmd_usage()
 		echo "--terminate <user | :display | sessionid>: Terminate the session pointed to by" 1>&2
 		echo "       sessionid or display, or all sessions of the specified user." 1>&2
 		echo "       Use * for all sessions." 1>&2
+		echo "--force-terminate: Like terminate, but removes also session info." 1>&2
 		echo "--suspend <user | :display | sessionid>: Suspend the session pointed to by" 1>&2
 		echo "       sessionid or display, or all sessions of the specified user." 1>&2
 		echo "       Use * for all sessions." 1>&2
@@ -1417,16 +1414,13 @@ cmd_terminate()
 				if [ "$cmd_status" = "Running" ] && stringinstring "unix-" "$cmd_type"
 				then
 					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --suspend"
-					session_suspend $cmd_sessionid
 				fi
 				;;
 			--terminate)
-			#if stringinstring "unix-" "$cmd_type"
-			#	then
-					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --terminate"
-					session_close $cmd_sessionid
-			#	fi
-
+				echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --terminate"
+			--force-terminate)
+				echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$PATH_BIN/nxnode --terminate"
+				session_close $cmd_sessionid
 			;;
 			esac
 	done
@@ -1529,11 +1523,11 @@ case $CMD in
 	--history)
 		cmd_history "$@"
 	;;
-	--terminate|--suspend)
+	--terminate|--suspend|--force-terminate)
 		cmd_terminate "$@"
 	;;
 	--cleanup)
-		cmd_terminate "--terminate" "*"
+		cmd_terminate "--force-terminate" "*"
 	;;
 	--send|--broadcast)
 		cmd_send "$@"
