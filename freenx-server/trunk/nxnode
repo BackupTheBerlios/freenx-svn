@@ -633,6 +633,7 @@ node_startsession()
 	agent_domain=$(getparam agent_domain)
 	screeninfo=$(getparam screeninfo)
 	nodelay=$(getparam nodelay)
+	[ "$PROXY_TCP_NODELAY" = "0" ] && nodelay=0
 
 	# 1.5.0 options
 	rdpcolors=$(getparam rdpcolors)
