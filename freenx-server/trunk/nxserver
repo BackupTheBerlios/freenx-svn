@@ -716,11 +716,10 @@ server_nxnode_start_wait()
 	
 	server_add_usession
 
-	# Trap did fire unnecessarily according to Sunil, so removed it again.
-	#trap server_nxnode_exit_func EXIT
-
 	# We need to stop sending things when a SIGPIPE arrives
 	trap "SERVER_CHANNEL=0" SIGPIPE
+	
+	trap server_nxnode_exit_func EXIT
 	
 	SERVER_CHANNEL=1
 	KILL_WAIT_PID=1
