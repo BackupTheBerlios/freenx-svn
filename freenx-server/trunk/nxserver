@@ -841,14 +841,82 @@ server_check_session_count()
 	return 0
 }
 
-server_loadbalance_random_rr()
+server_loadbalance_random()
 {
-	# Pick one based on "round-robin random"
-	SERVER_HOSTS=( $SERVER_LOADBALANCING )
-	SERVER_NR_OF_HOSTS=${#SERVER_HOSTS[@]}
-	let SERVER_NR=(RANDOM % SERVER_NR_OF_HOSTS)
-	SERVER_HOST_RR=${SERVER_HOSTS[$SERVER_NR]}
-	echo $SERVER_HOST_RR
+	# Pick one based on "random" algorithm
+	SERVER_LB_HOSTS=( $LOAD_BALANCE_SERVERS )
+	SERVER_LB_NR_OF_HOSTS=${#SERVER_LB_HOSTS[@]}
+	let SERVER_LB_NR=(RANDOM % SERVER_LB_NR_OF_HOSTS)
+	SERVER_LB_HOST=${SERVER_LB_HOSTS[$SERVER_LB_NR]}
+	echo $SERVER_LB_HOST
+}
+
+# run in subshell!
+
+server_loadbalance_round_robin()
+{
+	SERVER_LB_HOSTS=( $LOAD_BALANCE_SERVERS )
+	SERVER_LB_NR_OF_HOSTS=${#SERVER_LB_HOSTS[@]}
+	
+	# Atomic incrementation:
+
+	# Enter critical section
+	# - Create .lock file
+	
+	SERVER_LB_LOCKFILE=$(mktemp "$NX_SESS_DIR/round-robin.lock.XXXXXXXXX")
+
+	trap "rm -f $SERVER_LB_LOCKFILE" EXIT
+	
+	i=0
+	while [ $i -lt 200 ]
+	do
+		# ln is an atomic operation
+		ln $SERVER_LB_LOCKFILE "$NX_SESS_DIR/round-robin.lock" && break
+		LANG=C sleep 0.01
+		let i=i+1
+	done
+
+	if [ $i -ge 200 ]
+	then
+		log 1 "Load-Balancing: Round-Robin failed to gain lock file in 200 tries. Falling back to random."
+		server_loadbalance_random
+		return
+	fi
+	
+	trap "rm -f $SERVER_LB_LOCKFILE $NX_SESS_DIR/round-robin.lock" EXIT
+
+	# Lock held
+
+	SERVER_LB_NR=$(cat $NX_SESS_DIR/round-robin 2>/dev/null)
+	let SERVER_LB_NR=(SERVER_LB_NR+1) % SERVER_LB_NR_OF_HOSTS
+	echo $SERVER_LB_NR >$NX_SESS_DIR/round-robin
+
+	# Exit critical section
+	rm -f "$SERVER_LB_LOCKFILE $NX_SESS_DIR/round-robin.lock"
+
+	trap - EXIT
+
+	SERVER_LB_HOST=${SERVER_LB_HOSTS[$SERVER_LB_NR]}
+	echo $SERVER_LB_HOST
+}
+
+server_loadbalance_load()
+{
+	SERVER_LB_MAX=0
+	SERVER_LB_HOST=""
+	
+	for i in $LOAD_BALANCE_SERVERS
+	do
+		SERVER_LB_LOAD=$($NX_DIR/bin/nxcheckload $i)
+		[ -z "$SERVER_LB_LOAD" ] && continue
+		
+		if [ $SERVER_LB_LOAD -gt $SERVER_LB_MAX ]
+		then
+			SERVER_LB_MAX=$SERVER_LB_LOAD
+			SERVER_LB_HOST=$i
+		fi
+	done
+	echo $SERVER_LB_HOST
 }
 
 server_loadbalance()
@@ -857,14 +925,29 @@ server_loadbalance()
 	if [ -n "$SERVER_LOADBALANCING" ]
 	then
 		SERVER_HOST=""
-		if [ -n "$PREFERRED_HOST" -a "$ENABLE_LOADBALANCE_PREFERENCE" = "1" ]
+		if [ -n "$PREFERRED_HOST" -a "$ENABLE_LOAD_BALANCE_PREFERENCE" = "1" ]
 		then
 			stringinstring " $PREFERRED_HOST " " $SERVER_LOADBALANCING " && SERVER_HOST="$PREFERRED_HOST"
 		fi
+		
 		# Fallback if still empty
-		[ -z "$SERVER_HOST" ] && SERVER_HOST=$(server_loadbalance_random_rr)
-		[ -n "$SERVER_HOST" ] && log 5 "Info: Load-Balancing (if possible) to $SERVER_HOST ..."
+		if [ -z "$SERVER_HOST" ]
+		then
+			case "$LOAD_BALANCE_ALGORITHM" in
+				random)
+					SERVER_HOST=$(server_loadbalance_random)
+				;;
+				round-robin)
+					SERVER_HOST=$(server_loadbalance_round_robin)
+				;;
+				load)
+					SERVER_HOST=$(server_loadbalance_load)
+				;;
+			esac
+		fi
+		
 		[ -z "$SERVER_HOST" ] && SERVER_HOST="127.0.0.1"
+		[ -n "$SERVER_HOST" ] && log 5 "Info: Load-Balancing (if possible) to $SERVER_HOST ..."
 	fi
 	echo "$SERVER_HOST"
 }	

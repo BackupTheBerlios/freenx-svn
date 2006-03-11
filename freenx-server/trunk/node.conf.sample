@@ -200,7 +200,10 @@
 #ENABLE_NOMACHINE_FORWARD_PORT="0"
 #NOMACHINE_FORWARD_PORT="22"
 
-# To do loadbalancing setup some hosts in SERVER_LOADBALANCING and
+# LOAD BALANCING
+# ==============
+#
+# To do load balancing setup some hosts in LOAD_BALANCE_SERVERS and
 # make:
 #
 #   - either sure that all incoming connections are sent to the master
@@ -210,13 +213,22 @@
 #     (not recommended at the moment as race conditions for DISPLAYs can 
 #      occur)
 #
+
+#LOAD_BALANCE_SERVERS=""
+
+# The following load_balance_algorithms are available at the moment:
+#
+# "load", "round-robin", "random"
+#
+
+#LOAD_BALANCE_ALGORITHM="load"
+
 # By setting ENABLE_LOADBALANCE="1" you can let users choose their
 # preferred host, while being forwarded to another server. Of course
 # this is just a preference. The loadbalancing algorithm can completely
 # choose to ignore the users choice.
 
-#SERVER_LOADBALANCING=""
-#ENABLE_LOADBALANCE_PREFERENCE="0"
+#ENABLE_LOAD_BALANCE_PREFERENCE="0"
 
 #########################################################################
 # Services directives
