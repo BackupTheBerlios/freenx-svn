@@ -23,11 +23,15 @@
 		<dd>
 			<a href="http://kanotix.com/files/debian/pool/main/f/freenx/">http://kanotix.com/files/debian/pool/main/f/freenx/</a>
 		</dd>
-                <dd>
+<!--                <dd>
                         <a href="http://kalyxo-archive.mornfall.net/pool/main/f/freenx/">http://kalyxo-archive.mornfall.net/pool/main/f/freenx/</a>
                 </dd>
 		<dd>
 			<a href="http://www.linux.lk/~anuradha/nx/">http://www.linux.lk/~anuradha/nx/</a>
+		</dd> -->
+		<dd>
+			<a href="http://packages.debianbase.de/">http://packages.debianbase.de/</a>
+		</dd>
 		<dt>
 			Fedora/Redhat RPMs &amp; HOWTO
 		</dt>
