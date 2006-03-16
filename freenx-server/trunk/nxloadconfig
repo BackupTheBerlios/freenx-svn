@@ -72,6 +72,11 @@ APPLICATION_LIBRARY_PRELOAD="" #Calculated
 # the name of the authorized keys file for ssh
 SSH_AUTHORIZED_KEYS="authorized_keys2"
 
+# retest values like xauth, netcat
+# set to 0 if you are sure, you set the right values
+
+NXCONFIG_RETEST=1
+
 #########################################################################
 # Default Values
 # A user should NEVER touch this, edit $NX_ETC_DIR/node.conf instead
@@ -156,8 +161,7 @@ COMMAND_START_KDE=startkde
 COMMAND_START_GNOME=gnome-session
 COMMAND_START_CDE=cdwm
 COMMAND_XTERM=xterm
-COMMAND_XAUTH=$(which xauth)
-[ -z "$COMMAND_XAUTH" ] && COMMAND_XAUTH=/usr/X11R6/bin/xauth
+COMMAND_XAUTH=/usr/X11R6/bin/xauth
 COMMAND_SMBMOUNT=smbmount
 COMMAND_SMBUMOUNT=smbumount
 COMMAND_NETCAT=netcat
@@ -223,6 +227,16 @@ case "$OS" in
 	       }
        ;;
 esac
+
+#########################################################################
+# Retested values
+#########################################################################
+
+if [ "$NXCONFIG_RETEST" = "1" ]
+then
+	{ ! which "$COMMAND_XAUTH" && which xauth; } >/dev/null 2>&1 && COMMAND_XAUTH=$(which xauth)
+	{ ! which "$COMMAND_NETCAT" && which nc; } >/dev/null 2>&1 && COMMAND_NETCAT=$(which nc)
+fi
 
 #########################################################################
 # node.conf file evaluation
@@ -496,7 +510,7 @@ then
 	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
 
-	[ -z "$(strings $PATH_BIN/nxagent | grep 'NXAGENT - Version 1.5.0')"] && \
+	[ -z "$(strings $PATH_BIN/nxagent | grep 'NXAGENT - Version 1.5.0')" ] && \
 		ERROR="yes" && echo "Error: Could not find 1.5.0 version string in nxagent. NX 1.5.0 backend is needed for this version of FreeNX."
 		
 	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
@@ -514,8 +528,8 @@ then
 	#AGENT_FONT_SERVER=""
 		#Any ideas on how I can check for a VALID host is velcome!
 	
-	[ -z $(echo "$PROXY_TCP_NODELAY" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"PROXY_TCP_NODELAY=$PROXY_TCP_NODELAY\""
+	#[ -z $(echo "$PROXY_TCP_NODELAY" | egrep "^[|0|1]$") ] && \
+	#	ERROR="yes" && echo "Error: Invalid value \"PROXY_TCP_NODELAY=$PROXY_TCP_NODELAY\""
 	
 	
 	if [ "$ERROR" = "yes" ]

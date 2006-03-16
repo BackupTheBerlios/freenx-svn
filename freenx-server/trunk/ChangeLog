@@ -11,7 +11,8 @@ XX.XX.2006 FreeNX 0.5.0
 	* Fixed keyboard issues by enabling the keybd channel.
 	* Fixed one more stray tail process and being able to
 	  cleanup after a hopelessly failed reconnection. (i.e. agent died)
-	* Fixed detection of xauth.
+	* Fixed detection of xauth / netcat. Added option to disable extra
+	  checks.
 	* Fixed --terminate / --suspend when hostname has a '-' in it.
 	  (Emmanuel Blindauer <freenx@mooby.net>)
 	* ESD_NO_SPAWN is always set when ESPEAKER is set.
