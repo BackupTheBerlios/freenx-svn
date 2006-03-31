@@ -27,6 +27,7 @@ XX.XX.2006 FreeNX 0.5.0
 	* Added correct errorcode 596 instead of 504.
 	* Implemented "round-robin" and "load" loadbalancing algorithms.
 	  Cleaned up node.conf keys.
+	* Fixed help for --restart.
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.

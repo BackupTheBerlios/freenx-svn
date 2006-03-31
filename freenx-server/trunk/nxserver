@@ -1263,7 +1263,7 @@ cmd_usage()
 		echo "--start: Start the nx server" 1>&2
 		echo "--stop: Stop the nx server" 1>&2
 		echo "--status: Show status of nx server" 1>&2
-		echo "--restart: Restart the nx server and terminate all running sessions" 1>&2
+		echo "--restart: Restart the nx server. (start,stop)" 1>&2
 		echo "" 1>&2
 		echo "--list [ user | sessionid ]: List running sessions of user or sessionid " 1>&2
 		echo "--history [ user | sessionid | clear ]: Show history [ of user | sessionid ] or clear the history" 1>&2
@@ -1360,7 +1360,6 @@ cmd_stop()
 {
 	[ -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ] || cmd_abort "Service was already stopped"
 	mv $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS.disabled
-	# TODO: Stop all running sessions
 	echo "NX> 123 Service stopped"
 }
 
