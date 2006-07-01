@@ -11,6 +11,13 @@
 		News
 	</h2>
 	<h3>		<a
+	href="http://www.ukuug.org/events/linux2006/">FreeNX at UKUUG 2006.</a> 
+        - Saturday, August 01, 2006 -
+	</h3>
+	FreeNX is currently present at UKUUG Linux 2006 conference in
+	Brighton, England. You can visit us there.
+
+	<h3>		<a
 	href="http://www.linuxjournal.com/article/8477">Visit FreeNX on Linux WorldExpo San Francisco Aug 9-11, 2005</a> 
         - Saturday, August 07, 2005 - 
 	</h3>
