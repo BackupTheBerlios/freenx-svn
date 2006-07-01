@@ -1,6 +1,6 @@
 <div class="box">
 	<h2>
-		Official FreeNX Server Package
+		Official FreeNX Server Packages
 	</h2>
 	<p>
 		This tarball is intented mainly for distributions, which want to use FreeNX as building the other OpenSource NX components is quite difficult.
