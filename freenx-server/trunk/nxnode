@@ -252,7 +252,7 @@ node_start_agent()
 	[ -n "$keyboard" ] && K="-keyboard $keyboard"
 	[ -n "$kbtype" ] && K="-kbtype $kbtype"
 	B=""
-	[ -n "$backingstore" ] && B="-bs $backingstore"
+	[ -n "$backingstore" -a "$ENABLE_2_0_0_BACKEND" != "1" ] && B="-bs $backingstore"
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
 	R="-D"
@@ -443,7 +443,132 @@ node_emergency_exit()
 #                         connection states and react differently.
 #
 
-node_start_monitor()
+node_start_monitor_2_0_0()
+{
+	TAIL_PID=""
+	SUSPEND_STATUS="$2"
+	SESSION_STATUS=""
+
+	while read line 
+	do
+		#
+		# Catch tail pid
+		#
+		
+		if stringinstring "Info: tail -f running with pid" "$line"
+		then
+			TAIL_PID=$(echo $line | cut -d"'" -f2)
+		fi
+
+		#
+		# Session messages
+		#
+
+		if stringinstring "Session: Starting session at" "$line"
+		then
+			echo "NX> 1009 Session status: starting"
+		fi
+		
+		if stringinstring "Session: Suspending session at" "$line"
+		then
+			echo "NX> 1009 Session status: suspending"
+		fi
+		
+		if stringinstring "Session: Terminating session at" "$line"
+		then
+			echo "NX> 1009 Session status: terminating"
+		fi
+		
+		if stringinstring "Session: Resuming session at" "$line"
+		then
+			echo "NX> 1009 Session status: resuming"
+		fi
+
+
+		#
+		# Session suspend
+		#
+
+		if stringinstring "Session: Session suspended at" "$line"
+		then
+			echo "NX> 1005 Session status: suspended"
+			# umount shares & stop printers
+
+			if [ "$SUSPEND_STATUS" = "Running" ]
+			then
+				node_suspend_session $sess_id
+				SUSPEND_STATUS=""
+			else
+				node_stop_services
+			fi
+		fi
+
+		#
+		# Watchdog termination
+		#
+
+		if stringinstring "Info: Watchdog running with pid" "$line"
+		then
+			WATCHDOG_PID=$(echo $line | cut -d"'" -f2)
+		fi
+
+		if stringinstring "Info: Waiting the watchdog process to complete." "$line"
+		then
+			# Kill the watchdog
+			kill $WATCHDOG_PID 2>/dev/null
+		fi
+		
+		#
+		# Session is running
+		#
+		
+		if stringinstring "Info: Waiting for connection from" "$line"
+		then
+			echo "NX> 710 Session status: running"
+			echo "NX> 1002 Commit"
+			echo "NX> 1006 Session status: running"
+		fi
+
+		#
+		# Reconnection success!
+		#
+		
+		if stringinstring "Session: Session resumed at" "$line"
+		then
+			echo "NX> 718 Session restore succeded"
+			if [ "$1" = "restore" ]
+			then
+				kill $TAIL_PID
+				break
+			fi
+		fi
+
+		#
+		# Reconnection failure
+		#
+		
+		if stringinstring "Session: Display failure detected at" "$line"
+		then
+			echo "NX> 596 Error: Session $1 failed. Reason was: $line"
+			if [ "$1" = "restore" ]
+			then
+				kill $TAIL_PID
+				break
+			fi
+		fi
+	done
+	
+	trap "" EXIT
+	
+	[ "$1" = "restore" ] ||	node_stop_services
+	# close all open file descriptors
+	exec 0<&-
+	exec 1>&-
+	exec 2>&-
+	exit 0
+}
+
+node_start_monitor_1_5_0()
 {
 	RUNNING=0
 	TAIL_PID=""
@@ -597,6 +722,12 @@ node_start_monitor()
 	exec 1>&-
 	exec 2>&-
 	exit 0
+}
+
+node_start_monitor()
+{
+	[ "$ENABLE_2_0_0_BACKEND" = "1" ] && node_start_monitor_2_0_0 "$@"
+	[ "$ENABLE_2_0_0_BACKEND" = "1" ] || node_start_monitor_1_5_0 "$@"
 }
 
 node_startsession()
