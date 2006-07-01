@@ -363,7 +363,7 @@ session_status()
 
 session_running()
 {
-	test -f "$NX_SESS_DIR/running/sessionId'{'$1'}"
+	test -f $NX_SESS_DIR/running/sessionId'{'$1'}'
 }
 
 # session_close <session_id> <end-time>

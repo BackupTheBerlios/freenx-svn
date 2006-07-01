@@ -28,6 +28,8 @@ XX.XX.2006 FreeNX 0.5.0
 	* Implemented "round-robin" and "load" loadbalancing algorithms.
 	  Cleaned up node.conf keys.
 	* Fixed help for --restart.
+	* Fixed session_running function, which fixes all remaining stale
+	  session problems.
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
