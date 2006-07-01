@@ -209,9 +209,10 @@ node_start_applications()
 		[ "$KILL_DEFAULT_X_WM" = "1" ] || wait $WM_PID
 	fi
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
-	
-	# FIXME: Do not terminate agent!
-	node_terminate_agent $sess_id
+
+	# Do not terminate agent in case of rootless agent mode.
+	# The agent times out after a while by itself anyway.
+	[ "$virtualdesktop" = "1" -o "$rootless" != "1" ] && node_terminate_agent $sess_id
 }
 
 node_start_agent()

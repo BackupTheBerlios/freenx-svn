@@ -30,6 +30,8 @@
 	* Fixed help for --restart.
 	* Fixed session_running function, which fixes all remaining stale
 	  session problems.
+	* Removed termination of nxagent in case of rootless mode.
+	  (Fixes kontact without --nofork)
 
 XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
 	* Made nxsetup more user-friendly and hopefully finally failsafe.
