@@ -19,7 +19,7 @@ NXCLIENT="/usr/NX/bin/nxclient"
 [ -x "$NXCLIENT" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
 	&& exec ${NXCLIENT} "$@"
 
-TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display:,printer: -n $(basename $0) -- "$@"`
+TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display:,printer:,parent: -n $(basename $0) -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
@@ -32,6 +32,7 @@ DIALOG_MESSAGE=""
 DIALOG_LOCAL=""
 DIALOG_NOAUTOKILL=""
 DIALOG_PRINTER=""
+DIALOG_PARENT="$PPID"
 
 while true
 do
@@ -43,6 +44,7 @@ do
 		--noautokill) DIALOG_NOAUTOKILL="yes"; shift ;;
 		--display) DISPLAY="$2"; shift 2 ;;
 		--printer) DIALOG_PRINTER="$2"; shift 2 ; break ;;
+		--parent) DIALOG_PARENT="$2"; shift 2 ; break ;;
 		--) shift ; break ;;
                 *) echo "Internal error!" ; exit 1; ;;
 	esac
@@ -329,6 +331,6 @@ esac
 #
 
 RC=$?
-	[ $RC -eq 2 ] && kill -TERM $PPID
-	[ $RC -eq 3 ] && kill -HUP $PPID
+	[ $RC -eq 2 ] && kill -TERM $DIALOG_PARENT
+	[ $RC -eq 3 ] && kill -HUP $DIALOG_PARENT
 exit 0
