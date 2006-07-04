@@ -342,30 +342,37 @@ test_nx()
 	CONNECTION=""
 	while read -t 3 line
 	do
+		echo $line
+		
 		case "$line" in
 			*"HELLO NXSERVER - Version $NX_VERSION"*)
 				CONNECTION="yes"
 			;;
 			*"HELLO NXSERVER - Version"*)
-				echo "Warning: Version Mismatch. Expected $NX_VERSION got: $line."
+				echo "Warning: Version mismatch. Expected $NX_VERSION got: $line."
 				CONNECTION="yes"
 			;;
 			*"NX> 999 Bye"*)
 				break;
 			;;
 		esac
-		echo $line
-	done < <(echo "quit" | ssh -i $NX_HOME_DIR/.ssh/client.id_dsa.key -p "$SSHD_PORT" nx@127.0.0.1 -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" nxserver)
+
+	done < <(NODE_PUBLICKEY="$NX_HOME_DIR/.ssh/client.id_dsa.key" $PATH_BIN/nxnode-login test-nx nx "$SSHD_PORT" nxserver --check)
+
 	if [ -z "$CONNECTION" ]
 	then
 		echo "Fatal error: Could not connect to NX Server."
 		echo 
 		echo "Please check your ssh setup:"
 		echo ""
+		echo "The following are _examples_ of what you might need to check."
+		echo ""
 		echo "	- Make sure \"nx\" is one of the AllowUsers in sshd_config."
+		echo "    (or that the line is outcommented/not there)"
 		echo "	- Make sure your sshd allows public key authentication."
 		echo "	- Make sure your sshd is really running on port $SSHD_PORT."
 		echo "	- Make sure your sshd_config AuthorizedKeysFile in sshd_config is set to $SSH_AUTHORIZED_KEYS."
+		echo "    (this should be a filename not a pathname+filename)"
 		exit 1
 	fi
 	echo "<--- done"

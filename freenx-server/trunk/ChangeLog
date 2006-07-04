@@ -4,6 +4,8 @@ xx.xx.2006 FreeNX 0.6.0
 	* General code cleanup.
 	* Removed "no-x11-forwarding" from keys to allow client to use the
 	  faster interactive sessions.
+	* Fixed nxsetup automatic testing of sessions and cleared up
+	  explanations.
 
 01.07.2006 FreeNX 0.5.0 "UKUUG 2006 Edition"
 	* Opened the 0.5.0 branch.

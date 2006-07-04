@@ -1,12 +1,15 @@
 #!/usr/bin/expect
+#
 # nxnode-login: spawns and controls ssh 
-# Copyright (c) 2004 by Fabian Franz.
+#
+# Copyright (c) 2004-2006 by Fabian Franz.
+#
 # License: GPL, version 2
 #
 # SVN: $Id$
 #
 
-# Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
+# Syntax: nxnode-login {ssh|su|test-nx} user ssh-port executable command tosend
 
 set auth_method [lindex $argv 0]
 set user [lindex $argv 1]
@@ -19,6 +22,32 @@ set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
 set host "127.0.0.1"
 catch {set host $env(NODE_HOSTNAME)}
+
+#
+# Special test-nx instruction for nxsetup
+#
+
+if { "$auth_method"=="test-nx" } {
+	set stty_init "raw icrnl -echo"
+
+	set publickey ""
+	catch {set publickey $env(NODE_PUBLICKEY)}
+	
+	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -i "$publickey" -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" -p "$port" "$executable $command" ]
+	
+	while {1} {
+		expect {
+			"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
+			"Permission denied*" { exit 1 }
+			"HELLO NXSERVER - Version*" { 
+				break
+			}
+		}
+	}
+	expect "NX> 105" { send "quit\r" }
+	expect "NX> 999 Bye"
+	exit 0
+}
 
 expect_user -re "(.*)\n" 
 set password $expect_out(1,string)
