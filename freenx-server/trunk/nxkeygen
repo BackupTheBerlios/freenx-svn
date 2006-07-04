@@ -53,7 +53,7 @@ main ()
 	
 	# copy the key to the authorized_keys2 file
 	rm -f $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
-	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"$PATH_BIN/nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
+	echo -n "no-port-forwarding,no-agent-forwarding,command=\"$PATH_BIN/nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 	cat ${NX_SERVER_KEY} >> $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 
 	# now tell the user what to do
