@@ -466,6 +466,85 @@ echo_x()
 	echo "$@"
 }
 
+
+#
+# needed for slave mode
+#
+
+nxnode_login_stop_slave()
+{
+	[ -n "$NXNODE_LOGIN_SLAVE" ] && kill "$NXNODE_LOGIN_SLAVE"
+}
+
+nxnode_login()
+{
+	PASS="$1"
+	shift
+
+	if [ "$NXNODE_LOGIN_SLAVE_ENABLED" != "1" ]
+	then
+		NXNODE_TOSEND="$NXNODE_TOSEND" echo $PASS | $PATH_BIN/nxnode-login "$@"
+	else
+		if [ -z "$NXNODE_LOGIN_SLAVE" ]
+		then
+			# Send password
+			echo "$PASS" >&4 
+
+			# Connect to NXNODE
+			
+			$PATH_BIN/nxnode-login "$1" "$2" "$3" "$4" "$5" "--slave" <&3 >&3 2>&3 &
+			NXNODE_LOGIN_SLAVE="$!"
+			disown $!
+
+			trap nxnode_login_stop_slave EXIT
+			
+			while read line <&4
+			do
+				log 6 "$line"
+				case "$line" in
+					"NX> 716 Slave mode started successfully.")
+						break
+					;;
+				esac
+			done
+
+			# TODO: KILL the slave node at end of session
+		fi
+		
+		#send CMD to nxnode
+		
+		echo "$6" >&4
+		[ -n "$NXNODE_TOSEND" ] && echo "$NXNODE_TOSEND" >&4
+
+		NXNODE_RETURN="1"
+
+		if [ -z "$NXNODE_READER" ]
+		then
+			while read line <&4
+			do
+				echo "$line"
+				case "$line" in
+					"NX> 716"*) 
+						NXNODE_RETURN="0"
+					;;
+					"NX> 1001"*)
+						break
+					;;
+				esac
+			done
+		fi
+		test "$NXNODE_RETURN" = "0"
+	fi
+}
+
+nxnode_login_register_reader()
+{
+	# Register a reader
+	NXNODE_READER="1"
+}
+
+ENABLE_NXNODE_SLAVE_MODE="1"
+
 # Start!
 [ "$NX_LOG_LEVEL" -ge "1" ] && touch "$NX_LOGFILE" >/dev/null 2>&1
 log 3 "-- NX SERVER START: $@ - ORIG_COMMAND=$SSH_ORIGINAL_COMMAND"
@@ -486,6 +565,27 @@ then
 	log 3 "Info: Detected SSH destination port $NOMACHINE_FORWARD_PORT. Forwarding connection to commercial NoMachine server."
 	exec $NOMACHINE_SERVER
 	log 1 "Error: Forwarding to NoMachine Server $NOMACHINE_SERVER failed. Using FreeNX server instead."
+fi
+
+#
+# nxnode slave mode preparations
+#
+
+NXNODE_LOGIN_SLAVE_ENABLED="0"
+NXNODE_LOGIN_SLAVE=""
+
+if [ "$ENABLE_NXNODE_SLAVE_MODE" = "1" -a "$NXSERVER_HELPER_ACTIVE" != "1" ]
+then
+	export SSH_ORIGINAL_COMMAND
+	export NXSERVER_HELPER_ACTIVE="1"
+	exec $PATH_BIN/nxserver-helper "$0"
+	log 1 "Error: Execution of $PATH_BIN/nxserver-helper failed. Disabling slave mode of nxnode."
+fi
+
+if [ "$ENABLE_NXNODE_SLAVE_MODE" = "1" -a "$NXSERVER_HELPER_ACTIVE" = "1" ]
+then
+	log 3 "Info: Using fds #3 and #4 for communication with nxnode."
+	NXNODE_LOGIN_SLAVE_ENABLED="1"
 fi
 
 echo_x "HELLO NXSERVER - Version $NX_VERSION $NX_LICENSE"
@@ -567,7 +667,7 @@ do
 			then
 				log 6 -n "ssh "
 				export COMMAND_SSH			
-				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
+				nxnode_login "$PASS" -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
@@ -579,7 +679,7 @@ do
 			if [ "$ENABLE_SU_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
 				log 6 -n "su "
-				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
+				nxnode_login "$PASS" -- su "$USER" "" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
@@ -666,10 +766,10 @@ server_nxnode_start()
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
 	    export COMMAND_SSH
-	    echo "$PASS" | NXNODE_TOSEND="$@" $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
+	    NXNODE_TOSEND="$@" nxnode_login "$PASS" -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
-	    echo "$PASS" | NXNODE_TOSEND="$@" $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
+	    NXNODE_TOSEND="$@" nxnode_login "$PASS" -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
 	elif [ "$LOGIN_METHOD" = "USERMODE" ]
 	then
 	    echo "$@" | $PATH_BIN/nxnode "$CMD" 2>&1 | log_tee
@@ -707,6 +807,9 @@ server_nxnode_exit_func()
 
 	# remove lock file
 	[ -e "/tmp/.nX$SESS_DISPLAY-lock" ] && rm -f /tmp/.nX$SESS_DISPLAY-lock
+
+	# Kill possible slave node
+	nxnode_login_stop_slave
 }
 
 server_nxnode_start_wait()
@@ -777,6 +880,8 @@ server_nxnode_start_wait()
 	# remove lock file
 	[ -e "/tmp/.nX$SESS_DISPLAY-lock" ] && rm -f /tmp/.nX$SESS_DISPLAY-lock
 
+	nxnode_login_stop_slave
+
 	else # $1 = restore
 	
 	KILL_WAIT_PID=1
@@ -815,6 +920,8 @@ server_nxnode_start_wait()
 			;;
 		esac
 	done
+	
+	nxnode_login_stop_slave
 	
 	fi # $1 = start
 }
@@ -1071,9 +1178,10 @@ server_startrestore_session()
 	# now start the node
 	sleep $AGENT_STARTUP_TIMEOUT &
 	SERVER_WAIT_PID=$!
-	server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" &
+	( server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" ) &
 	SERVER_PID=$!
 	disown $SERVER_PID
+	
 	wait $SERVER_WAIT_PID
 	
 	if [ $? -eq 0 ]
@@ -1086,6 +1194,9 @@ server_startrestore_session()
 		# FIXME: Send node signal to terminate
 		exit 1
 	fi
+	
+	# We have now an active reader
+	nxnode_login_register_reader
 }
 
 # Session stage
@@ -1215,12 +1326,14 @@ do
 		addmount*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
+			# TODO: This redirection is crap here.
 			server_nxnode_start --smbmount "$USER" "$PARAMS" >/dev/null 2>&1 | log_error >/dev/null
 			echo_x "NX> 719 SMB filesystem: running"
 		;;
 		addprinter*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
+			# TODO: This redirecion is crap here.
 			server_nxnode_start --addprinter "$USER" "$PARAMS" >/dev/null 2>&1 | log_error >/dev/null
 		;;
 		*)

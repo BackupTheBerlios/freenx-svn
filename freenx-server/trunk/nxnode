@@ -1055,8 +1055,9 @@ esac
 if [ "$1" = "--slave" ]
 then
 	# New slave mode accepts more than 1 command at a time
+	echo "NX> 716 Slave mode started successfully."
 	
-	while read CMD HANDLE
+	while read CMD
 	do
 		set -- "$CMD"
 		if [ "$1" != "--check" -a "$1" != "--setkey" -a "$1" != "--agent" ]
@@ -1066,7 +1067,7 @@ then
 			CMDLINE="a=b&$CMDLINE"
 		fi
 
-		( echo $CMDLINE | "$0" "$CMD" | sed "s/^/[$HANDLE]-/g" ) &
+		( echo $CMDLINE | "$0" "$CMD" ) &
 
 	done
 else
