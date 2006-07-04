@@ -9,7 +9,7 @@
 #       but we set it to a "good value" anyway in case 
 #       it does check it someday.
 #
-# CVS: $Id: nxclient,v 1.5 2005/04/25 02:11:24 fabianx Exp $
+# SVN: $Id$
 #
 # ========================================================================
 

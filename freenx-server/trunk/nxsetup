@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.31 2005/08/02 17:29:59 fabianx Exp $ 
+# SVN: $Id$ 
 #
 
 HELP="no"

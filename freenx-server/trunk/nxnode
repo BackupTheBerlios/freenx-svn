@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.77 2005/08/02 15:20:18 fabianx Exp $
+# SVN: $Id$
 #
 # 21.06.2004: - Full reconnection support
 

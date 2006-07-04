@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.35 2005/08/02 15:39:32 fabianx Exp $
+# SVN: $Id$
 
 #########################################################################
 # General FreeNX directives

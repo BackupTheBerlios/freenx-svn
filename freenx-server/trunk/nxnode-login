@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.13 2005/07/27 14:34:59 fabianx Exp $
+# SVN: $Id$
 #
 
 # Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
