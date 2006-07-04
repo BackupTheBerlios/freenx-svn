@@ -22,7 +22,7 @@
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
 
-if [ "$1" != "--check" -a "$1" != "--setkey" -a "$1" != "--agent" ]
+if [ "$1" != "--check" -a "$1" != "--setkey" -a "$1" != "--agent" -a "$1" != "--slave" ]
 then 
 	read CMDLINE
 
@@ -1001,6 +1001,8 @@ cmd_node_addprinter()
 	[ "$defaultPrinter" = "1" ] && lpadmin -d "$NAME"
 }
 
+nxnode_func()
+{
 
 case "$1" in 
 	--startsession)
@@ -1046,4 +1048,29 @@ case "$1" in
 		echo "NX> 500 Error: Command not found"
 	;;
 esac
+
+}
+
+
+if [ "$1" = "--slave" ]
+then
+	# New slave mode accepts more than 1 command at a time
+	
+	while read CMD HANDLE
+	do
+		set -- "$CMD"
+		if [ "$1" != "--check" -a "$1" != "--setkey" -a "$1" != "--agent" ]
+		then 
+			read CMDLINE
+
+			CMDLINE="a=b&$CMDLINE"
+		fi
+
+		( echo $CMDLINE | "$0" "$CMD" | sed "s/^/[$HANDLE]-/g" ) &
+
+	done
+else
+	nxnode_func "$@"
+fi
+
 echo "NX> 1001 Bye."
