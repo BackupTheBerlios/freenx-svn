@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006 by Fabian Franz.
+ *
+ * License: GPL, v2
+ *
+ * SVN: $Id$
+ *
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 

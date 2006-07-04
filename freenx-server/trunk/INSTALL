@@ -67,3 +67,7 @@ You should also install the nxclient from NoMachine or also copy the nxclient pr
 Then you need to run 'nxsetup --install' and follow the instructions given.
 
 If you use 1.5.0 as backend be sure to set ENABLE_1_5_0_BACKEND to 1 in node.conf or nxloadconfig.
+
+--
+
+SVN: $Id$
