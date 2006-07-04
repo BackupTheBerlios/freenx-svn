@@ -239,7 +239,7 @@ install_nx()
 		echo "done"
 	fi
 	
-	if [ "$ENABLE_NOMACHINE_FORWARD" = "1" -a -x "$NOMACHINE_SERVER" ]
+	if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a -x "$NOMACHINE_SERVER" ]
 	then
 		echo -n "Setting up NoMachine forwarding ..."
 		usermod -s "$PATH_BIN/nxserver" -d "$NOMACHINE_NX_HOME_DIR" nx
