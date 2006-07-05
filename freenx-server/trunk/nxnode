@@ -293,7 +293,7 @@ node_start_applications()
 	# Startup the application
 	#
 	
-	DISPLAY=unix:$display $STARTX >>"$USER_FAKE_HOME/.nx/C-$sess_id/session" 2>&1 &
+	DISPLAY=unix:$display $NODE_APPLICATION >>"$USER_FAKE_HOME/.nx/C-$sess_id/session" 2>&1 &
 	NODE_APP_PID=$!
 	
 	mkdir -p "$USER_FAKE_HOME/.nx/C-$sess_id/pids/"
