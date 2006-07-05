@@ -1175,7 +1175,7 @@ cmd_node_addprinter()
 		DEVICE_URI="smb://$username:$password@localhost:$port/$share"
 		NAME="$share"
 	else
-		DEVICE_URI="ipp://localhost:$port/printers/$printer"
+		DEVICE_URI="ipp://$username:$password@localhost:$port/printers/$printer"
 		NAME="$printer"
 	fi
 	
