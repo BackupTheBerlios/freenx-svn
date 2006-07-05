@@ -1193,10 +1193,10 @@ nxnode_func()
 
 case "$1" in 
 	--startsession)
-		node_startsession
+		startsession
 	;;
 	--resumesession)
-		node_startsession "restore"
+		startsession "restore"
 	;;
 	--terminate)
 		cmd_node_terminate
@@ -1253,8 +1253,14 @@ then
 
 			CMDLINE="a=b&$CMDLINE"
 		fi
-
-		( echo $CMDLINE | "$0" "$CMD" ) &
+		
+		if [ "$1" = "--startsession" -o "$1" = "--resumesession" ]
+		then
+			export SLAVE_PID=$$
+			( echo $CMDLINE | "$0" "$CMD"; kill $SLAVE_PID ) &
+		else
+			( echo $CMDLINE | "$0" "$CMD" ) &
+		fi
 
 	done
 else
