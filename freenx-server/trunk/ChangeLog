@@ -2,6 +2,7 @@ xx.xx.2006 FreeNX 0.6.0
 	* Opened the 0.6.0 branch.
 	* Added nxnode slave mode.
 	* General code cleanup.
+		* Huge cleanup of nxnode.
 	* Removed "no-x11-forwarding" from keys to allow client to use the
 	  faster interactive sessions.
 	* Fixed nxsetup automatic testing of sessions and cleared up

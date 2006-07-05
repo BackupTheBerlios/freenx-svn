@@ -49,6 +49,10 @@ if { "$auth_method"=="test-nx" } {
 	exit 0
 }
 
+#
+# Log the user in via the supplied method.
+#
+
 expect_user -re "(.*)\n" 
 set password $expect_out(1,string)
 
