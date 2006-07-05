@@ -473,7 +473,12 @@ echo_x()
 
 nxnode_login_stop_slave()
 {
-	[ -n "$NXNODE_LOGIN_SLAVE" ] && kill "$NXNODE_LOGIN_SLAVE"
+	if [ -n "$NXNODE_LOGIN_SLAVE" ]
+	then
+		kill "$NXNODE_LOGIN_SLAVE"
+		sleep 2
+		kill -0 "$NXNODE_LOGIN_SLAVE" && kill -9 "$NXNODE_LOGIN_SLAVE"
+	fi
 }
 
 nxnode_login()
