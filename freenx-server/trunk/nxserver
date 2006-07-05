@@ -548,7 +548,7 @@ nxnode_login_register_reader()
 	NXNODE_READER="1"
 }
 
-ENABLE_NXNODE_SLAVE_MODE="1"
+#ENABLE_NXNODE_SLAVE_MODE="1"
 
 # Start!
 [ "$NX_LOG_LEVEL" -ge "1" ] && touch "$NX_LOGFILE" >/dev/null 2>&1

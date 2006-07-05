@@ -154,6 +154,11 @@ node_terminate_session()
 node_fail_restore_session()
 {
 	echo "NX> 1004 Error: Could not resume session. nxagent process could not be found."
+	
+	NODE_TAIL_PID=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/pids/tail" 2>/dev/null)
+	[ -n "$NODE_TAIL_PID" ] && kill $NODE_TAIL_PID
+	[ -n "$NODE_TAIL_PID" ] && echo "NX 1004> kill $NODE_TAIL_PID"
+	
 	node_terminate_session "$1" "failed"
 	exit 1
 }
@@ -656,6 +661,7 @@ node_start_monitor_2_0_0()
 		if stringinstring "Info: tail -f running with pid" "$line"
 		then
 			NODE_TAIL_PID=$(echo $line | cut -d"'" -f2)
+			echo "$NODE_TAIL_PID" >"$USER_FAKE_HOME/.nx/C-$sess_id/pids/tail"
 		fi
 
 		#
@@ -781,6 +787,7 @@ node_start_monitor_1_5_0()
 		if stringinstring "Info: tail -f running with pid" "$line"
 		then
 			NODE_TAIL_PID=$(echo $line | cut -d"'" -f2)
+			echo "$NODE_TAIL_PID" >"$USER_FAKE_HOME/.nx/C-$sess_id/pids/tail"
 		fi
 
 		#
@@ -881,7 +888,7 @@ node_start_monitor_1_5_0()
 	done
 	
 	trap "" EXIT
-	
+
 	[ "$1" = "restore" ] ||	node_stop_services
 	# close all open file descriptors
 	exec 0<&-
@@ -1067,7 +1074,7 @@ then
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 	echo "$MONITOR_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 
-	node_suspend_session $sess_id || { echo "Info: Reconnection failed: NX Agent process could not be found." >>$USER_FAKE_HOME'/.nx/C-'$sess_id'/session'; node_fail_restore_session $sess_id; }
+	node_suspend_session $sess_id || { echo "Info: Reconnection failed: NX Agent process could not be found." >>"$USER_FAKE_HOME/.nx/C-$sess_id/session"; node_fail_restore_session $sess_id; }
 else
 	node_start_agent &
 	node_start_applications &
@@ -1101,7 +1108,8 @@ EOF
 if [ -n "$MONITOR_PID" ]
 then
 	wait "$MONITOR_PID"
-	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
+	rm -f "$USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor"
+	rm -f "$USER_FAKE_HOME/.nx/C-$sess_id/pids/tail"
 fi
 wait # for all children
 }
