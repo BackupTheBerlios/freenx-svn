@@ -10,6 +10,7 @@ xx.xx.2006 FreeNX 0.6.0
 	* Added support for NX 2.0.0 style nxclient dialogs.
 	* Support for NX 2.0.0 backend in nxloadconfig.
 	* Fixed cups printing (added username and password).
+	* Fixed one more stray tail process.
 
 01.07.2006 FreeNX 0.5.0 "UKUUG 2006 Edition"
 	* Opened the 0.5.0 branch.
