@@ -726,12 +726,12 @@ session_cleanup
 
 server_get_params()
 {
-	SERVER_PARAMS=$(echo "$@" | sed "s/^$1/\"/g; s/\" --/\&/g; s/\"//g")
+	SERVER_PARAMS=$(echo "$@" | sed "s/^$1/\"/g; s/\" --/\&/g; s/\"//g; s/%20/ /g")
 	if [ "$SERVER_PARAMS" = "" ]
 	then
 		echo_x -n "NX> 106 Parameters: "
 		read SERVER_PARAMS2
-		SERVER_PARAMS=$(echo $SERVER_PARAMS2 | sed 's/%2B/+/g')
+		SERVER_PARAMS=$(echo $SERVER_PARAMS2 | sed 's/%2B/+/g; s/%20/ /g')
 		echo_x
 	fi
 }
