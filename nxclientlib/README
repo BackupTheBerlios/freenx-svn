@@ -1,0 +1,26 @@
+===========================README====================================
+
+How to test out the client library.
+
+First, you will need Qt 4 (I am developing against 4.1.4).
+
+Compile Qt as usual, then set QTDIR to point to the directory that
+Qt has been installed to (default is /usr/local/Trolltech/Qt-x.y.z).
+
+Set PATH to include the path which contains nxssh and nxproxy
+(this is /usr/NX/bin on most systems), and $QTDIR/bin. Set
+LD_LIBRARY_PATH to include /usr/NX/lib, . and ..
+
+Run qmake inside the nxclientlib directory, then run make. After that
+has finished, run qmake inside qt-test and run make again. This will
+build nxclientlib and the qt-test frontend.
+
+You can then just run qtnx inside the qt-test directory and it should
+work. Just type in all the session parameters in the various boxes
+and then hit "Connect". There is logging output to stderr/stdout
+which shows all the nxssh data.
+
+At the moment you can only use the default NoMachine public key
+for authentication.
+
+August 3rd 2006 - George Wright - gwright@kde.org
