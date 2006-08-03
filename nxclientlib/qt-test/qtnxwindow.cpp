@@ -81,7 +81,11 @@ void QtNXWindow::connectPressed()
 	session.screenInfo = QString::number(dw.screenGeometry(this).width()) + "x" + QString::number(dw.screenGeometry(this).height()) + "x" + QString::number(info.depth()) + "render";
 	session.suspended = false;
 
-	m_lib.invokeNXSSH("default" , ui_mw.server->text().toAscii().data(), true);
+	if (ui_mw.encryption->checkState() == 0)
+		m_lib.invokeNXSSH("default" , ui_mw.server->text().toAscii().data(), false);
+	if (ui_mw.encryption->checkState() == 2)
+		m_lib.invokeNXSSH("default" , ui_mw.server->text().toAscii().data(), true);
+		
 	m_lib.setUsername(ui_mw.username->text().toAscii().data());
 	m_lib.setPassword(ui_mw.password->text().toAscii().data());
 	m_lib.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
