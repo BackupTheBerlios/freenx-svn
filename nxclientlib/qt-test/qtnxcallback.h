@@ -1,7 +1,7 @@
 /***************************************************************************
-                                nxcallback.h
+                               qtnxcallback.h
                              -------------------
-    begin                : Sat 22nd July 2006
+    begin                : Thursday August 3rd 2006
     copyright            : (C) 2006 by George Wright
     email                : gwright@kde.org
  ***************************************************************************/
@@ -15,32 +15,34 @@
  *                                                                         *
  ***************************************************************************/
  
-#ifndef _NXCALLBACK_H_
-#define _NXCALLBACK_H_
+#ifndef _QTNXCALLBACK_H_
+#define _QTNXCALLBACK_H_
 
-#include <iostream>
-#include <vector>
+#include <QObject>
+#include "nxcallback.h"
 
-#include "nxsession.h"
-
-// Callback interface for parent app to get status updates from NXClientLib.
-class NXCallback
+class QtNXCallback : public QObject, public NXCallback
 {
+	Q_OBJECT
 	public:
-		virtual void write(std::string *msg) = 0;
-		// Called by nxssh if we get a request for ssh authenticity
-		// msg is the message passed by nxssh
-		virtual void sshRequestAuthenticity(std::string *msg) = 0;
-		// Called if the NX server replies that authentication has failed
-		virtual void authenticationFailed() = 0;
+		virtual void write(std::string *msg);
+		virtual void sshRequestAuthenticity(std::string *msg);
+
+		virtual void authenticationFailed();
 
 		// Stdout/stderr from the nxssh process
-		virtual void stdout(std::string *msg) = 0;
-		virtual void stderr(std::string *msg) = 0;
+		virtual void stdout(std::string *msg) {};
+		virtual void stderr(std::string *msg) {};
 		// Stdin sent to the nxssh process
-		virtual void stdin(std::string *msg) = 0;
-
-		virtual void resumeSessions(std::vector<NXResumeData> *sessions) = 0;
+		virtual void stdin(std::string *msg) {};
+		virtual void resumeSessions(std::vector<NXResumeData> *sessions);
+	signals:
+		void authFailed();
+		void message(std::string);
+		void sshAuth(std::string);
+		void resume();
+	private:
+		std::vector<NXResumeData> *m_sessions;
 };
 
 #endif
