@@ -28,7 +28,7 @@ QByteArray cert("-----BEGIN DSA PRIVATE KEY-----\nMIIBuwIBAAKBgQCXv9AzQXjxvXWC1q
 NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 {
 	isFinished = false;
-	
+	proxyData.encrypted = false;
 	connect(&session, SIGNAL(authenticated()), this, SLOT(doneAuth()));
 	connect(&session, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
 	connect(&session, SIGNAL(finished()), this, SLOT(finished()));
@@ -38,19 +38,35 @@ NXClientLib::~NXClientLib()
 {
 }
 
-void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption)
+void NXClientLib::invokeNXSSH(const char *publicKeyS, const char *serverHostS, bool encryption, const char *key)
 {
-	QStringList arguments;
+	QString publicKey;
+	QString serverHost;
 
+	publicKey = publicKeyS;
+	serverHost = serverHostS;
+	
+	QStringList arguments;
+	proxyData.server = serverHost;
+	QByteArray keyba;
+	keyba = key;
+	
 	if (publicKey == "default") {
 		usingHardcodedKey = true;
+	}
+
+	if (publicKey == "default" || publicKey == "supplied") {
 		cerr << tr("WARNING: Using hardcoded NoMachine public key.").toStdString() << endl;
 		keyFile = new QTemporaryFile;
 		keyFile->open();
 		
 		arguments << "-nx" << "-i" << keyFile->fileName();
-
-		keyFile->write(cert);
+		
+		if (publicKey == "default")
+			keyFile->write(cert);
+		else
+			keyFile->write(keyba);
+			
 		keyFile->close();
 	} else {
 		arguments << "-i" << publicKey;
@@ -59,7 +75,8 @@ void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryp
 	if (encryption == true) {
 		arguments << "-B";
 		session.setEncryption(true);
-	}
+	} else
+		session.setEncryption(false);
 	
 	connect(&nxsshProcess, SIGNAL(started()), this, SLOT(processStarted()));
 	connect(&nxsshProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
@@ -154,7 +171,7 @@ void NXClientLib::processParseStderr()
 {
 	QString message = nxsshProcess.readAllStandardError().data();
 	
-	cout << "STDERR: " << message.toStdString();
+	cerr << message.toStdString();
 
 	if (proxyData.encrypted && isFinished && message.contains("NX> 999 Bye")) {
 		QString returnMessage;
@@ -202,7 +219,7 @@ void NXClientLib::setSession(NXSessionData nxSession)
 QString NXClientLib::parseSSH(QString message)
 {
 	QString returnMessage = 0;
-	cout << "FOO: "<<message.toStdString() << endl;
+	
 	if (message.contains("NX> 700 Session id: ")) {
 		proxyData.id = message.right(message.length() - 20);
 	} else if (message.contains("NX> 705 Session display: ")) {
@@ -236,8 +253,8 @@ void NXClientLib::invokeProxy()
 	if (proxyData.encrypted)
 		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",listen=" + QString::number(proxyData.port) + ":" + QString::number(proxyData.display) + "\n";
 	else
-		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ":" + QString::number(proxyData.display) + "\n";
-	
+		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",connect=" + proxyData.server + ":" + QString::number(proxyData.display) + "\n";
+
 	options.open(QIODevice::WriteOnly);
 	options.write(data.toAscii());
 	options.close();
