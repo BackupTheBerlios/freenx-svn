@@ -159,7 +159,7 @@ void NXClientLib::processParseStderr()
 	if (proxyData.encrypted && isFinished && message.contains("NX> 999 Bye")) {
 		QString returnMessage;
 		returnMessage = "NX> 299 Switching connection to: ";
-		returnMessage += proxyData.proxyIP + ":33057" + " cookie: " + proxyData.cookie + "\n";
+		returnMessage += proxyData.proxyIP + ":" + QString::number(proxyData.port) + " cookie: " + proxyData.cookie + "\n";
 		write(returnMessage);
 	}
 
@@ -207,6 +207,7 @@ QString NXClientLib::parseSSH(QString message)
 		proxyData.id = message.right(message.length() - 20);
 	} else if (message.contains("NX> 705 Session display: ")) {
 		proxyData.display = message.right(message.length() - 24).toInt();
+		proxyData.port = proxyData.display + 4000;
 	} else if (message.contains("NX> 706 Agent cookie: ")) {
 		proxyData.cookie = message.right(message.length() - 22);
 	} else if (message.contains("NX> 702 Proxy IP: ")) {
@@ -232,7 +233,11 @@ void NXClientLib::invokeProxy()
 	options.setFileName(QDir::homePath() + "/.nx/S-" + proxyData.id + "/options");
 
 	QString data;
-	data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",listen=33057:" + QString::number(proxyData.display) + "\n";
+	if (proxyData.encrypted)
+		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",listen=" + QString::number(proxyData.port) + ":" + QString::number(proxyData.display) + "\n";
+	else
+		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ":" + QString::number(proxyData.display) + "\n";
+	
 	options.open(QIODevice::WriteOnly);
 	options.write(data.toAscii());
 	options.close();

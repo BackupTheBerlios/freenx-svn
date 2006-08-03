@@ -34,6 +34,7 @@ struct ProxyData {
 	QString cookie;
 	QString proxyIP;
 	bool encrypted;
+	int port;
 };
 
 class NXClientLib : public QObject
