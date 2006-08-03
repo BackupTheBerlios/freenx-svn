@@ -145,6 +145,8 @@ void NXClientLib::processParseStdout()
 	QStringList::const_iterator i;
 
 	for (i = messages.constBegin(); i != messages.constEnd(); ++i) {
+		if ((*i).contains("Password"))
+			password = true;
 		if (!isFinished)
 			write(session.parseSSH(*i));
 		else
@@ -186,11 +188,17 @@ void NXClientLib::processParseStderr()
 
 void NXClientLib::write(QString data)
 {
+	nxsshProcess.write(data.toAscii());
+	
+	if (password) {
+		data = "********";
+		password = false;
+	}
+
 	callbackStdin = data.toStdString();
 	callback->stdin(&callbackStdin);
-	
+
 	cout << data.toStdString();
-	nxsshProcess.write(data.toAscii());
 }
 
 void NXClientLib::writeCallback(QString message)

@@ -83,6 +83,7 @@ class NXClientLib : public QObject
 	private:
 		bool usingHardcodedKey;
 		bool isFinished;
+		bool password;
 		
 		QProcess nxsshProcess;
 		QProcess nxproxyProcess;
