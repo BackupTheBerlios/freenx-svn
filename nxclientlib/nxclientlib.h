@@ -49,8 +49,7 @@ class NXClientLib : public QObject
 
 		void setCallback(NXCallback *cb) { callback = cb; };
 
-		void setXRes(int x) { session.setXRes(x); };
-		void setYRes(int y) { session.setYRes(y); };
+		void setResolution(int x, int y) { session.setResolution(x, y); };
 		void setDepth(int depth) { session.setDepth(depth); };
 		void setRender(bool render) { session.setRender(render); };
 		void allowSSHConnect(bool auth);
@@ -64,6 +63,7 @@ class NXClientLib : public QObject
 		void processParseStderr();
 
 		void doneAuth();
+		void failedLogin();
 	private:
 		QProcess nxsshProcess;
 		QTemporaryFile *keyFile;

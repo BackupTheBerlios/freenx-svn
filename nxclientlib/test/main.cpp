@@ -34,8 +34,7 @@ int main(int argc, char **argv)
 	lib.invokeNXSSH("default" ,argv[1], true);
 	lib.setUsername(argv[2]);
 	lib.setPassword(argv[3]);
-	lib.setXRes(640);
-	lib.setYRes(480);
+	lib.setResolution(640,480);
 	lib.setDepth(24);
 	lib.setRender(true);
 	return qApp->exec();

@@ -25,6 +25,7 @@ QByteArray cert("-----BEGIN DSA PRIVATE KEY-----\nMIIBuwIBAAKBgQCXv9AzQXjxvXWC1q
 NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 {
 	connect(&session, SIGNAL(authenticated()), this, SLOT(doneAuth()));
+	connect(&session, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
 }
 
 NXClientLib::~NXClientLib()
@@ -51,7 +52,7 @@ void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryp
 	
 	if (encryption == true) {
 		arguments << "-B";
-		// session.sessionData.encryption = true;
+		session.sessionData.encryption = true;
 	}
 	
 	connect(&nxsshProcess, SIGNAL(started()), this, SLOT(processStarted()));
@@ -95,6 +96,12 @@ void NXClientLib::processError(QProcess::ProcessError error)
 	}
 	
 	writeCallback(message);
+}
+
+void NXClientLib::failedLogin()
+{
+	writeCallback(tr("Username or password incorrect"));
+	nxsshProcess.terminate();
 }
 
 void NXClientLib::processParseStdout()

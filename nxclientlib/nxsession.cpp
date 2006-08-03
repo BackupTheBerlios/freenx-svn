@@ -41,6 +41,7 @@ using namespace std;
 
 NXSession::NXSession()
 {
+	devurand_fd = -1;
 	stage = 0;
 	sessionSet = false;
 }
@@ -102,6 +103,8 @@ QString NXSession::parseSSH(QString message)
 				case 103:
 					stage++;
 					break;
+				case 404:
+					emit loginFailed();
 				}
 			break;
 		case LIST_SESSIONS:
@@ -137,7 +140,7 @@ QString NXSession::parseSSH(QString message)
 					"\" --type=\"" + sessionData.sessionType +
 					"\" --cache=\"" + sessionData.cache +
 					"M\" --images=\"" + sessionData.images +
-					"M\" --cookie=\"" + sessionData.sessionCookie +
+					"M\" --cookie=\"" + generateCookie() +
 					"\" --link=\"" + sessionData.linkType +
 					"\" --kbtype=\"" + sessionData.kbtype +
 					"\" --nodelay=\"1\" --encryption=\"" + encryption +
@@ -152,7 +155,7 @@ QString NXSession::parseSSH(QString message)
 					"\" --type=\"" + sessionData.sessionType +
 					"\" --cache=\"" + sessionData.cache +
 					"M\" --images=\"" + sessionData.images +
-					"M\" --cookie=\"" + sessionData.sessionCookie +
+					"M\" --cookie=\"" + generateCookie() +
 					"\" --link=\"" + sessionData.linkType +
 					"\" --render=\"" + render +
 					"\" --encryption=\"" + encryption +
@@ -241,43 +244,30 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 	stage++;
 }
 
-void NXSession::setUsername(QString user)
+
+QString NXSession::generateCookie()
 {
-	nxUsername = user;
+	unsigned long long int int1, int2;
+	QString cookie;
+	
+	devurand_fd = open("/dev/urandom", O_RDONLY);
+
+	fillRand((unsigned char*)&int1, sizeof(int1));
+	fillRand((unsigned char*)&int2, sizeof(int2));
+	cookie = QString("%1%2").arg(int1, 0, 16).arg(int2, 0, 16);
+
+	return cookie;
 }
 
-void NXSession::setPassword(QString pass)
-{
-	nxPassword = pass;
+void NXSession::fillRand(unsigned char *buf, size_t nbytes) {
+	ssize_t r;
+	unsigned char *where = buf;
+
+	while (nbytes) {
+		while ((r = read(devurand_fd, where, nbytes)) == -1)
+		where  += r;
+		nbytes -= r;
+	}
 }
 
-void NXSession::reset()
-{
-	stage = 0;
-}
 
-void NXSession::setXRes(int x)
-{
-	xRes.setNum(x);
-}
-
-void NXSession::setYRes(int y)
-{
-	yRes.setNum(y);
-}
-
-void NXSession::setDepth(int d)
-{
-	depth.setNum(d);
-}
-
-void NXSession::setRender(bool isRender)
-{
-	if (isRender)
-		renderSet = "render";
-}
-
-void NXSession::setContinue(bool allow)
-{
-		doSSH = allow;
-}

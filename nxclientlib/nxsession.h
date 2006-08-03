@@ -24,12 +24,14 @@
 #include <QString>
 #include <QStringList>
 
+#include <fcntl.h>
+#include <unistd.h>
+
 struct NXSessionData {
 	QString sessionName;
 	QString sessionType;
 	int cache;
 	int images;
-	QString sessionCookie;
 	QString linkType;
 	bool render;
 	bool encryption;
@@ -71,29 +73,34 @@ class NXSession : public QObject
 		
 		QString parseSSH(QString);
 		int parseResponse(QString);
-		void setUsername(QString);
-		void setPassword(QString);
+		void setUsername(QString user) { nxUsername = user; };
+		void setPassword(QString pass) { nxPassword = pass; };
 		void parseResumeSessions(QStringList);
 
-		void setXRes(int);
-		void setYRes(int);
-		void setDepth(int);
-		void setRender(bool);
-		void setContinue(bool);
+		void setResolution(int x, int y) { xRes.setNum(x); yRes.setNum(y); };
+		void setDepth(int d) { depth.setNum(d); };
+		void setRender(bool isRender) { if (isRender) renderSet = "render"; };
+		void setContinue(bool allow) { doSSH = allow; };
 		void setSession(NXSessionData);
-
+		QString generateCookie();
+		
 		NXSessionData sessionData;
 
 	signals:
 		// Emitted when the initial public key authentication is successful
 		void authenticated();
+		void loginFailed();
 	private:
 		bool doSSH;
 		bool suspendedSessions;
 		bool sessionSet;
 		void reset();
-		
+		void fillRand(unsigned char *, size_t);
+
 		int stage;
+
+		int devurand_fd;
+
 		QString nxUsername;
 		QString nxPassword;
 
