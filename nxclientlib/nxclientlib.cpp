@@ -17,15 +17,21 @@
 
 #include "nxclientlib.h"
 
+#include <QDir>
+
 #define NXSSH_BIN "nxssh"
+#define NXPROXY_BIN "nxproxy"
 
 // Default NoMachine certificate for FALLBACK
 QByteArray cert("-----BEGIN DSA PRIVATE KEY-----\nMIIBuwIBAAKBgQCXv9AzQXjxvXWC1qu3CdEqskX9YomTfyG865gb4D02ZwWuRU/9\nC3I9/bEWLdaWgJYXIcFJsMCIkmWjjeSZyTmeoypI1iLifTHUxn3b7WNWi8AzKcVF\naBsBGiljsop9NiD1mEpA0G+nHHrhvTXz7pUvYrsrXcdMyM6rxqn77nbbnwIVALCi\nxFdHZADw5KAVZI7r6QatEkqLAoGBAI4L1TQGFkq5xQ/nIIciW8setAAIyrcWdK/z\n5/ZPeELdq70KDJxoLf81NL/8uIc4PoNyTRJjtT3R4f8Az1TsZWeh2+ReCEJxDWgG\nfbk2YhRqoQTtXPFsI4qvzBWct42WonWqyyb1bPBHk+JmXFscJu5yFQ+JUVNsENpY\n+Gkz3HqTAoGANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfa\nQU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3\nmbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8CFDIm1xRf\n8xAPsSKs6yZ6j1FNklfu\n-----END DSA PRIVATE KEY-----");
 
 NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 {
+	isFinished = false;
+	
 	connect(&session, SIGNAL(authenticated()), this, SLOT(doneAuth()));
 	connect(&session, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
+	connect(&session, SIGNAL(finished()), this, SLOT(finished()));
 }
 
 NXClientLib::~NXClientLib()
@@ -52,7 +58,7 @@ void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryp
 	
 	if (encryption == true) {
 		arguments << "-B";
-		session.sessionData.encryption = true;
+		session.setEncryption(true);
 	}
 	
 	connect(&nxsshProcess, SIGNAL(started()), this, SLOT(processStarted()));
@@ -122,7 +128,10 @@ void NXClientLib::processParseStdout()
 	QStringList::const_iterator i;
 
 	for (i = messages.constBegin(); i != messages.constEnd(); ++i) {
-		write(session.parseSSH(*i));
+		if (!isFinished)
+			write(session.parseSSH(*i));
+		else
+			write(parseSSH(*i));
 	}
 }
 
@@ -146,7 +155,14 @@ void NXClientLib::processParseStderr()
 	QString message = nxsshProcess.readAllStandardError().data();
 	
 	cout << "STDERR: " << message.toStdString();
-	
+
+	if (proxyData.encrypted && isFinished && message.contains("NX> 999 Bye")) {
+		QString returnMessage;
+		returnMessage = "NX> 299 Switching connection to: ";
+		returnMessage += proxyData.proxyIP + ":33057" + " cookie: " + proxyData.cookie + "\n";
+		write(returnMessage);
+	}
+
 	callbackStderr = message.toStdString();
 	callback->stderr(&callbackStderr);
 }
@@ -180,5 +196,50 @@ void NXClientLib::allowSSHConnect(bool auth)
 
 void NXClientLib::setSession(NXSessionData nxSession)
 {
+	session.setSession(nxSession);
+}
+
+QString NXClientLib::parseSSH(QString message)
+{
+	QString returnMessage = 0;
+	cout << "FOO: "<<message.toStdString() << endl;
+	if (message.contains("NX> 700 Session id: ")) {
+		proxyData.id = message.right(message.length() - 20);
+	} else if (message.contains("NX> 705 Session display: ")) {
+		proxyData.display = message.right(message.length() - 24).toInt();
+	} else if (message.contains("NX> 706 Agent cookie: ")) {
+		proxyData.cookie = message.right(message.length() - 22);
+	} else if (message.contains("NX> 702 Proxy IP: ")) {
+		proxyData.proxyIP = message.right(message.length() - 18);
+	} else if (message.contains("NX> 707 SSL tunneling: 1")) {
+		proxyData.encrypted = true;
+	}
+
+	if (message.contains("NX> 710 Session status: running")) {
+		invokeProxy();
+		returnMessage = "bye\n";
+	}
 	
+	return returnMessage;
+}
+
+void NXClientLib::invokeProxy()
+{
+	QFile options;
+	QDir nxdir;
+	
+	nxdir.mkpath(QDir::homePath() + "/.nx/S-" + proxyData.id);
+	options.setFileName(QDir::homePath() + "/.nx/S-" + proxyData.id + "/options");
+
+	QString data;
+	data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",listen=33057:" + QString::number(proxyData.display) + "\n";
+	options.open(QIODevice::WriteOnly);
+	options.write(data.toAscii());
+	options.close();
+
+	QStringList arguments;
+	nxproxyProcess.setEnvironment(nxproxyProcess.systemEnvironment());
+
+	arguments << "-S" << "options=" + options.fileName() + ":" + QString::number(proxyData.display);
+	nxproxyProcess.startDetached(NXPROXY_BIN, arguments);
 }

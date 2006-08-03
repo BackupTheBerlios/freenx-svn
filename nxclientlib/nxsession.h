@@ -34,7 +34,6 @@ struct NXSessionData {
 	int images;
 	QString linkType;
 	bool render;
-	bool encryption;
 	QString backingstore;
 	int imageCompressionMethod;
 	int imageCompressionLevel;
@@ -82,6 +81,8 @@ class NXSession : public QObject
 		void setRender(bool isRender) { if (isRender) renderSet = "render"; };
 		void setContinue(bool allow) { doSSH = allow; };
 		void setSession(NXSessionData);
+		void setEncryption(bool enc) { encryption = enc; };
+		
 		QString generateCookie();
 		
 		NXSessionData sessionData;
@@ -90,10 +91,13 @@ class NXSession : public QObject
 		// Emitted when the initial public key authentication is successful
 		void authenticated();
 		void loginFailed();
+		void finished();
 	private:
 		bool doSSH;
 		bool suspendedSessions;
 		bool sessionSet;
+		bool encryption;
+		
 		void reset();
 		void fillRand(unsigned char *, size_t);
 

@@ -16,7 +16,7 @@
  ***************************************************************************/
  
 // Enumerated type defining the stages through which the client goes when connecting
-enum { HELLO_NXCLIENT, ACKNOWLEDGE, SHELL_MODE, AUTH_MODE, LOGIN, LIST_SESSIONS, PARSESESSIONS, STARTSESSION };
+enum { HELLO_NXCLIENT, ACKNOWLEDGE, SHELL_MODE, AUTH_MODE, LOGIN, LIST_SESSIONS, PARSESESSIONS, STARTSESSION, FINISHED };
 
 /*
 	0 HELLO NXCLIENT
@@ -124,54 +124,55 @@ QString NXSession::parseSSH(QString message)
 			if (response == 105 && sessionSet) {
 				int media = 0;
 				int render = 0;
-				int encryption = 0;
 
 				if (sessionData.media)
 					media = 1;
 				if (sessionData.render)
 					render = 1;
-				if (sessionData.encryption)
-					encryption = 1;
 					
 				if (sessionData.suspended) {
 					// These are the session parameters that NoMachine's client sends for resume
 					returnMessage = "restoresession --id=\"" + sessionData.id +
 					"\" --session=\"" + sessionData.sessionName +
 					"\" --type=\"" + sessionData.sessionType +
-					"\" --cache=\"" + sessionData.cache +
-					"M\" --images=\"" + sessionData.images +
+					"\" --cache=\"" + QString::number(sessionData.cache) +
+					"M\" --images=\"" + QString::number(sessionData.images) +
 					"M\" --cookie=\"" + generateCookie() +
 					"\" --link=\"" + sessionData.linkType +
 					"\" --kbtype=\"" + sessionData.kbtype +
-					"\" --nodelay=\"1\" --encryption=\"" + encryption +
+					"\" --nodelay=\"1\" --encryption=\"" + QString::number(encryption) +
 					"\" --backingstore=\"" + sessionData.backingstore +
 					"\" --geometry=\"" + sessionData.geometry +
 					"\" --media=\"" + sessionData.media +
 					"\" --agent_server=\"" + sessionData.agentServer +
 					"\" --agent_user=\"" + sessionData.agentUser +
 					"\" --agent_password=\"" + sessionData.agentPass + "\"";
+					stage++;
 				} else {
 					returnMessage = "startsession --session=\"" + sessionData.sessionName +
 					"\" --type=\"" + sessionData.sessionType +
-					"\" --cache=\"" + sessionData.cache +
-					"M\" --images=\"" + sessionData.images +
+					"\" --cache=\"" + QString::number(sessionData.cache) +
+					"M\" --images=\"" + QString::number(sessionData.images) +
 					"M\" --cookie=\"" + generateCookie() +
 					"\" --link=\"" + sessionData.linkType +
-					"\" --render=\"" + render +
-					"\" --encryption=\"" + encryption +
+					"\" --render=\"" + QString::number(render) +
+					"\" --encryption=\"" + QString::number(encryption) +
 					"\" --backingstore=\"" + sessionData.backingstore +
-					"\" --imagecompressionmethod=\"" + sessionData.imageCompressionMethod +
+					"\" --imagecompressionmethod=\"" + QString::number(sessionData.imageCompressionMethod) +
 					"\" --geometry=\"" + sessionData.geometry +
+					"\" --screeninfo=\"" + sessionData.screenInfo + 
 					"\" --keyboard=\"" + sessionData.keyboard +
 					"\" --kbtype=\"" + sessionData.kbtype +
-					"\" --media=\"" + media +
+					"\" --media=\"" + QString::number(media) +
 					"\" --agent_server=\"" + sessionData.agentServer +
 					"\" --agent_user=\"" + sessionData.agentUser +
-					"\" --agent_password=\"" + sessionData.agentPass +
-					"\" --screeninfo=\"" + sessionData.screenInfo + "\"";
+					"\" --agent_password=\"" + sessionData.agentPass + "\"";
+					stage++;
 				}
 			}
 			break;
+		case FINISHED:
+			emit finished();
 	}
 
 	if (!returnMessage.isEmpty()) {
@@ -269,5 +270,3 @@ void NXSession::fillRand(unsigned char *buf, size_t nbytes) {
 		nbytes -= r;
 	}
 }
-
-

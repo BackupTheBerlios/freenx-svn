@@ -28,6 +28,14 @@
 
 using namespace std;
 
+struct ProxyData {
+	QString id;
+	int display;
+	QString cookie;
+	QString proxyIP;
+	bool encrypted;
+};
+
 class NXClientLib : public QObject
 {
 	Q_OBJECT
@@ -55,6 +63,10 @@ class NXClientLib : public QObject
 		void allowSSHConnect(bool auth);
 
 		void setSession(NXSessionData);
+
+		void invokeProxy();
+
+		QString parseSSH(QString);
 	public slots:
 		void processStarted();
 		void processError(QProcess::ProcessError);
@@ -64,8 +76,15 @@ class NXClientLib : public QObject
 
 		void doneAuth();
 		void failedLogin();
+
+		void finished() { isFinished = true; };
 	private:
+		bool usingHardcodedKey;
+		bool isFinished;
+		
 		QProcess nxsshProcess;
+		QProcess nxproxyProcess;
+		
 		QTemporaryFile *keyFile;
 		
 		NXSession session;
@@ -79,7 +98,7 @@ class NXClientLib : public QObject
 		string callbackStdout;
 		string callbackStderr;
 		
-		bool usingHardcodedKey;
+		ProxyData proxyData;
 };
 
 #endif
