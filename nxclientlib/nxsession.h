@@ -28,37 +28,37 @@
 #include <unistd.h>
 
 struct NXSessionData {
-	QString sessionName;
-	QString sessionType;
+	const char *sessionName;
+	const char *sessionType;
 	int cache;
 	int images;
-	QString linkType;
+	const char *linkType;
 	bool render;
-	QString backingstore;
+	const char *backingstore;
 	int imageCompressionMethod;
 	int imageCompressionLevel;
-	QString geometry;
-	QString keyboard;
-	QString kbtype;
+	const char *geometry;
+	const char *keyboard;
+	const char *kbtype;
 	bool media;
-	QString agentServer;
-	QString agentUser;
-	QString agentPass;
-	QString screenInfo;
+	const char *agentServer;
+	const char *agentUser;
+	const char *agentPass;
+	const char *screenInfo;
 	int cups;
-	QString id;
+	const char *id;
 	bool suspended;
 };
 
 struct NXResumeData {
 	int display;
-	QString sessionType;
-	QString sessionID;
-	QString options;
+	const char *sessionType;
+	const char *sessionID;
+	const char *options;
 	int depth;
-	QString screen;
-	QString available;
-	QString sessionName;
+	const char *screen;
+	const char *available;
+	const char *sessionName;
 };
 
 // This class is used to parse the output from the nxssh session to the server

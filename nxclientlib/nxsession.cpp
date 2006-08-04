@@ -132,7 +132,7 @@ QString NXSession::parseSSH(QString message)
 					
 				if (sessionData.suspended) {
 					// These are the session parameters that NoMachine's client sends for resume
-					returnMessage = "restoresession --id=\"" + sessionData.id +
+					returnMessage = "restoresession --id=\"" + QString(sessionData.id) +
 					"\" --session=\"" + sessionData.sessionName +
 					"\" --type=\"" + sessionData.sessionType +
 					"\" --cache=\"" + QString::number(sessionData.cache) +
@@ -149,7 +149,7 @@ QString NXSession::parseSSH(QString message)
 					"\" --agent_password=\"" + sessionData.agentPass + "\"";
 					stage++;
 				} else {
-					returnMessage = "startsession --session=\"" + sessionData.sessionName +
+					returnMessage = "startsession --session=\"" + QString(sessionData.sessionName) +
 					"\" --type=\"" + sessionData.sessionType +
 					"\" --cache=\"" + QString::number(sessionData.cache) +
 					"M\" --images=\"" + QString::number(sessionData.images) +
@@ -160,7 +160,7 @@ QString NXSession::parseSSH(QString message)
 					"\" --backingstore=\"" + sessionData.backingstore +
 					"\" --imagecompressionmethod=\"" + QString::number(sessionData.imageCompressionMethod) +
 					"\" --geometry=\"" + sessionData.geometry +
-					"\" --screeninfo=\"" + sessionData.screenInfo + 
+					"\" --screeninfo=\"" + xRes + "x" + yRes + "x" + depth + "+" + renderSet +
 					"\" --keyboard=\"" + sessionData.keyboard +
 					"\" --kbtype=\"" + sessionData.kbtype +
 					"\" --media=\"" + QString::number(media) +
@@ -229,13 +229,13 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 
 	for (i = 0; i < rawsessions.size(); ++i) {
 		resData.display = rawsessions.at(i).at(0).toInt();
-		resData.sessionType = rawsessions.at(i).at(1);
-		resData.sessionID = rawsessions.at(i).at(2);
-		resData.options = rawsessions.at(i).at(3);
+		resData.sessionType = rawsessions.at(i).at(1).toAscii().data();
+		resData.sessionID = rawsessions.at(i).at(2).toAscii().data();
+		resData.options = rawsessions.at(i).at(3).toAscii().data();
 		resData.depth = rawsessions.at(i).at(4).toInt();
-		resData.screen = rawsessions.at(i).at(5);
-		resData.available = rawsessions.at(i).at(6);
-		resData.sessionName = rawsessions.at(i).at(7);
+		resData.screen = rawsessions.at(i).at(5).toAscii().data();
+		resData.available = rawsessions.at(i).at(6).toAscii().data();
+		resData.sessionName = rawsessions.at(i).at(7).toAscii().data();
 		runningSessions.push_back(resData);
 	}
 
