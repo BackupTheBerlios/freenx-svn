@@ -57,7 +57,6 @@ int main(int argc, char **argv)
 	session.agentServer = "";
 	session.agentUser = "";
 	session.agentPass = "";
-	session.screenInfo = "800x600x24+render";
 	session.cups = 0;
 	session.suspended = false;
 

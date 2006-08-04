@@ -28,37 +28,37 @@
 #include <unistd.h>
 
 struct NXSessionData {
-	const char *sessionName;
-	const char *sessionType;
+	std::string sessionName;
+	std::string sessionType;
 	int cache;
 	int images;
-	const char *linkType;
+	std::string linkType;
 	bool render;
-	const char *backingstore;
+	std::string backingstore;
 	int imageCompressionMethod;
 	int imageCompressionLevel;
-	const char *geometry;
-	const char *keyboard;
-	const char *kbtype;
+	std::string geometry;
+	std::string keyboard;
+	std::string kbtype;
 	bool media;
-	const char *agentServer;
-	const char *agentUser;
-	const char *agentPass;
-	const char *screenInfo;
+	std::string agentServer;
+	std::string agentUser;
+	std::string agentPass;
 	int cups;
-	const char *id;
+	std::string id;
+	std::string screenInfo;
 	bool suspended;
 };
 
 struct NXResumeData {
 	int display;
-	const char *sessionType;
-	const char *sessionID;
-	const char *options;
+	std::string sessionType;
+	std::string sessionID;
+	std::string options;
 	int depth;
-	const char *screen;
-	const char *available;
-	const char *sessionName;
+	std::string screen;
+	std::string available;
+	std::string sessionName;
 };
 
 // This class is used to parse the output from the nxssh session to the server
@@ -78,14 +78,13 @@ class NXSession : public QObject
 
 		void setResolution(int x, int y) { xRes.setNum(x); yRes.setNum(y); };
 		void setDepth(int d) { depth.setNum(d); };
-		void setRender(bool isRender) { if (isRender) renderSet = "render"; };
+		void setRender(bool isRender) { if (isRender) renderSet = "+render"; };
 		void setContinue(bool allow) { doSSH = allow; };
-		void setSession(NXSessionData);
+		void setSession(NXSessionData *);
 		void setEncryption(bool enc) { encryption = enc; };
 		
 		QString generateCookie();
 		
-		NXSessionData sessionData;
 
 	signals:
 		// Emitted when the initial public key authentication is successful
@@ -118,6 +117,8 @@ class NXSession : public QObject
 		QStringList resumeSessions;
 
 		std::vector<NXResumeData> runningSessions;
+		NXSessionData *sessionData;
+
 };
 
 #endif

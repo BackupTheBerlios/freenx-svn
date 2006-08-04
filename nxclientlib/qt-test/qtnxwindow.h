@@ -36,7 +36,7 @@ class QtNXWindow : public QMainWindow
 	private:
 		Ui::MainWindow ui_mw;
 		NXClientLib m_lib;
-		NXSessionData session;
+		NXSessionData *session;
 		QtNXCallback *m_cb;
 };
 

@@ -64,7 +64,7 @@ class NXClientLib : public QObject
 		void setRender(bool render) { session.setRender(render); };
 		void allowSSHConnect(bool auth);
 
-		void setSession(NXSessionData);
+		void setSession(NXSessionData *);
 
 		void invokeProxy();
 

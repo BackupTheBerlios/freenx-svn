@@ -219,7 +219,7 @@ void NXClientLib::allowSSHConnect(bool auth)
 	session.setContinue(auth);
 }
 
-void NXClientLib::setSession(NXSessionData nxSession)
+void NXClientLib::setSession(NXSessionData *nxSession)
 {
 	session.setSession(nxSession);
 }
