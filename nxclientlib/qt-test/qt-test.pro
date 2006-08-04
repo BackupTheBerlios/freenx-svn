@@ -2,9 +2,9 @@ TEMPLATE	= app
 
 FORMS = mainwindow.ui
 
-SOURCES = main.cpp qtnxwindow.cpp qtnxcallback.cpp
+SOURCES = main.cpp qtnxwindow.cpp
 
-HEADERS = qtnxwindow.h qtnxcallback.h
+HEADERS = qtnxwindow.h
 
 INCLUDEPATH	+= $(QTDIR)/include . ..
 

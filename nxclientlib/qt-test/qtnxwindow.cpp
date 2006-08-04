@@ -24,9 +24,6 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 {
 	session = new NXSessionData;
 	ui_mw.setupUi(this);
-	m_cb = new QtNXCallback();
-
-	m_lib.setCallback(m_cb);
 	
 	connect(ui_mw.connectButton, SIGNAL(pressed()), this, SLOT(connectPressed()));
 }
@@ -40,11 +37,11 @@ void QtNXWindow::connectPressed()
 	QDesktopWidget dw;
 	QX11Info info;
 	
-	session->sessionName = ui_mw.session_name->text().toStdString();
-	session->sessionType = ui_mw.session_type->currentText().toStdString();
+	session->sessionName = ui_mw.session_name->text();
+	session->sessionType = ui_mw.session_type->currentText();
 	session->cache = ui_mw.cache->currentText().toInt();
 	session->images = ui_mw.images->currentText().toInt();
-	session->linkType = ui_mw.link_type->currentText().toStdString();
+	session->linkType = ui_mw.link_type->currentText();
 	
 	if (ui_mw.render->checkState() == 0)
 		session->render = false;
@@ -75,20 +72,20 @@ void QtNXWindow::connectPressed()
 	session->kbtype = "pc102/defkeymap";
 	
 	session->media = false;
-	session->agentServer = ui_mw.rdp_server->text().toStdString();
-	session->agentUser = ui_mw.rdp_username->text().toStdString();
-	session->agentPass = ui_mw.rdp_password->text().toStdString();
+	session->agentServer = ui_mw.rdp_server->text();
+	session->agentUser = ui_mw.rdp_username->text();
+	session->agentPass = ui_mw.rdp_password->text();
 
 	// session->screenInfo = QString::number(dw.screenGeometry(this).width()) + "x" + QString::number(dw.screenGeometry(this).height()) + "x" + QString::number(info.depth()) + "render";
 	session->suspended = false;
 
 	if (ui_mw.encryption->checkState() == 0)
-		m_lib.invokeNXSSH("default" , ui_mw.server->text().toAscii().data(), false);
+		m_lib.invokeNXSSH("default" , ui_mw.server->text(), false);
 	if (ui_mw.encryption->checkState() == 2)
-		m_lib.invokeNXSSH("default" , ui_mw.server->text().toAscii().data(), true);
+		m_lib.invokeNXSSH("default" , ui_mw.server->text(), true);
 		
-	m_lib.setUsername(ui_mw.username->text().toAscii().data());
-	m_lib.setPassword(ui_mw.password->text().toAscii().data());
+	m_lib.setUsername(ui_mw.username->text());
+	m_lib.setPassword(ui_mw.password->text());
 	m_lib.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
 	m_lib.setDepth(info.depth());
 	m_lib.setRender(true);

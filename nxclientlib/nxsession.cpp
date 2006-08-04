@@ -30,10 +30,7 @@ enum { HELLO_NXCLIENT, ACKNOWLEDGE, SHELL_MODE, AUTH_MODE, LOGIN, LIST_SESSIONS,
 
 #define CLIENT_VERSION "1.5.0"
 
-
 #include <iostream>
-
-#include <QVector>
 
 using namespace std;
 
@@ -48,6 +45,12 @@ NXSession::NXSession()
 
 NXSession::~NXSession()
 {
+}
+
+void NXSession::resetSession()
+{
+	stage = 0;
+	sessionSet = false;
 }
 
 QString NXSession::parseSSH(QString message)
@@ -124,49 +127,51 @@ QString NXSession::parseSSH(QString message)
 			if (response == 105 && sessionSet) {
 				int media = 0;
 				int render = 0;
-
+				QString fullscreen = "";
 				if (sessionData->media)
 					media = 1;
 				if (sessionData->render)
 					render = 1;
+				if (sessionData->fullscreen)
+					fullscreen = "+fullscreen";
 
 				if (sessionData->suspended) {
 					// These are the session parameters that NoMachine's client sends for resume
-					returnMessage = "restoresession --id=\"" + QString::fromStdString(sessionData->id) +
-					"\" --session=\"" + QString::fromStdString(sessionData->sessionName) +
-					"\" --type=\"" + QString::fromStdString(sessionData->sessionType) +
+					returnMessage = "restoresession --id=\"" + sessionData->id +
+					"\" --session=\"" + sessionData->sessionName +
+					"\" --type=\"" + sessionData->sessionType +
 					"\" --cache=\"" + QString::number(sessionData->cache) +
 					"M\" --images=\"" + QString::number(sessionData->images) +
 					"M\" --cookie=\"" + generateCookie() +
-					"\" --link=\"" + QString::fromStdString(sessionData->linkType) +
-					"\" --kbtype=\"" + QString::fromStdString(sessionData->kbtype) +
+					"\" --link=\"" + sessionData->linkType +
+					"\" --kbtype=\"" + sessionData->kbtype +
 					"\" --nodelay=\"1\" --encryption=\"" + QString::number(encryption) +
-					"\" --backingstore=\"" + QString::fromStdString(sessionData->backingstore) +
-					"\" --geometry=\"" + QString::fromStdString(sessionData->geometry) +
+					"\" --backingstore=\"" + sessionData->backingstore +
+					"\" --geometry=\"" + sessionData->geometry +
 					"\" --media=\"" + QString::number(media) +
-					"\" --agent_server=\"" + QString::fromStdString(sessionData->agentServer) +
-					"\" --agent_user=\"" + QString::fromStdString(sessionData->agentUser) +
-					"\" --agent_password=\"" + QString::fromStdString(sessionData->agentPass) + "\"";
+					"\" --agent_server=\"" + sessionData->agentServer +
+					"\" --agent_user=\"" + sessionData->agentUser +
+					"\" --agent_password=\"" + sessionData->agentPass + "\"";
 					stage++;
 				} else {
-					returnMessage = "startsession --session=\"" + QString::fromStdString(sessionData->sessionName) +
-					"\" --type=\"" + QString::fromStdString(sessionData->sessionType) +
+					returnMessage = "startsession --session=\"" + sessionData->sessionName +
+					"\" --type=\"" + sessionData->sessionType +
 					"\" --cache=\"" + QString::number(sessionData->cache) +
 					"M\" --images=\"" + QString::number(sessionData->images) +
 					"M\" --cookie=\"" + generateCookie() +
-					"\" --link=\"" + QString::fromStdString(sessionData->linkType) +
+					"\" --link=\"" + sessionData->linkType +
 					"\" --render=\"" + QString::number(render) +
 					"\" --encryption=\"" + QString::number(encryption) +
-					"\" --backingstore=\"" + QString::fromStdString(sessionData->backingstore) +
+					"\" --backingstore=\"" + sessionData->backingstore +
 					"\" --imagecompressionmethod=\"" + QString::number(sessionData->imageCompressionMethod) +
-					"\" --geometry=\"" + QString::fromStdString(sessionData->geometry) +
+					"\" --geometry=\"" + sessionData->geometry +
 					"\" --screeninfo=\"" + xRes + "x" + yRes + "x" + depth + renderSet +
-					"\" --keyboard=\"" + QString::fromStdString(sessionData->keyboard) +
-					"\" --kbtype=\"" + QString::fromStdString(sessionData->kbtype) +
+					"\" --keyboard=\"" + sessionData->keyboard +
+					"\" --kbtype=\"" + sessionData->kbtype +
 					"\" --media=\"" + QString::number(media) +
-					"\" --agent_server=\"" + QString::fromStdString(sessionData->agentServer) +
-					"\" --agent_user=\"" + QString::fromStdString(sessionData->agentUser) +
-					"\" --agent_password=\"" + QString::fromStdString(sessionData->agentPass) + "\"";
+					"\" --agent_server=\"" + sessionData->agentServer +
+					"\" --agent_user=\"" + sessionData->agentUser +
+					"\" --agent_password=\"" + sessionData->agentPass + "\"";
 					stage++;
 				}
 			}
@@ -220,7 +225,7 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 			sessions << rawdata.at(i);
 	}
 
-	QVector<QStringList> rawsessions;
+	QList<QStringList> rawsessions;
 
 	for (i = 0; i < sessions.size(); ++i)
 		rawsessions.append(sessions.at(i).simplified().split(' '));
@@ -229,19 +234,21 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 
 	for (i = 0; i < rawsessions.size(); ++i) {
 		resData.display = rawsessions.at(i).at(0).toInt();
-		resData.sessionType = rawsessions.at(i).at(1).toAscii().data();
-		resData.sessionID = rawsessions.at(i).at(2).toAscii().data();
-		resData.options = rawsessions.at(i).at(3).toAscii().data();
+		resData.sessionType = rawsessions.at(i).at(1);
+		resData.sessionID = rawsessions.at(i).at(2);
+		resData.options = rawsessions.at(i).at(3);
 		resData.depth = rawsessions.at(i).at(4).toInt();
-		resData.screen = rawsessions.at(i).at(5).toAscii().data();
-		resData.available = rawsessions.at(i).at(6).toAscii().data();
-		resData.sessionName = rawsessions.at(i).at(7).toAscii().data();
-		runningSessions.push_back(resData);
+		resData.screen = rawsessions.at(i).at(5);
+		resData.available = rawsessions.at(i).at(6);
+		resData.sessionName = rawsessions.at(i).at(7);
+		runningSessions.append(resData);
 	}
 
-	if (runningSessions.size() != 0)
+	if (runningSessions.size() != 0) {
 		suspendedSessions = true;
-
+		emit sessionsSignal(runningSessions);
+	}
+	
 	stage++;
 }
 

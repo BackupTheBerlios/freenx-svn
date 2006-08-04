@@ -23,7 +23,6 @@
 #include "ui_mainwindow.h"
 
 #include "nxclientlib.h"
-#include "qtnxcallback.h"
 
 class QtNXWindow : public QMainWindow
 {
@@ -37,7 +36,6 @@ class QtNXWindow : public QMainWindow
 		Ui::MainWindow ui_mw;
 		NXClientLib m_lib;
 		NXSessionData *session;
-		QtNXCallback *m_cb;
 };
 
 #endif

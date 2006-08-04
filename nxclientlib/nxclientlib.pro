@@ -2,7 +2,7 @@ TEMPLATE	= lib
 
 CONFIG		= qt warn_on debug dll
 
-HEADERS		= nxclientlib.h nxsession.h nxcallback.h
+HEADERS		= nxclientlib.h nxsession.h
 
 SOURCES		= nxclientlib.cpp nxsession.cpp
 

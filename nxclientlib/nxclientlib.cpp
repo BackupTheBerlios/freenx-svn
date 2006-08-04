@@ -29,27 +29,25 @@ NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 {
 	isFinished = false;
 	proxyData.encrypted = false;
+	password = false;
+	
 	connect(&session, SIGNAL(authenticated()), this, SLOT(doneAuth()));
 	connect(&session, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
 	connect(&session, SIGNAL(finished()), this, SLOT(finished()));
+	connect(&session, SIGNAL(sessionsSignal(QList<NXResumeData>)), this, SLOT(suspendedSessions(QList<NXResumeData>)));
+	connect(&nxproxyProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(reset()));
 }
 
 NXClientLib::~NXClientLib()
 {
 }
 
-void NXClientLib::invokeNXSSH(const char *publicKeyS, const char *serverHostS, bool encryption, const char *key)
+void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption, QByteArray key)
 {
-	QString publicKey;
-	QString serverHost;
 
-	publicKey = publicKeyS;
-	serverHost = serverHostS;
 	
 	QStringList arguments;
 	proxyData.server = serverHost;
-	QByteArray keyba;
-	keyba = key;
 	
 	if (publicKey == "default") {
 		usingHardcodedKey = true;
@@ -65,7 +63,7 @@ void NXClientLib::invokeNXSSH(const char *publicKeyS, const char *serverHostS, b
 		if (publicKey == "default")
 			keyFile->write(cert);
 		else
-			keyFile->write(keyba);
+			keyFile->write(key);
 			
 		keyFile->close();
 	} else {
@@ -91,7 +89,7 @@ void NXClientLib::invokeNXSSH(const char *publicKeyS, const char *serverHostS, b
 
 void NXClientLib::processStarted()
 {
-	writeCallback(tr("Started nxssh process"));
+	emit callbackWrite(tr("Started nxssh process"));
 }
 
 void NXClientLib::processError(QProcess::ProcessError error)
@@ -118,12 +116,23 @@ void NXClientLib::processError(QProcess::ProcessError error)
 			break;
 	}
 	
-	writeCallback(message);
+	emit callbackWrite(message);
+}
+
+void NXClientLib::reset()
+{
+	nxsshProcess.terminate();
+	
+	isFinished = false;
+	proxyData.encrypted = false;
+	password = false;
+	
+	session.resetSession();
 }
 
 void NXClientLib::failedLogin()
 {
-	writeCallback(tr("Username or password incorrect"));
+	emit callbackWrite(tr("Username or password incorrect"));
 	nxsshProcess.terminate();
 }
 
@@ -133,13 +142,12 @@ void NXClientLib::processParseStdout()
 	
 	// Message 211 is sent if ssh is asking to continue with an unknown host
 	if (session.parseResponse(message) == 211) {
-		callbackMessage = message.toStdString();
-		callback->sshRequestAuthenticity(&callbackMessage);
+		emit sshRequestConfirmation(message);
 	}
+	
 	cout << message.toStdString();
 
-	callbackStdout = message.toStdString();
-	callback->stdout(&callbackStdout);
+	emit stdout(message);
 	
 	QStringList messages = splitString(message);
 	QStringList::const_iterator i;
@@ -182,8 +190,7 @@ void NXClientLib::processParseStderr()
 		write(returnMessage);
 	}
 
-	callbackStderr = message.toStdString();
-	callback->stderr(&callbackStderr);
+	emit stderr(message);
 }
 
 void NXClientLib::write(QString data)
@@ -195,17 +202,9 @@ void NXClientLib::write(QString data)
 		password = false;
 	}
 
-	callbackStdin = data.toStdString();
-	callback->stdin(&callbackStdin);
+	emit stdin(data);
 
 	cout << data.toStdString();
-}
-
-void NXClientLib::writeCallback(QString message)
-{
-	// Done to set a string to give a permanent pointer
-	callbackMessage = message.toStdString();
-	callback->write(&callbackMessage);
 }
 
 void NXClientLib::doneAuth()
@@ -271,5 +270,5 @@ void NXClientLib::invokeProxy()
 	nxproxyProcess.setEnvironment(nxproxyProcess.systemEnvironment());
 
 	arguments << "-S" << "options=" + options.fileName() + ":" + QString::number(proxyData.display);
-	nxproxyProcess.startDetached(NXPROXY_BIN, arguments);
+	nxproxyProcess.start(NXPROXY_BIN, arguments);
 }

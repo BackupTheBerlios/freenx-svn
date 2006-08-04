@@ -24,7 +24,6 @@
 #include <iostream>
 
 #include "nxsession.h"
-#include "nxcallback.h"
 
 using namespace std;
 
@@ -48,16 +47,14 @@ class NXClientLib : public QObject
 		// publicKey is the path to the ssh public key file to authenticate with. Pass "default" to use the default NoMachine key
 		// serverHost is the hostname of the NX server to connect to
 		// encryption is whether to use an encrypted NX session
-		void invokeNXSSH(const char *publicKey = "default", const char *serverHost = "", bool encryption = true, const char *key = 0);
+		void invokeNXSSH(QString publicKey = "default", QString serverHost = "", bool encryption = true, QByteArray key = 0);
 
 		// Overloaded to give callback data on write
 		void write(QString);
 
 		// Set the username and password for NX to log in with
-		void setUsername(const char *user) { session.setUsername(user); };
-		void setPassword(const char *pass) { session.setPassword(pass); };
-
-		void setCallback(NXCallback *cb) { callback = cb; };
+		void setUsername(QString user) { session.setUsername(user); };
+		void setPassword(QString pass) { session.setPassword(pass); };
 
 		void setResolution(int x, int y) { session.setResolution(x, y); };
 		void setDepth(int depth) { session.setDepth(depth); };
@@ -67,7 +64,6 @@ class NXClientLib : public QObject
 		void setSession(NXSessionData *);
 
 		void invokeProxy();
-
 		QString parseSSH(QString);
 	public slots:
 		void processStarted();
@@ -80,6 +76,23 @@ class NXClientLib : public QObject
 		void failedLogin();
 
 		void finished() { isFinished = true; };
+		void suspendedSessions(QList<NXResumeData> resumeData) { emit resumeSessions(resumeData); };
+		void reset();
+	signals:
+		// General messages about status
+		void callbackWrite(QString);
+
+		// Emitted when NX failed to authenticate the user
+		void authenticationFailed();
+		// SSH requests confirmation to go ahead with connecting
+		void sshRequestConfirmation(QString);
+
+		// Various outputs/inputs from nxssh
+		void stdout(QString);
+		void stderr(QString);
+		void stdin(QString);
+
+		void resumeSessions(QList<NXResumeData>);
 	private:
 		bool usingHardcodedKey;
 		bool isFinished;
@@ -91,10 +104,8 @@ class NXClientLib : public QObject
 		QTemporaryFile *keyFile;
 		
 		NXSession session;
-		NXCallback *callback;
 		
 		QStringList splitString(QString);
-		void writeCallback(QString);
 
 		string callbackMessage;
 		string callbackStdin;

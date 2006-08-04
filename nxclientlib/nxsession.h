@@ -18,47 +18,47 @@
 #ifndef _NXSESSION_H_
 #define _NXSESSION_H_
 
-#include <vector>
-
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QList>
 
 #include <fcntl.h>
 #include <unistd.h>
 
 struct NXSessionData {
-	std::string sessionName;
-	std::string sessionType;
+	QString sessionName;
+	QString sessionType;
 	int cache;
 	int images;
-	std::string linkType;
+	QString linkType;
 	bool render;
-	std::string backingstore;
+	QString backingstore;
 	int imageCompressionMethod;
 	int imageCompressionLevel;
-	std::string geometry;
-	std::string keyboard;
-	std::string kbtype;
+	QString geometry;
+	QString keyboard;
+	QString kbtype;
 	bool media;
-	std::string agentServer;
-	std::string agentUser;
-	std::string agentPass;
+	QString agentServer;
+	QString agentUser;
+	QString agentPass;
 	int cups;
-	std::string id;
-	std::string screenInfo;
+	QString id;
+	QString key;
 	bool suspended;
+	bool fullscreen;
 };
 
 struct NXResumeData {
 	int display;
-	std::string sessionType;
-	std::string sessionID;
-	std::string options;
+	QString sessionType;
+	QString sessionID;
+	QString options;
 	int depth;
-	std::string screen;
-	std::string available;
-	std::string sessionName;
+	QString screen;
+	QString available;
+	QString sessionName;
 };
 
 // This class is used to parse the output from the nxssh session to the server
@@ -82,15 +82,15 @@ class NXSession : public QObject
 		void setContinue(bool allow) { doSSH = allow; };
 		void setSession(NXSessionData *);
 		void setEncryption(bool enc) { encryption = enc; };
+		void resetSession();
 		
 		QString generateCookie();
-		
-
 	signals:
 		// Emitted when the initial public key authentication is successful
 		void authenticated();
 		void loginFailed();
 		void finished();
+		void sessionsSignal(QList<NXResumeData>);
 	private:
 		bool doSSH;
 		bool suspendedSessions;
@@ -116,7 +116,7 @@ class NXSession : public QObject
 
 		QStringList resumeSessions;
 
-		std::vector<NXResumeData> runningSessions;
+		QList<NXResumeData> runningSessions;
 		NXSessionData *sessionData;
 
 };
