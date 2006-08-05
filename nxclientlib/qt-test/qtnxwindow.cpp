@@ -18,6 +18,7 @@
 #include "qtnxwindow.h"
 
 #include <QDesktopWidget>
+#include <QPaintEngine>
 #include <QX11Info>
 
 QtNXWindow::QtNXWindow() : QMainWindow()
