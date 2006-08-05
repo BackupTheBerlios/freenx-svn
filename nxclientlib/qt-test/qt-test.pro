@@ -1,5 +1,7 @@
 TEMPLATE	= app
 
+CONFIG		= qt warn_on debug
+
 FORMS = mainwindow.ui
 
 SOURCES = main.cpp qtnxwindow.cpp

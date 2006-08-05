@@ -75,7 +75,11 @@ void QtNXWindow::connectPressed()
 	session->agentServer = ui_mw.rdp_server->text();
 	session->agentUser = ui_mw.rdp_username->text();
 	session->agentPass = ui_mw.rdp_password->text();
-
+	if (QApplication::desktop()->paintEngine()->hasFeature(QPaintEngine::Antialiasing))
+		m_lib.setRender(true);
+	else
+		m_lib.setRender(false);
+		
 	// session->screenInfo = QString::number(dw.screenGeometry(this).width()) + "x" + QString::number(dw.screenGeometry(this).height()) + "x" + QString::number(info.depth()) + "render";
 	session->suspended = false;
 
@@ -88,6 +92,5 @@ void QtNXWindow::connectPressed()
 	m_lib.setPassword(ui_mw.password->text());
 	m_lib.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
 	m_lib.setDepth(info.depth());
-	m_lib.setRender(true);
 	m_lib.setSession(session);
 }

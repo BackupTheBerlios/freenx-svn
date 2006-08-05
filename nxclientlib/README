@@ -11,6 +11,28 @@ Set PATH to include the path which contains nxssh and nxproxy
 (this is /usr/NX/bin on most systems), and $QTDIR/bin. Set
 LD_LIBRARY_PATH to include /usr/NX/lib, . and ..
 
+If you do not have nxproxy and nxssh, you will need to compile them.
+Grab the sources from http://www.nomachine.com/sources.php (click
+on "1.5.0 release" to grab the 1.5.x sources). You'll need the
+NX development libraries for this to work.
+
+If you compiled Qt 4 without debugging, you will need to modify the
+file nxclientlib.pro. Change:
+
+ CONFIG		= qt warn_on debug dll
+
+to:
+
+ CONFIG		= qt warn_on dll
+
+Also change qt-test.pro from:
+
+ CONFIG		= qt warn_on debug
+
+to:
+
+ CONFIG		= qt warn_on
+
 Run qmake inside the nxclientlib directory, then run make. After that
 has finished, run qmake inside qt-test and run make again. This will
 build nxclientlib and the qt-test frontend.
@@ -21,6 +43,11 @@ and then hit "Connect". There is logging output to stderr/stdout
 which shows all the nxssh data.
 
 At the moment you can only use the default NoMachine public key
-for authentication.
+for authentication. Be sure to check stdout; if it hangs with a message
+that is asking for confirmation to save the host key, quit qtnx, run
+"ssh server" on the command line, where "server" is the hostname of
+the NX server you are trying to connect to, then type "yes" when it
+prompts you with the same message. You can then quit ssh and start qtnx
+again.
 
 August 3rd 2006 - George Wright - gwright@kde.org
