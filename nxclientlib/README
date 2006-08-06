@@ -27,11 +27,11 @@ to:
 
 Also change qt-test.pro from:
 
- CONFIG		= qt warn_on debug
+ CONFIG		+= qt warn_on debug
 
 to:
 
- CONFIG		= qt warn_on
+ CONFIG		+= qt warn_on
 
 Run qmake inside the nxclientlib directory, then run make. After that
 has finished, run qmake inside qt-test and run make again. This will
