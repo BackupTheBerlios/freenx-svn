@@ -42,7 +42,7 @@ NXClientLib::~NXClientLib()
 {
 }
 
-void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption, QByteArray key)
+void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption, QByteArray key, int port)
 {
 
 	
@@ -83,7 +83,7 @@ void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryp
 
 	nxsshProcess.setEnvironment(nxsshProcess.systemEnvironment());
 
-	arguments << QString("nx@" + serverHost);
+	arguments << QString("-p %1").arg(port) << QString("nx@" + serverHost);
 	nxsshProcess.start(NXSSH_BIN, arguments);
 }
 

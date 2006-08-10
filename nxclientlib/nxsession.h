@@ -26,40 +26,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-struct NXSessionData {
-	QString sessionName;
-	QString sessionType;
-	int cache;
-	int images;
-	QString linkType;
-	bool render;
-	QString backingstore;
-	int imageCompressionMethod;
-	int imageCompressionLevel;
-	QString geometry;
-	QString keyboard;
-	QString kbtype;
-	bool media;
-	QString agentServer;
-	QString agentUser;
-	QString agentPass;
-	int cups;
-	QString id;
-	QString key;
-	bool suspended;
-	bool fullscreen;
-};
-
-struct NXResumeData {
-	int display;
-	QString sessionType;
-	QString sessionID;
-	QString options;
-	int depth;
-	QString screen;
-	QString available;
-	QString sessionName;
-};
+#include "nxdata.h"
 
 // This class is used to parse the output from the nxssh session to the server
 

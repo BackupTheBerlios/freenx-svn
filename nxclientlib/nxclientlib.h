@@ -47,7 +47,7 @@ class NXClientLib : public QObject
 		// publicKey is the path to the ssh public key file to authenticate with. Pass "default" to use the default NoMachine key
 		// serverHost is the hostname of the NX server to connect to
 		// encryption is whether to use an encrypted NX session
-		void invokeNXSSH(QString publicKey = "default", QString serverHost = "", bool encryption = true, QByteArray key = 0);
+		void invokeNXSSH(QString publicKey = "default", QString serverHost = "", bool encryption = true, QByteArray key = 0, int port = 22);
 
 		// Overloaded to give callback data on write
 		void write(QString);
