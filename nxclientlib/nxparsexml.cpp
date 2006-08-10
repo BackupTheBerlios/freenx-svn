@@ -15,8 +15,6 @@
  *                                                                         *
  ***************************************************************************/
 
-enum { ADVANCED, ENVIRONMENT, GENERAL, IMAGES, LOGIN, SERVICES, VNC, WINDOWS, SHARE };
-
 #include <iostream>
 #include "nxparsexml.h"
 
