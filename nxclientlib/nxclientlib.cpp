@@ -40,12 +40,11 @@ NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 
 NXClientLib::~NXClientLib()
 {
+	nxsshProcess.terminate();
 }
 
 void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption, QByteArray key, int port)
 {
-
-	
 	QStringList arguments;
 	proxyData.server = serverHost;
 	

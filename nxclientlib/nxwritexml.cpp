@@ -80,7 +80,7 @@ void NXWriteXML::write(QFile file)
 	file.close();
 }
 
-QString escape(QString plain)
+QString NXWriteXML::escape(QString plain)
 {
 	QString formatted;
 	formatted = plain.replace('<', "&lt;");

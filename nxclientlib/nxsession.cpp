@@ -132,8 +132,10 @@ QString NXSession::parseSSH(QString message)
 					media = 1;
 				if (sessionData->render)
 					render = 1;
-				if (sessionData->fullscreen)
+				if (sessionData->fullscreen) {
+					sessionData->geometry = "fullscreen";
 					fullscreen = "+fullscreen";
+				}
 
 				if (sessionData->suspended) {
 					// These are the session parameters that NoMachine's client sends for resume
@@ -164,8 +166,8 @@ QString NXSession::parseSSH(QString message)
 					"\" --encryption=\"" + QString::number(encryption) +
 					"\" --backingstore=\"" + sessionData->backingstore +
 					"\" --imagecompressionmethod=\"" + QString::number(sessionData->imageCompressionMethod) +
-					"\" --geometry=\"" + sessionData->geometry +
-					"\" --screeninfo=\"" + xRes + "x" + yRes + "x" + depth + renderSet +
+					"\" --geometry=\"" + sessionData->geometry + 
+					"\" --screeninfo=\"" + xRes + "x" + yRes + "x" + depth + renderSet + fullscreen +
 					"\" --keyboard=\"" + sessionData->keyboard +
 					"\" --kbtype=\"" + sessionData->kbtype +
 					"\" --media=\"" + QString::number(media) +

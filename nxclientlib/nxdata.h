@@ -40,7 +40,6 @@ struct NXConfigData {
 	QString agentUser;
 	QString agentPass;
 	int cups;
-	QString id;
 	QString key;
 	bool encryption;
 	bool fullscreen;
