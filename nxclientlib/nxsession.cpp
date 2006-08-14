@@ -174,6 +174,8 @@ QString NXSession::parseSSH(QString message)
 					"\" --agent_server=\"" + sessionData->agentServer +
 					"\" --agent_user=\"" + sessionData->agentUser +
 					"\" --agent_password=\"" + sessionData->agentPass + "\"";
+					if (sessionData->sessionType == "unix-application")
+						returnMessage.append(" --application=\"" + sessionData->customCommand + "\"");
 					stage++;
 				}
 			}

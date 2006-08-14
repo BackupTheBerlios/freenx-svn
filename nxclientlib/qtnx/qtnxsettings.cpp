@@ -1,7 +1,7 @@
 /***************************************************************************
-                               nxparsexml.h
+                               qtnxsettings.cpp
                              -------------------
-    begin                : Friday August 4th 2006
+    begin                : Saturday August 12th 2006
     copyright            : (C) 2006 by George Wright
     email                : gwright@kde.org
  ***************************************************************************/
@@ -15,29 +15,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _NXPARSEXML_H_
-#define _NXPARSEXML_H_
+#include <QFile>
+#include <QDir>
 
-#include <QXmlDefaultHandler>
+#include "qtnxsettings.h"
 
 #include "nxdata.h"
-#include "nxsession.h"
+#include "nxparsexml.h"
 
-class NXParseXML : public QXmlDefaultHandler
+QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 {
-	public:
-		NXParseXML();
-		~NXParseXML();
-		bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
-		bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-		bool characters(const QString &str);
-		bool fatalError(const QXmlParseException &exception);
+	if (!sessionName.isEmpty()) {
+		NXParseXML handler;
+		handler.setSessionData(&config);
+	
+		QFile file(QDir::homePath() + ".qtnx/" + sessionName + ".nxml");
+		QXmlInputSource inputSource(&file);
 
-		void setSessionData(NXConfigData *data) { sessionData = data; };
-		NXConfigData data();
-	private:
-		NXConfigData *sessionData;
-		int group;
-};
+		QXmlSimpleReader reader;
+		reader.setContentHandler(&handler);
+		reader.setErrorHandler(&handler);
+		reader.parse(inputSource);
+	}
+	
+	ui_sd.setupUi(this);
+}
 
-#endif
+QtNXSettings::~QtNXSettings()
+{
+}

@@ -68,6 +68,7 @@ struct NXSessionData {
 	QString key;
 	bool suspended;
 	bool fullscreen;
+	QString customCommand;
 };
 
 struct NXResumeData {

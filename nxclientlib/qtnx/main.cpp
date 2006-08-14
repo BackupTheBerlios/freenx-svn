@@ -1,7 +1,7 @@
 /***************************************************************************
-                               nxparsexml.h
+                               main.cpp
                              -------------------
-    begin                : Friday August 4th 2006
+    begin                : Thursday August 3rd 2006
     copyright            : (C) 2006 by George Wright
     email                : gwright@kde.org
  ***************************************************************************/
@@ -15,29 +15,14 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _NXPARSEXML_H_
-#define _NXPARSEXML_H_
+#include "qtnxwindow.h"
 
-#include <QXmlDefaultHandler>
-
-#include "nxdata.h"
-#include "nxsession.h"
-
-class NXParseXML : public QXmlDefaultHandler
+int main(int argc, char *argv[])
 {
-	public:
-		NXParseXML();
-		~NXParseXML();
-		bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
-		bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-		bool characters(const QString &str);
-		bool fatalError(const QXmlParseException &exception);
+	QApplication app(argc, argv);
+	
+	QtNXWindow *mw = new QtNXWindow();
+	mw->show();
 
-		void setSessionData(NXConfigData *data) { sessionData = data; };
-		NXConfigData data();
-	private:
-		NXConfigData *sessionData;
-		int group;
-};
-
-#endif
+	return app.exec();
+}

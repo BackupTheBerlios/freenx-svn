@@ -1,7 +1,7 @@
 /***************************************************************************
-                               nxparsexml.h
+                               qtnxwindow.h
                              -------------------
-    begin                : Friday August 4th 2006
+    begin                : Thursday August 3rd 2006
     copyright            : (C) 2006 by George Wright
     email                : gwright@kde.org
  ***************************************************************************/
@@ -15,29 +15,45 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _NXPARSEXML_H_
-#define _NXPARSEXML_H_
+#ifndef _QTNXWINDOW_H_
+#define _QTNXWINDOW_H_
 
-#include <QXmlDefaultHandler>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QStatusBar>
 
+#include "nxclientlib.h"
 #include "nxdata.h"
-#include "nxsession.h"
+#include "nxparsexml.h"
 
-class NXParseXML : public QXmlDefaultHandler
+#include "qtnxsettings.h"
+
+#include "ui_logindialog.h"
+
+class QtNXWindow : public QMainWindow
 {
+	Q_OBJECT
 	public:
-		NXParseXML();
-		~NXParseXML();
-		bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
-		bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-		bool characters(const QString &str);
-		bool fatalError(const QXmlParseException &exception);
-
-		void setSessionData(NXConfigData *data) { sessionData = data; };
-		NXConfigData data();
+		QtNXWindow();
+		~QtNXWindow();
+	public slots:
+		void startConnect();
+		void configure();
 	private:
-		NXConfigData *sessionData;
-		int group;
+		Ui::LoginDialog ui_lg;
+
+		NXSessionData session;
+		NXConfigData config;
+		
+		NXClientLib nxClient;
+		
+		QtNXSettings *settingsDialog;
+		
+		QMenu *fileMenu;
+		QMenu *connectionMenu;
+		QMenuBar *menuBar;
+		QStatusBar *statusBar;
+		QWidget *loginDialog;
 };
 
 #endif
