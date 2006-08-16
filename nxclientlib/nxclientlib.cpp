@@ -228,6 +228,7 @@ void NXClientLib::allowSSHConnect(bool auth)
 void NXClientLib::setSession(NXSessionData *nxSession)
 {
 	session.setSession(nxSession);
+	write(session.parseSSH("NX> 105"));
 }
 
 QString NXClientLib::parseSSH(QString message)
@@ -249,6 +250,7 @@ QString NXClientLib::parseSSH(QString message)
 
 	if (message.contains("NX> 710 Session status: running")) {
 		invokeProxy();
+		session.wipeSessions();
 		returnMessage = "bye\n";
 	}
 	

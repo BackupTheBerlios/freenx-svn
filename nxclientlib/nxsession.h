@@ -50,6 +50,8 @@ class NXSession : public QObject
 		void setSession(NXSessionData *);
 		void setEncryption(bool enc) { encryption = enc; };
 		void resetSession();
+
+		void wipeSessions();
 		
 		QString generateCookie();
 	signals:

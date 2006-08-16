@@ -26,6 +26,7 @@
 #include "nxdata.h"
 #include "nxparsexml.h"
 
+#include "qtnxsessions.h"
 #include "qtnxsettings.h"
 
 #include "ui_logindialog.h"
@@ -40,6 +41,9 @@ class QtNXWindow : public QMainWindow
 		void startConnect();
 		void configure();
 		void configureClosed();
+		void loadResumeDialog(QList<NXResumeData>);
+		void resumeNewPressed();
+		void resumeResumePressed(QString);
 	private:
 		Ui::LoginDialog ui_lg;
 
@@ -49,6 +53,7 @@ class QtNXWindow : public QMainWindow
 		NXClientLib nxClient;
 		
 		QtNXSettings *settingsDialog;
+		QtNXSessions *sessionsDialog;
 		
 		QMenu *fileMenu;
 		QMenu *connectionMenu;

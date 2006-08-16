@@ -64,6 +64,7 @@ class NXClientLib : public QObject
 		void setSession(NXSessionData *);
 
 		void invokeProxy();
+		
 		QString parseSSH(QString);
 	public slots:
 		void processStarted();

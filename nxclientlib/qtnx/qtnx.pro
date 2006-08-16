@@ -4,9 +4,9 @@ CONFIG		+= qt warn_on debug
 
 FORMS = settingsdialog.ui logindialog.ui sessionsdialog.ui
 
-SOURCES = main.cpp qtnxwindow.cpp qtnxsettings.cpp
+SOURCES = main.cpp qtnxwindow.cpp qtnxsettings.cpp qtnxsessions.cpp
 
-HEADERS = qtnxwindow.h qtnxsettings.h
+HEADERS = qtnxwindow.h qtnxsettings.h qtnxsessions.h
 
 INCLUDEPATH	+= $(QTDIR)/include . ..
 

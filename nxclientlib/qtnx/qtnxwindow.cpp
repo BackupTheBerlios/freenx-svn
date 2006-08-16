@@ -115,7 +115,9 @@ void QtNXWindow::startConnect()
 	nxClient.setPassword(ui_lg.password->text());
 	nxClient.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
 	nxClient.setDepth(info.depth());
-	nxClient.setSession(&session);
+	connect(&nxClient, SIGNAL(resumeSessions(QList<NXResumeData>)), this, SLOT(loadResumeDialog(QList<NXResumeData>)));
+
+	//nxClient.setSession(&session);
 }
 
 void QtNXWindow::configure()
@@ -142,4 +144,25 @@ void QtNXWindow::configureClosed()
 		ui_lg.session->addItem(conn.left(conn.length()-5));
 	}
 	ui_lg.session->addItem(tr("Create new session"));
+}
+
+void QtNXWindow::loadResumeDialog(QList<NXResumeData> data)
+{
+	sessionsDialog = new QtNXSessions(data);
+	sessionsDialog->show();
+
+	connect(sessionsDialog, SIGNAL(newPressed()), this, SLOT(resumeNewPressed()));
+	connect(sessionsDialog, SIGNAL(resumePressed(QString)), this, SLOT(resumeResumePressed(QString)));
+}
+
+void QtNXWindow::resumeNewPressed()
+{
+	nxClient.setSession(&session);
+}
+
+void QtNXWindow::resumeResumePressed(QString id)
+{
+	session.id = id;
+	session.suspended = true;
+	nxClient.setSession(&session);
 }

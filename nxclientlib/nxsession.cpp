@@ -113,7 +113,8 @@ QString NXSession::parseSSH(QString message)
 		case LIST_SESSIONS:
 			if (response == 105) {
 				// Get a list of the available sessions on the server
-				returnMessage = "listsession --user=\"" + nxUsername + "\" --status=\"suspended,running\" --geometry=\"" + xRes + "x" + yRes + renderSet + "\" --type=\"" + type + "\"";
+				returnMessage = "listsession --user=\"" + nxUsername +
+				"\" --status=\"suspended,running\" --geometry=\"" + xRes + "x" + yRes + renderSet + "\" --type=\"" + type + "\"";
 				stage++;
 			}
 			break;
@@ -224,20 +225,20 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 		}
 	}
 
-	if (rawdata.size() < at+1) {
+//	if (rawdata.size() < at+1) {
 		for (i = at+1; i < rawdata.size(); ++i) {
 			if (!rawdata.at(i).contains("NX> 148"))
 				sessions << rawdata.at(i);
 		}
-	}
+//	}
 	
 	QList<QStringList> rawsessions;
-
+	
 	for (i = 0; i < sessions.size(); ++i)
 		rawsessions.append(sessions.at(i).simplified().split(' '));
 
 	NXResumeData resData;
-
+	
 	for (i = 0; i < rawsessions.size(); ++i) {
 		resData.display = rawsessions.at(i).at(0).toInt();
 		resData.sessionType = rawsessions.at(i).at(1);
@@ -258,6 +259,12 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 	stage++;
 }
 
+void NXSession::wipeSessions()
+{
+	while (!runningSessions.isEmpty()) {
+		runningSessions.removeFirst();
+	}
+}
 
 QString NXSession::generateCookie()
 {
