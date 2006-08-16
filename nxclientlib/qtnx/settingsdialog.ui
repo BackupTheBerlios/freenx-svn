@@ -3,7 +3,7 @@
  <comment></comment>
  <exportmacro></exportmacro>
  <class>SettingsDialog</class>
- <widget class="QWidget" name="SettingsDialog" >
+ <widget class="QDialog" name="SettingsDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -13,7 +13,10 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Form</string>
+   <string>Dialog</string>
+  </property>
+  <property name="modal" >
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >
@@ -363,7 +366,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_3" >
+        <widget class="QGroupBox" name="groupBox" >
          <property name="title" >
           <string>Geometry</string>
          </property>

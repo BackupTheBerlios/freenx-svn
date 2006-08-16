@@ -38,7 +38,11 @@ class QtNXSettings : public QDialog
 		void typeChanged(QString);
 		void keyChanged(int);
 		void applyPressed();
+		void cancelPressed();
+		void okPressed();
 		void setData(NXConfigData data) { config = data; };
+	signals:
+		void closing();
 	private:
 		Ui::SettingsDialog ui_sd;
 		NXConfigData config;

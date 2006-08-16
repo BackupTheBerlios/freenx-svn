@@ -40,6 +40,8 @@ QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 	connect(ui_sd.imageCompressionType, SIGNAL(currentIndexChanged(QString)), this, SLOT(compressionChanged(QString)));
 	connect(ui_sd.defaultKey, SIGNAL(stateChanged(int)), this, SLOT(keyChanged(int)));
 	connect(ui_sd.applyButton, SIGNAL(pressed()), this, SLOT(applyPressed()));
+	connect(ui_sd.okButton, SIGNAL(pressed()), this, SLOT(okPressed()));
+	connect(ui_sd.cancelButton, SIGNAL(pressed()), this, SLOT(cancelPressed()));
 }
 
 QtNXSettings::~QtNXSettings()
@@ -99,6 +101,7 @@ void QtNXSettings::parseFile()
 		if (config.imageCompressionMethod == -1) {
 			ui_sd.imageCompressionType->setCurrentIndex(ui_sd.imageCompressionType->findText(tr("JPEG")));
 			ui_sd.imageQualityLevel->setValue(config.imageCompressionLevel);
+			ui_sd.imageQualityLevel->setEnabled(true);
 		} else if (config.imageCompressionMethod == 2)
 			ui_sd.imageCompressionType->setCurrentIndex(ui_sd.imageCompressionType->findText(tr("PNG")));
 		else if (config.imageCompressionMethod == 0)
@@ -167,6 +170,18 @@ void QtNXSettings::keyChanged(int state)
 		ui_sd.setAuthKeyButton->setEnabled(false);
 	else
 		ui_sd.setAuthKeyButton->setEnabled(true);
+}
+
+void QtNXSettings::cancelPressed()
+{
+	close();
+}
+
+void QtNXSettings::okPressed()
+{
+	applyPressed();
+	emit closing();
+	close();
 }
 
 void QtNXSettings::applyPressed()
