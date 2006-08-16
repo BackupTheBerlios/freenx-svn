@@ -151,6 +151,14 @@ void NXClientLib::processParseStdout()
 	QStringList messages = splitString(message);
 	QStringList::const_iterator i;
 
+	// On some connections this is sent via stdout instead of stderr?
+	if (proxyData.encrypted && isFinished && message.contains("NX> 999 Bye")) {
+		QString returnMessage;
+		returnMessage = "NX> 299 Switching connection to: ";
+		returnMessage += proxyData.proxyIP + ":" + QString::number(proxyData.port) + " cookie: " + proxyData.cookie + "\n";
+		write(returnMessage);
+	}
+
 	for (i = messages.constBegin(); i != messages.constEnd(); ++i) {
 		if ((*i).contains("Password"))
 			password = true;
