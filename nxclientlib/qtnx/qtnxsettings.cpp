@@ -26,6 +26,8 @@
 
 QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 {
+	filedesc = sessionName;
+	
 	if (!sessionName.isEmpty())
 		fileName = QDir::homePath() + "/.qtnx/" + sessionName + ".nxml";
 	else
@@ -186,6 +188,12 @@ void QtNXSettings::okPressed()
 
 void QtNXSettings::applyPressed()
 {
+	// File has been renamed, remove old one
+	if (filedesc != ui_sd.sessionName->text()) {
+		QFile temp(QDir::homePath() + "/.qtnx/" + filedesc + ".nxml");
+		temp.remove();
+	}
+	
 	QDir configDir(QDir::homePath() + "/.qtnx/");
 	configDir.mkpath(QDir::homePath() + "/.qtnx/");
 

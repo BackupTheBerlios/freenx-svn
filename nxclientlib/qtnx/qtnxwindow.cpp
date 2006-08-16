@@ -124,6 +124,22 @@ void QtNXWindow::configure()
 		settingsDialog = new QtNXSettings("");
 	else
 		settingsDialog = new QtNXSettings(ui_lg.session->currentText());
-		
+
+	connect(settingsDialog, SIGNAL(closing()), this, SLOT(configureClosed()));
+
 	settingsDialog->show();
+}
+
+void QtNXWindow::configureClosed()
+{
+	while (ui_lg.session->count() != 0) {
+		ui_lg.session->removeItem(0);
+	}
+
+	QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
+	for (unsigned int i=0;i<dir.count();i++) {
+		QString conn=dir[i];
+		ui_lg.session->addItem(conn.left(conn.length()-5));
+	}
+	ui_lg.session->addItem(tr("Create new session"));
 }

@@ -39,6 +39,7 @@ class QtNXWindow : public QMainWindow
 	public slots:
 		void startConnect();
 		void configure();
+		void configureClosed();
 	private:
 		Ui::LoginDialog ui_lg;
 

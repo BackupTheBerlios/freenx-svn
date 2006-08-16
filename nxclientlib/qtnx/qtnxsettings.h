@@ -47,6 +47,7 @@ class QtNXSettings : public QDialog
 		Ui::SettingsDialog ui_sd;
 		NXConfigData config;
 		QString fileName;
+		QString filedesc;
 
 };
 
