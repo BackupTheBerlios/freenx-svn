@@ -96,6 +96,8 @@ void QtNXWindow::startConnect()
 	session.agentUser = config.agentUser;
 	session.agentPass = config.agentPass;
 	session.cups = config.cups;
+	session.fullscreen = config.fullscreen;
+	
 	if (!config.key.isEmpty())
 		session.key = config.key;
 	else

@@ -110,9 +110,9 @@ void QtNXSettings::parseFile()
 		if (config.geometry == "640x480+0+0")
 			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
 		else if (config.geometry == "800x600+0+0")
-			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
+			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("800x600"));
 		else if (config.geometry == "1024x768+0+0")
-			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
+			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("1024x768"));
 		else {
 			if (config.fullscreen) {
 				ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText(tr("Fullscreen")));
@@ -230,9 +230,12 @@ void QtNXSettings::applyPressed()
 	if (ui_sd.resolution->currentText() == tr("Fullscreen"))
 		config.fullscreen = true;
 	else if (ui_sd.resolution->currentText() == tr("Custom")) {
+		config.fullscreen = false;
 		config.geometry = QString::number(ui_sd.width->value()) + "x" + QString::number(ui_sd.height->value()) + "+0+0";
-	} else
+	} else {
+		config.fullscreen = false;
 		config.geometry = ui_sd.resolution->currentText() + "+0+0";
+	}
 
 	if (ui_sd.encryption->checkState() == Qt::Checked)
 		config.encryption = true;
