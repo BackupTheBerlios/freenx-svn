@@ -22,19 +22,24 @@
 
 #include "nxdata.h"
 #include "nxparsexml.h"
+#include "nxwritexml.h"
 
 QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 {
 	if (!sessionName.isEmpty())
-		fileName = QDir::homePath() + ".qtnx/" + sessionName + ".nxml";
+		fileName = QDir::homePath() + "/.qtnx/" + sessionName + ".nxml";
 	else
 		fileName = "";
 		
-	parseFile();
-	
 	ui_sd.setupUi(this);
 	ui_sd.sessionName->setText(sessionName);
+	
+	parseFile();
 
+	connect(ui_sd.resolution, SIGNAL(currentIndexChanged(QString)), this, SLOT(resolutionChanged(QString)));
+	connect(ui_sd.imageCompressionType, SIGNAL(currentIndexChanged(QString)), this, SLOT(compressionChanged(QString)));
+	connect(ui_sd.defaultKey, SIGNAL(stateChanged(int)), this, SLOT(keyChanged(int)));
+	connect(ui_sd.applyButton, SIGNAL(pressed()), this, SLOT(applyPressed()));
 }
 
 QtNXSettings::~QtNXSettings()
@@ -45,8 +50,8 @@ void QtNXSettings::parseFile()
 {
 	if (!fileName.isEmpty()) {
 		NXParseXML handler;
-		handler.setSessionData(&config);
-	
+		handler.setData(&config);
+		
 		QFile file(fileName);
 		QXmlInputSource inputSource(&file);
 
@@ -54,17 +59,17 @@ void QtNXSettings::parseFile()
 		reader.setContentHandler(&handler);
 		reader.setErrorHandler(&handler);
 		reader.parse(inputSource);
-
+		
 		ui_sd.hostname->setText(config.serverHost);
 		ui_sd.port->setValue(config.serverPort);
-
+		
 		if (config.key.isEmpty())
 			ui_sd.defaultKey->setChecked(true);
 		else {
 			ui_sd.defaultKey->setChecked(false);
 			ui_sd.setAuthKeyButton->setEnabled(true);
 		}
-
+		
 		if (config.sessionType == "unix-kde") {
 			ui_sd.platform->setCurrentIndex(ui_sd.platform->findText(tr("UNIX")));
 			ui_sd.type->setCurrentIndex(ui_sd.type->findText(tr("KDE")));
@@ -81,15 +86,15 @@ void QtNXSettings::parseFile()
 		}
 
 		if (config.linkType == "modem")
-			ui_sd.link->setCurrentIndex(ui_sd.link->findText("Modem"));
+			ui_sd.link->setCurrentIndex(ui_sd.link->findText(tr("Modem")));
 		else if (config.linkType == "isdn")
-			ui_sd.link->setCurrentIndex(ui_sd.link->findText("ISDN"));
+			ui_sd.link->setCurrentIndex(ui_sd.link->findText(tr("ISDN")));
 		else if (config.linkType == "adsl")
-			ui_sd.link->setCurrentIndex(ui_sd.link->findText("ADSL"));
+			ui_sd.link->setCurrentIndex(ui_sd.link->findText(tr("ADSL")));
 		else if (config.linkType == "wan")
-			ui_sd.link->setCurrentIndex(ui_sd.link->findText("WAN"));
+			ui_sd.link->setCurrentIndex(ui_sd.link->findText(tr("WAN")));
 		else if (config.linkType == "lan")
-			ui_sd.link->setCurrentIndex(ui_sd.link->findText("LAN"));
+			ui_sd.link->setCurrentIndex(ui_sd.link->findText(tr("LAN")));
 
 		if (config.imageCompressionMethod == -1) {
 			ui_sd.imageCompressionType->setCurrentIndex(ui_sd.imageCompressionType->findText(tr("JPEG")));
@@ -100,11 +105,11 @@ void QtNXSettings::parseFile()
 			ui_sd.imageCompressionType->setCurrentIndex(ui_sd.imageCompressionType->findText(tr("Raw X11")));
 
 		if (config.geometry == "640x480+0+0")
-			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText(tr("640x480")));
+			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
 		else if (config.geometry == "800x600+0+0")
-			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText(tr("640x480")));
+			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
 		else if (config.geometry == "1024x768+0+0")
-			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText(tr("640x480")));
+			ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText("640x480"));
 		else {
 			if (config.fullscreen) {
 				ui_sd.resolution->setCurrentIndex(ui_sd.resolution->findText(tr("Fullscreen")));
@@ -120,6 +125,114 @@ void QtNXSettings::parseFile()
 			}
 		}
 
+		ui_sd.encryption->setChecked(config.encryption);
+		ui_sd.memoryCache->setValue(config.cache);
+		ui_sd.diskCache->setValue(config.images);
+
 		ui_sd.render->setChecked(config.render);
 	}
+}
+
+void QtNXSettings::resolutionChanged(QString text)
+{
+	if (text == tr("Custom")) {
+		ui_sd.width->setEnabled(true);
+		ui_sd.height->setEnabled(true);
+	} else {
+		ui_sd.width->setEnabled(false);
+		ui_sd.height->setEnabled(false);
+	}
+}
+
+void QtNXSettings::compressionChanged(QString text)
+{
+	if (text == tr("JPEG")) {
+		ui_sd.imageQualityLevel->setEnabled(true);
+	} else {
+		ui_sd.imageQualityLevel->setEnabled(false);
+	}
+}
+
+void QtNXSettings::platformChanged(QString text)
+{
+}
+
+void QtNXSettings::typeChanged(QString text)
+{
+}
+
+void QtNXSettings::keyChanged(int state)
+{
+	if (state == Qt::Checked)
+		ui_sd.setAuthKeyButton->setEnabled(false);
+	else
+		ui_sd.setAuthKeyButton->setEnabled(true);
+}
+
+void QtNXSettings::applyPressed()
+{
+	QDir configDir(QDir::homePath() + "/.qtnx/");
+	configDir.mkpath(QDir::homePath() + "/.qtnx/");
+
+	config.sessionName = ui_sd.sessionName->text();
+	config.serverHost = ui_sd.hostname->text();
+	config.serverPort = ui_sd.port->value();
+
+	// TODO: Add keyboard selection support
+	config.keyboard = "defkeymap";
+	config.kbtype = "pc102/defkeymap";
+
+	if (ui_sd.platform->currentText() == tr("UNIX")) {
+		if (ui_sd.type->currentText() == tr("KDE"))
+			config.sessionType = "unix-kde";
+		else if (ui_sd.type->currentText() == tr("GNOME"))
+			config.sessionType = "unix-gnome";
+		else if (ui_sd.type->currentText() == tr("CDE"))
+			config.sessionType = "unix-cde";
+		else if (ui_sd.type->currentText() == tr("Custom"))
+			config.sessionType = "unix-application";
+	}
+	
+	if (ui_sd.link->currentText() == tr("Modem"))
+		config.linkType = "modem";
+	else if (ui_sd.link->currentText() == tr("ISDN"))
+		config.linkType = "isdn";
+	else if (ui_sd.link->currentText() == tr("ADSL"))
+		config.linkType = "adsl";
+	else if (ui_sd.link->currentText() == tr("WAN"))
+		config.linkType = "wan";
+	else if (ui_sd.link->currentText() == tr("LAN"))
+		config.linkType = "lan";
+		
+	if (ui_sd.imageCompressionType->currentText() == tr("JPEG")) {
+		config.imageCompressionMethod = -1;
+		config.imageCompressionLevel = ui_sd.imageQualityLevel->value();
+	} else if (ui_sd.imageCompressionType->currentText() == tr("PNG"))
+		config.imageCompressionMethod = 2;
+	else if (ui_sd.imageCompressionType->currentText() == tr("Raw X11"))
+		config.imageCompressionMethod = 0;
+
+	if (ui_sd.resolution->currentText() == tr("Fullscreen"))
+		config.fullscreen = true;
+	else if (ui_sd.resolution->currentText() == tr("Custom")) {
+		config.geometry = QString::number(ui_sd.width->value()) + "x" + QString::number(ui_sd.height->value()) + "+0+0";
+	} else
+		config.geometry = ui_sd.resolution->currentText() + "+0+0";
+
+	if (ui_sd.encryption->checkState() == Qt::Checked)
+		config.encryption = true;
+	else
+		config.encryption = false;
+		
+	config.cache = ui_sd.memoryCache->value();
+	config.images = ui_sd.diskCache->value();
+
+	if (ui_sd.render->checkState() == Qt::Checked)
+		config.render = true;
+	else
+		config.render = false;
+
+	NXWriteXML writeData;
+	writeData.setSessionData(config);
+	writeData.write(QDir::homePath() + "/.qtnx/" + ui_sd.sessionName->text() + ".nxml");
 }

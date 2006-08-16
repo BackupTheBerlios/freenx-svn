@@ -23,18 +23,15 @@
 #include "nxdata.h"
 #include "nxsession.h"
 
-class NXParseXML : public QXmlDefaultHandler
+class NXParseXML : public QObject, public QXmlDefaultHandler
 {
+	Q_OBJECT
 	public:
 		NXParseXML();
 		~NXParseXML();
 		bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes);
 		bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-		bool characters(const QString &str);
-		bool fatalError(const QXmlParseException &exception);
-
-		void setSessionData(NXConfigData *data) { sessionData = data; };
-		NXConfigData data();
+		void setData(NXConfigData *data) { sessionData = data; };
 	private:
 		NXConfigData *sessionData;
 		int group;

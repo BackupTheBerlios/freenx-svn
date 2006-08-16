@@ -30,121 +30,111 @@ NXParseXML::~NXParseXML()
 
 bool NXParseXML::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attributes)
 {
-	QString key = attributes.value("key");
-	QString value = attributes.value("value");
-	if (key == "Connection Name"){
-		sessionData->sessionName = value;
+	if (attributes.value("key") == "Connection Name") {
+		sessionData->sessionName = attributes.value("value");
 	}
 	
-	if (key == "Server Hostname") {
-		sessionData->serverHost = value;
+	if (attributes.value("key") == "Server Hostname") {
+		sessionData->serverHost = attributes.value("value");
 	}
 
-	if (key == "Server Port") {
-		sessionData->serverPort = value.toInt();
+	if (attributes.value("key") == "Server Port") {
+		sessionData->serverPort = attributes.value("value").toInt();
 	}
 
-	if (key == "Session Type") {
-		sessionData->sessionType = value;
+	if (attributes.value("key") == "Session Type") {
+		sessionData->sessionType = attributes.value("value");
 	}
 
-	if (key == "Custom Session Command") {
-		sessionData->customCommand = value;
+	if (attributes.value("key") == "Custom Session Command") {
+		sessionData->customCommand = attributes.value("value");
 	}
 
-	if (key == "Disk Cache") {
-		sessionData->cache = value.toInt();
+	if (attributes.value("key") == "Disk Cache") {
+		sessionData->cache = attributes.value("value").toInt();
 	}
 
-	if (key == "Image Cache") {
-		sessionData->images = value.toInt();
+	if (attributes.value("key") == "Image Cache") {
+		sessionData->images = attributes.value("value").toInt();
 	}
 
-	if (key == "Link Type") {
-		sessionData->linkType = value;
+	if (attributes.value("key") == "Link Type") {
+		sessionData->linkType = attributes.value("value");
 	}
 
-	if (key == "Use Render Extension") {
-		if (value == "True")
+	if (attributes.value("key") == "Use Render Extension") {
+		if (attributes.value("value") == "True")
 			sessionData->render = true;
 		else
 			sessionData->render = false;
 	}
 
-	if (key == "Image Compression Method") {
-		if (value == "JPEG")
+	if (attributes.value("key") == "Image Compression Method") {
+		if (attributes.value("value") == "JPEG")
 			sessionData->imageCompressionMethod = -1;
-		else if (value == "PNG")
+		else if (attributes.value("value") == "PNG")
 			sessionData->imageCompressionMethod = 2;
-		else if (value == "Raw X11")
+		else if (attributes.value("value") == "Raw X11")
 			sessionData->imageCompressionMethod = 0;
 	}
 
-	if (key == "JPEG Compression Level") {
-		sessionData->imageCompressionLevel = value.toInt();
+	if (attributes.value("key") == "JPEG Compression Level") {
+		sessionData->imageCompressionLevel = attributes.value("value").toInt();
 	}
 
-	if (key == "Desktop Geometry") {
-		sessionData->geometry = value;
+	if (attributes.value("key") == "Desktop Geometry") {
+		sessionData->geometry = attributes.value("value");
 	}
 
-	if (key == "Keyboard Layout") {
-		sessionData->keyboard = value;
+	if (attributes.value("key") == "Keyboard Layout") {
+		sessionData->keyboard = attributes.value("value");
 	}
 
-	if (key == "Keyboard Type") {
-		sessionData->kbtype = value;
+	if (attributes.value("key") == "Keyboard Type") {
+		sessionData->kbtype = attributes.value("value");
 	}
 
-	if (key == "Media") {
-		if (value == "True")
+	if (attributes.value("key") == "Media") {
+		if (attributes.value("value") == "True")
 			sessionData->media = true;
 		else
 			sessionData->media = false;
 	}
 
-	if (key == "Agent Server") {
-		sessionData->agentServer = value;
+	if (attributes.value("key") == "Agent Server") {
+		sessionData->agentServer = attributes.value("value");
 	}
 
-	if (key == "Agent User") {
-		sessionData->agentUser = value;
+	if (attributes.value("key") == "Agent User") {
+		sessionData->agentUser = attributes.value("value");
 	}
 
-	if (key == "CUPS Port") {
-		sessionData->cups = value.toInt();
+	if (attributes.value("key") == "CUPS Port") {
+		sessionData->cups = attributes.value("value").toInt();
 	}
 
-	if (key == "Authentication Key") {
-		sessionData->key = value;
+	if (attributes.value("key") == "Authentication Key") {
+		sessionData->key = attributes.value("value");
 	}
 
-	if (key == "Use SSL Tunnelling") {
-		if (value == "True")
+	if (attributes.value("key") == "Use SSL Tunnelling") {
+		if (attributes.value("value") == "True")
 			sessionData->encryption = true;
 		else
 			sessionData->encryption = false;
 	}
 
-	if (key == "Enable Fullscreen Desktop") {
-		if (value == "True")
+	if (attributes.value("key") == "Enable Fullscreen Desktop") {
+		if (attributes.value("value") == "True")
 			sessionData->fullscreen = true;
 		else
 			sessionData->fullscreen = false;
 	}
-
+	
 	return true;
 }
 
 bool NXParseXML::endElement(const QString &namespaceURI, const QString &localName, const QString &qName)
 {
 	return true;
-}
-
-bool NXParseXML::characters(const QString &str)
-{
-}
-
-bool NXParseXML::fatalError(const QXmlParseException &exception)
-{
 }

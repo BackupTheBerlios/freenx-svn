@@ -29,7 +29,7 @@ class NXWriteXML
 	public:
 		NXWriteXML();
 		~NXWriteXML();
-		void write(QFile);
+		void write(QString);
 		void setSessionData(NXConfigData data) { sessionData = data; };
 		QString escape(QString);
 	private:

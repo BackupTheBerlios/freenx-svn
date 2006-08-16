@@ -45,10 +45,9 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 
 	connectionMenu->addAction(tr("Connect..."), this, SLOT(startConnect()));
 
-	QDir dir(QDir::homePath()+".qtnx","*.nxml");
+	QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
 	for (unsigned int i=0;i<dir.count();i++) {
 		QString conn=dir[i];
-		if (conn.compare("nxclient.conf")==0) continue;
 		ui_lg.session->addItem(conn.left(conn.length()-5));
 	}
 	ui_lg.session->addItem(tr("Create new session"));
@@ -68,8 +67,7 @@ void QtNXWindow::startConnect()
 // 	QX11Info info;
 
 	NXParseXML handler;
-	handler.setSessionData(&config);
-	
+
 	QFile file(QDir::homePath() + ".qtnx/" + ui_lg.session->currentText() + ".nxml");
 	QXmlInputSource inputSource(&file);
 

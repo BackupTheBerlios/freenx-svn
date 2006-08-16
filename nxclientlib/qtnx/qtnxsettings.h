@@ -31,6 +31,14 @@ class QtNXSettings : public QDialog
 		QtNXSettings(QString);
 		~QtNXSettings();
 		void parseFile();
+	public slots:
+		void resolutionChanged(QString);
+		void compressionChanged(QString);
+		void platformChanged(QString);
+		void typeChanged(QString);
+		void keyChanged(int);
+		void applyPressed();
+		void setData(NXConfigData data) { config = data; };
 	private:
 		Ui::SettingsDialog ui_sd;
 		NXConfigData config;
