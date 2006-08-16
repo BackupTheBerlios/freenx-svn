@@ -47,8 +47,13 @@ void NXWriteXML::write(QFile file)
 		xml << "<option key=\"Use Render Extension\" value=\"True\" />\n";
 	else
 		xml << "<option key=\"Use Render Extension\" value=\"False\" />\n";
-
-	xml << "<option key=\"Image Compression Method\" value=\"" << escape(sessionData.sessionName) << "\" />\n";
+	
+	if (sessionData.imageCompressionMethod == -1)
+		xml << "<option key=\"Image Compression Method\" value=\"JPEG\" />\n";
+	else if (sessionData.imageCompressionMethod == 2)
+		xml << "<option key=\"Image Compression Method\" value=\"PNG\" />\n";
+	else if (sessionData.imageCompressionMethod == 0)
+		xml << "<option key=\"Image Compression Method\" value=\"Raw X11\" />\n";
 	
 	xml << "<option key=\"JPEG Compression Level\" value=\"" << escape(QString::number(sessionData.imageCompressionLevel)) << "\" />\n";
 	xml << "<option key=\"Desktop Geometry\" value=\"" << escape(sessionData.geometry) << "\" />\n";

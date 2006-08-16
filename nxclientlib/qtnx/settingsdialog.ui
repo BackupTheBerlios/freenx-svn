@@ -349,6 +349,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="desktopSettingButton" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
               <property name="text" >
                <string>&amp;Settings...</string>
               </property>

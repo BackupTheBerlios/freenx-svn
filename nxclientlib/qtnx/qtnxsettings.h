@@ -30,9 +30,11 @@ class QtNXSettings : public QDialog
 	public:
 		QtNXSettings(QString);
 		~QtNXSettings();
+		void parseFile();
 	private:
 		Ui::SettingsDialog ui_sd;
 		NXConfigData config;
+		QString fileName;
 
 };
 

@@ -76,7 +76,7 @@ bool NXParseXML::startElement(const QString &namespaceURI, const QString &localN
 			sessionData->imageCompressionMethod = -1;
 		else if (value == "PNG")
 			sessionData->imageCompressionMethod = 2;
-		else if (value == "RAW")
+		else if (value == "Raw X11")
 			sessionData->imageCompressionMethod = 0;
 	}
 

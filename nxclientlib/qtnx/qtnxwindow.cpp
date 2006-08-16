@@ -49,7 +49,7 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 	for (unsigned int i=0;i<dir.count();i++) {
 		QString conn=dir[i];
 		if (conn.compare("nxclient.conf")==0) continue;
-		ui_lg.session->addItem(conn.left(conn.length()-3));
+		ui_lg.session->addItem(conn.left(conn.length()-5));
 	}
 	ui_lg.session->addItem(tr("Create new session"));
 
@@ -139,7 +139,7 @@ void QtNXWindow::startConnect()
 void QtNXWindow::configure()
 {
 	if (ui_lg.session->currentText() == tr("Create new session"))
-		settingsDialog = new QtNXSettings(0);
+		settingsDialog = new QtNXSettings("");
 	else
 		settingsDialog = new QtNXSettings(ui_lg.session->currentText());
 		
