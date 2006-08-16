@@ -60,6 +60,7 @@ class NXSession : public QObject
 		void loginFailed();
 		void finished();
 		void sessionsSignal(QList<NXResumeData>);
+		void noSessions();
 	private:
 		bool doSSH;
 		bool suspendedSessions;

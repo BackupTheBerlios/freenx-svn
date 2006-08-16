@@ -254,6 +254,8 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 	if (runningSessions.size() != 0) {
 		suspendedSessions = true;
 		emit sessionsSignal(runningSessions);
+	} else {
+		emit noSessions();
 	}
 	
 	stage++;

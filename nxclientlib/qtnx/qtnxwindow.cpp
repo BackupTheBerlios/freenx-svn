@@ -116,7 +116,7 @@ void QtNXWindow::startConnect()
 	nxClient.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
 	nxClient.setDepth(info.depth());
 	connect(&nxClient, SIGNAL(resumeSessions(QList<NXResumeData>)), this, SLOT(loadResumeDialog(QList<NXResumeData>)));
-
+	connect(&nxClient, SIGNAL(noSessions()), this, SLOT(noSessions()));
 	//nxClient.setSession(&session);
 }
 
@@ -165,5 +165,10 @@ void QtNXWindow::resumeResumePressed(QString id)
 {
 	session.id = id;
 	session.suspended = true;
+	nxClient.setSession(&session);
+}
+
+void QtNXWindow::noSessions()
+{
 	nxClient.setSession(&session);
 }

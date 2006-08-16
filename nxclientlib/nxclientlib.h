@@ -79,6 +79,7 @@ class NXClientLib : public QObject
 		void finished() { isFinished = true; };
 		void suspendedSessions(QList<NXResumeData> resumeData) { emit resumeSessions(resumeData); };
 		void reset();
+		void noSuspendedSessions();
 	signals:
 		// General messages about status
 		void callbackWrite(QString);
@@ -94,6 +95,7 @@ class NXClientLib : public QObject
 		void stdin(QString);
 
 		void resumeSessions(QList<NXResumeData>);
+		void noSessions();
 	private:
 		bool usingHardcodedKey;
 		bool isFinished;

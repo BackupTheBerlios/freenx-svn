@@ -35,6 +35,8 @@ NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 	connect(&session, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
 	connect(&session, SIGNAL(finished()), this, SLOT(finished()));
 	connect(&session, SIGNAL(sessionsSignal(QList<NXResumeData>)), this, SLOT(suspendedSessions(QList<NXResumeData>)));
+	connect(&session, SIGNAL(noSessions()), this, SLOT(noSuspendedSessions()));
+	
 	connect(&nxproxyProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(reset()));
 }
 
@@ -280,4 +282,9 @@ void NXClientLib::invokeProxy()
 
 	arguments << "-S" << "options=" + options.fileName() + ":" + QString::number(proxyData.display);
 	nxproxyProcess.start(NXPROXY_BIN, arguments);
+}
+
+void NXClientLib::noSuspendedSessions()
+{
+	emit noSessions();
 }

@@ -44,6 +44,7 @@ class QtNXWindow : public QMainWindow
 		void loadResumeDialog(QList<NXResumeData>);
 		void resumeNewPressed();
 		void resumeResumePressed(QString);
+		void noSessions();
 	private:
 		Ui::LoginDialog ui_lg;
 
