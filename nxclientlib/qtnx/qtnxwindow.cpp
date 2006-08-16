@@ -148,6 +148,7 @@ void QtNXWindow::configureClosed()
 
 void QtNXWindow::loadResumeDialog(QList<NXResumeData> data)
 {
+	delete sessionsDialog;
 	sessionsDialog = new QtNXSessions(data);
 	sessionsDialog->show();
 
