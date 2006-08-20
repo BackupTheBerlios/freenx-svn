@@ -177,7 +177,7 @@ QStringList NXClientLib::splitString(QString message)
 	
 	// Split the string message into several different strings separated by '\n'
 	for (int i = 0;;i++) {
-		if (message.section('\n', i, i).isEmpty() && message.section('\n', i+1, i+1).isEmpty()) {
+		if (message.section('\n', i, i).isEmpty() && message.section('\n', i+1, i+1).isEmpty() && message.section('\n', i+2, i+2).isEmpty()) {
 			break;
 		} else
 			lines << message.section('\n', i, i);

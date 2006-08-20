@@ -107,9 +107,9 @@ void QtNXWindow::startConnect()
 		session.customCommand = config.customCommand;
 
 	if (config.encryption == false)
-		nxClient.invokeNXSSH(session.key , config.serverHost, false);
+		nxClient.invokeNXSSH(session.key, config.serverHost, false, 0, config.serverPort);
 	else
-		nxClient.invokeNXSSH(session.key , config.serverHost, true);
+		nxClient.invokeNXSSH(session.key, config.serverHost, true, 0, config.serverPort);
 		
 	nxClient.setUsername(ui_lg.username->text());
 	nxClient.setPassword(ui_lg.password->text());

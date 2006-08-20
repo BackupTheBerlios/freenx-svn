@@ -220,17 +220,15 @@ void NXSession::parseResumeSessions(QStringList rawdata)
 	QStringList sessions;
 
 	for (i = 0; i < rawdata.size(); ++i) {
-		if (rawdata.at(i).contains("-------")) {
+		if (rawdata.at(i).contains("-------") && !rawdata.at(i).isEmpty()) {
 			at = i;
 		}
 	}
-
-//	if (rawdata.size() < at+1) {
-		for (i = at+1; i < rawdata.size(); ++i) {
-			if (!rawdata.at(i).contains("NX> 148"))
-				sessions << rawdata.at(i);
-		}
-//	}
+	
+	for (i = at+1; i < rawdata.size(); ++i) {
+		if (!rawdata.at(i).contains("NX> 148") && !rawdata.at(i).isEmpty())
+			sessions << rawdata.at(i);
+	}
 	
 	QList<QStringList> rawsessions;
 	
