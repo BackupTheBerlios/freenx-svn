@@ -27,6 +27,7 @@
 QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 {
 	filedesc = sessionName;
+	keyDialog = 0;
 	
 	if (!sessionName.isEmpty())
 		fileName = QDir::homePath() + "/.qtnx/" + sessionName + ".nxml";
@@ -44,6 +45,7 @@ QtNXSettings::QtNXSettings(QString sessionName) : QDialog()
 	connect(ui_sd.applyButton, SIGNAL(pressed()), this, SLOT(applyPressed()));
 	connect(ui_sd.okButton, SIGNAL(pressed()), this, SLOT(okPressed()));
 	connect(ui_sd.cancelButton, SIGNAL(pressed()), this, SLOT(cancelPressed()));
+	connect(ui_sd.setAuthKeyButton, SIGNAL(pressed()), this, SLOT(authKeyPressed()));
 }
 
 QtNXSettings::~QtNXSettings()
@@ -168,9 +170,10 @@ void QtNXSettings::typeChanged(QString text)
 
 void QtNXSettings::keyChanged(int state)
 {
-	if (state == Qt::Checked)
+	if (state == Qt::Checked) {
+		config.key = "";
 		ui_sd.setAuthKeyButton->setEnabled(false);
-	else
+	} else
 		ui_sd.setAuthKeyButton->setEnabled(true);
 }
 
@@ -184,6 +187,29 @@ void QtNXSettings::okPressed()
 	applyPressed();
 	emit closing();
 	close();
+}
+
+void QtNXSettings::authKeyPressed()
+{
+	keyDialog = 0;
+	delete keyDialog;
+	keyDialog = new QDialog(this);
+	ui_kd.setupUi(keyDialog);
+	keyDialog->show();
+	QTextDocument *doc_key = new QTextDocument(config.key);
+	ui_kd.key->setDocument(doc_key);
+	
+	connect(keyDialog, SIGNAL(accepted()), this, SLOT(keyDialogAccept()));
+}
+
+void QtNXSettings::keyDialogAccept()
+{
+	
+	config.key = ui_kd.key->document()->toPlainText();
+}
+
+void QtNXSettings::keyDialogReject()
+{
 }
 
 void QtNXSettings::applyPressed()

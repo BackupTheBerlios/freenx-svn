@@ -96,6 +96,7 @@ class NXClientLib : public QObject
 
 		void resumeSessions(QList<NXResumeData>);
 		void noSessions();
+		void loginFailed();
 	private:
 		bool usingHardcodedKey;
 		bool isFinished;

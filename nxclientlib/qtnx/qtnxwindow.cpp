@@ -64,6 +64,11 @@ QtNXWindow::~QtNXWindow()
 {
 }
 
+void QtNXWindow::failedLogin()
+{
+	QMessageBox::critical(this, tr("Authentication failure"), tr("You have supplied an incorrect username or password for this NX server."), QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+	statusBar->showMessage(tr("Login failed"));
+}
 void QtNXWindow::sshContinue(QString message)
 {
 	int reply = QMessageBox::question(this, tr("SSH Request"), message, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
@@ -76,6 +81,7 @@ void QtNXWindow::sshContinue(QString message)
 
 void QtNXWindow::startConnect()
 {
+	QByteArray key;
 	QDesktopWidget dw;
 	QX11Info info;
 
@@ -108,20 +114,28 @@ void QtNXWindow::startConnect()
 	session.agentPass = config.agentPass;
 	session.cups = config.cups;
 	session.fullscreen = config.fullscreen;
-	
-	if (!config.key.isEmpty())
-		session.key = config.key;
-	else
+
+	if (!config.key.isEmpty()) {
+		key = config.key.toAscii();
+		session.key = "supplied";
+	} else
 		session.key = "default";
 
 	if (config.sessionType == "unix-application")
 		session.customCommand = config.customCommand;
 
-	if (config.encryption == false)
-		nxClient.invokeNXSSH(session.key, config.serverHost, false, 0, config.serverPort);
-	else
-		nxClient.invokeNXSSH(session.key, config.serverHost, true, 0, config.serverPort);
-		
+	if (config.encryption == false) {
+		if (session.key == "supplied")
+			nxClient.invokeNXSSH(session.key, config.serverHost, false, key, config.serverPort);
+		else if (session.key == "default")
+			nxClient.invokeNXSSH(session.key, config.serverHost, false, 0, config.serverPort);
+	} else {
+		if (session.key == "supplied")
+			nxClient.invokeNXSSH(session.key, config.serverHost, true, key, config.serverPort);
+		else if (session.key == "default")
+			nxClient.invokeNXSSH(session.key, config.serverHost, true, 0, config.serverPort);
+	}
+	
 	nxClient.setUsername(ui_lg.username->text());
 	nxClient.setPassword(ui_lg.password->text());
 	nxClient.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
@@ -130,6 +144,7 @@ void QtNXWindow::startConnect()
 	connect(&nxClient, SIGNAL(noSessions()), this, SLOT(noSessions()));
 	connect(&nxClient, SIGNAL(sshRequestConfirmation(QString)), this, SLOT(sshContinue(QString)));
 	connect(&nxClient, SIGNAL(callbackWrite(QString)), this, SLOT(updateStatusBar(QString)));
+	connect(&nxClient, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
 	//nxClient.setSession(&session);
 }
 

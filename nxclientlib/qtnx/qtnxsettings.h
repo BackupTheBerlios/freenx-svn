@@ -23,6 +23,7 @@
 #include "nxdata.h"
 
 #include "ui_settingsdialog.h"
+#include "ui_keydialog.h"
 
 class QtNXSettings : public QDialog
 {
@@ -41,10 +42,15 @@ class QtNXSettings : public QDialog
 		void cancelPressed();
 		void okPressed();
 		void setData(NXConfigData data) { config = data; };
+		void authKeyPressed();
+		void keyDialogAccept();
+		void keyDialogReject();
 	signals:
 		void closing();
 	private:
 		Ui::SettingsDialog ui_sd;
+		Ui::KeyDialog ui_kd;
+		QDialog *keyDialog;
 		NXConfigData config;
 		QString fileName;
 		QString filedesc;

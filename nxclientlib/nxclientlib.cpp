@@ -55,7 +55,9 @@ void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryp
 	}
 
 	if (publicKey == "default" || publicKey == "supplied") {
-		cerr << tr("WARNING: Using hardcoded NoMachine public key.").toStdString() << endl;
+		if (publicKey == "default")
+			cerr << tr("WARNING: Using hardcoded NoMachine public key.").toStdString() << endl;
+		
 		keyFile = new QTemporaryFile;
 		keyFile->open();
 		
@@ -133,7 +135,7 @@ void NXClientLib::reset()
 
 void NXClientLib::failedLogin()
 {
-	emit callbackWrite(tr("Username or password incorrect"));
+	emit loginFailed();
 	nxsshProcess.terminate();
 }
 
@@ -159,7 +161,8 @@ void NXClientLib::processParseStdout()
 		returnMessage = "NX> 299 Switching connection to: ";
 		returnMessage += proxyData.proxyIP + ":" + QString::number(proxyData.port) + " cookie: " + proxyData.cookie + "\n";
 		write(returnMessage);
-	}
+	} else if (message.contains("NX> 287 Redirected I/O to channel descriptors"))
+		emit callbackWrite(tr("The session has been started successfully"));
 
 	for (i = messages.constBegin(); i != messages.constEnd(); ++i) {
 		if ((*i).contains("Password")) {
@@ -199,7 +202,8 @@ void NXClientLib::processParseStderr()
 		returnMessage = "NX> 299 Switching connection to: ";
 		returnMessage += proxyData.proxyIP + ":" + QString::number(proxyData.port) + " cookie: " + proxyData.cookie + "\n";
 		write(returnMessage);
-	}
+	} else if (message.contains("NX> 287 Redirected I/O to channel descriptors"))
+		emit callbackWrite(tr("The session has been started successfully"));
 
 	emit stderr(message);
 }
@@ -288,9 +292,7 @@ void NXClientLib::invokeProxy()
 	
 	nxproxyProcess.start(NXPROXY_BIN, arguments);
 
-	if (nxproxyProcess.waitForStarted())
-		emit callbackWrite(tr("Session started successfully"));
-	else
+	if (!nxproxyProcess.waitForStarted())
 		emit callbackWrite(tr("Session failed to start"));
 }
 
