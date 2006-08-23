@@ -21,6 +21,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QFile>
+#include <QMessageBox>
 #include <QX11Info>
 
 QtNXWindow::QtNXWindow() : QMainWindow()
@@ -61,6 +62,16 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 
 QtNXWindow::~QtNXWindow()
 {
+}
+
+void QtNXWindow::sshContinue(QString message)
+{
+	int reply = QMessageBox::question(this, tr("SSH Request"), message, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+	if (reply == QMessageBox::Yes)
+		nxClient.allowSSHConnect(true);
+	else
+		nxClient.allowSSHConnect(false);
+
 }
 
 void QtNXWindow::startConnect()
@@ -117,6 +128,8 @@ void QtNXWindow::startConnect()
 	nxClient.setDepth(info.depth());
 	connect(&nxClient, SIGNAL(resumeSessions(QList<NXResumeData>)), this, SLOT(loadResumeDialog(QList<NXResumeData>)));
 	connect(&nxClient, SIGNAL(noSessions()), this, SLOT(noSessions()));
+	connect(&nxClient, SIGNAL(sshRequestConfirmation(QString)), this, SLOT(sshContinue(QString)));
+
 	//nxClient.setSession(&session);
 }
 

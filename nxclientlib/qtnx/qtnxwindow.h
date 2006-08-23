@@ -45,6 +45,7 @@ class QtNXWindow : public QMainWindow
 		void resumeNewPressed();
 		void resumeResumePressed(QString);
 		void noSessions();
+		void sshContinue(QString);
 	private:
 		Ui::LoginDialog ui_lg;
 

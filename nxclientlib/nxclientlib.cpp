@@ -42,7 +42,7 @@ NXClientLib::NXClientLib(QObject *parent) : QObject(parent)
 
 NXClientLib::~NXClientLib()
 {
-	nxsshProcess.terminate();
+//	nxsshProcess.terminate();
 }
 
 void NXClientLib::invokeNXSSH(QString publicKey, QString serverHost, bool encryption, QByteArray key, int port)
@@ -253,7 +253,7 @@ QString NXClientLib::parseSSH(QString message)
 	if (message.contains("NX> 710 Session status: running")) {
 		invokeProxy();
 		session.wipeSessions();
-		returnMessage = "bye\n";
+//		returnMessage = "bye\n";
 	}
 	
 	return returnMessage;
