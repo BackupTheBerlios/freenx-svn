@@ -129,8 +129,13 @@ void QtNXWindow::startConnect()
 	connect(&nxClient, SIGNAL(resumeSessions(QList<NXResumeData>)), this, SLOT(loadResumeDialog(QList<NXResumeData>)));
 	connect(&nxClient, SIGNAL(noSessions()), this, SLOT(noSessions()));
 	connect(&nxClient, SIGNAL(sshRequestConfirmation(QString)), this, SLOT(sshContinue(QString)));
-
+	connect(&nxClient, SIGNAL(callbackWrite(QString)), this, SLOT(updateStatusBar(QString)));
 	//nxClient.setSession(&session);
+}
+
+void QtNXWindow::updateStatusBar(QString message)
+{
+	statusBar->showMessage(message);
 }
 
 void QtNXWindow::configure()

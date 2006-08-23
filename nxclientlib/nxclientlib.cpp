@@ -162,8 +162,10 @@ void NXClientLib::processParseStdout()
 	}
 
 	for (i = messages.constBegin(); i != messages.constEnd(); ++i) {
-		if ((*i).contains("Password"))
+		if ((*i).contains("Password")) {
+			emit callbackWrite(tr("Authenticating with NX server"));
 			password = true;
+		}
 		if (!isFinished)
 			write(session.parseSSH(*i));
 		else
@@ -261,6 +263,8 @@ QString NXClientLib::parseSSH(QString message)
 
 void NXClientLib::invokeProxy()
 {
+	emit callbackWrite(tr("Starting NX session"));
+	
 	QFile options;
 	QDir nxdir;
 	
@@ -272,7 +276,7 @@ void NXClientLib::invokeProxy()
 		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",listen=" + QString::number(proxyData.port) + ":" + QString::number(proxyData.display) + "\n";
 	else
 		data = "nx,session=session,cookie=" + proxyData.cookie + ",root=" + QDir::homePath() + "/.nx,id=" + proxyData.id + ",connect=" + proxyData.server + ":" + QString::number(proxyData.display) + "\n";
-
+	
 	options.open(QIODevice::WriteOnly);
 	options.write(data.toAscii());
 	options.close();
@@ -281,7 +285,13 @@ void NXClientLib::invokeProxy()
 	nxproxyProcess.setEnvironment(nxproxyProcess.systemEnvironment());
 
 	arguments << "-S" << "options=" + options.fileName() + ":" + QString::number(proxyData.display);
+	
 	nxproxyProcess.start(NXPROXY_BIN, arguments);
+
+	if (nxproxyProcess.waitForStarted())
+		emit callbackWrite(tr("Session started successfully"));
+	else
+		emit callbackWrite(tr("Session failed to start"));
 }
 
 void NXClientLib::noSuspendedSessions()
