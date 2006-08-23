@@ -30,6 +30,7 @@
 #include "qtnxsettings.h"
 
 #include "ui_logindialog.h"
+#include "ui_logwindow.h"
 
 class QtNXWindow : public QMainWindow
 {
@@ -48,9 +49,12 @@ class QtNXWindow : public QMainWindow
 		void sshContinue(QString);
 		void updateStatusBar(QString);
 		void failedLogin();
+		void showLogWindow();
+		void logStd(QString);
 	private:
 		Ui::LoginDialog ui_lg;
-
+		Ui::LogWindow ui_lw;
+		
 		NXSessionData session;
 		NXConfigData config;
 		
@@ -59,10 +63,12 @@ class QtNXWindow : public QMainWindow
 		QtNXSettings *settingsDialog;
 		QtNXSessions *sessionsDialog;
 		
+		QDialog *logWindow;
 		QMenu *fileMenu;
 		QMenu *connectionMenu;
 		QMenuBar *menuBar;
 		QStatusBar *statusBar;
+		QTextDocument *log;
 		QWidget *loginDialog;
 };
 

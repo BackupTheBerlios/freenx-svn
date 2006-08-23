@@ -26,6 +26,12 @@
 
 QtNXWindow::QtNXWindow() : QMainWindow()
 {
+	logWindow = new QDialog(0);
+	ui_lw.setupUi(logWindow);
+
+	log = new QTextDocument();
+	ui_lw.output->setDocument(log);
+	
 	loginDialog = new QWidget(this);
 	menuBar = new QMenuBar(this);
 	statusBar = new QStatusBar(this);
@@ -46,6 +52,8 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 
 	fileMenu->addAction(tr("Quit"), qApp, SLOT(quit()), QKeySequence(tr("CTRL+Q")));
 
+	connectionMenu->addAction(tr("Show log window"), this, SLOT(showLogWindow()), QKeySequence(tr("CTRL+L")));
+	
 	connectionMenu->addAction(tr("Connect..."), this, SLOT(startConnect()));
 
 	QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
@@ -62,6 +70,14 @@ QtNXWindow::QtNXWindow() : QMainWindow()
 
 QtNXWindow::~QtNXWindow()
 {
+}
+
+void QtNXWindow::showLogWindow()
+{
+	if (logWindow->isHidden())
+		logWindow->show();
+	else
+		logWindow->hide();
 }
 
 void QtNXWindow::failedLogin()
@@ -140,11 +156,16 @@ void QtNXWindow::startConnect()
 	nxClient.setPassword(ui_lg.password->text());
 	nxClient.setResolution(dw.screenGeometry(this).width(), dw.screenGeometry(this).height());
 	nxClient.setDepth(info.depth());
+	
 	connect(&nxClient, SIGNAL(resumeSessions(QList<NXResumeData>)), this, SLOT(loadResumeDialog(QList<NXResumeData>)));
 	connect(&nxClient, SIGNAL(noSessions()), this, SLOT(noSessions()));
 	connect(&nxClient, SIGNAL(sshRequestConfirmation(QString)), this, SLOT(sshContinue(QString)));
 	connect(&nxClient, SIGNAL(callbackWrite(QString)), this, SLOT(updateStatusBar(QString)));
 	connect(&nxClient, SIGNAL(loginFailed()), this, SLOT(failedLogin()));
+	connect(&nxClient, SIGNAL(stdout(QString)), this, SLOT(logStd(QString)));
+	connect(&nxClient, SIGNAL(stderr(QString)), this, SLOT(logStd(QString)));
+	connect(&nxClient, SIGNAL(stdin(QString)), this, SLOT(logStd(QString)));
+	
 	//nxClient.setSession(&session);
 }
 
@@ -205,3 +226,9 @@ void QtNXWindow::noSessions()
 {
 	nxClient.setSession(&session);
 }
+
+void QtNXWindow::logStd(QString message)
+{
+	log->setPlainText(log->toPlainText() + message);
+}
+

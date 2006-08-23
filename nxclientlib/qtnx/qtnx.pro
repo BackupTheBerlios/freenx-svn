@@ -2,7 +2,7 @@ TEMPLATE	= app
 
 CONFIG		+= qt warn_on debug
 
-FORMS = settingsdialog.ui logindialog.ui sessionsdialog.ui keydialog.ui
+FORMS = settingsdialog.ui logindialog.ui sessionsdialog.ui keydialog.ui logwindow.ui
 
 SOURCES = main.cpp qtnxwindow.cpp qtnxsettings.cpp qtnxsessions.cpp
 
