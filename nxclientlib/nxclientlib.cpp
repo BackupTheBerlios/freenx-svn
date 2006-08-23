@@ -253,7 +253,7 @@ QString NXClientLib::parseSSH(QString message)
 	if (message.contains("NX> 710 Session status: running")) {
 		invokeProxy();
 		session.wipeSessions();
-//		returnMessage = "bye\n";
+		returnMessage = "bye\n";
 	}
 	
 	return returnMessage;
