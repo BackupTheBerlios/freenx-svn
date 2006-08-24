@@ -81,7 +81,7 @@ void QtNXSettings::parseFile()
 			ui_sd.type->setCurrentIndex(ui_sd.type->findText(tr("KDE")));
 		} else if (config.sessionType == "unix-gnome") {
 			ui_sd.platform->setCurrentIndex(ui_sd.platform->findText(tr("UNIX")));
-			ui_sd.type->setCurrentIndex(ui_sd.type->findText(tr("KDE")));
+			ui_sd.type->setCurrentIndex(ui_sd.type->findText(tr("GNOME")));
 		} else if (config.sessionType == "unix-cde") {
 			ui_sd.platform->setCurrentIndex(ui_sd.platform->findText(tr("UNIX")));
 			ui_sd.type->setCurrentIndex(ui_sd.type->findText(tr("CDE")));
