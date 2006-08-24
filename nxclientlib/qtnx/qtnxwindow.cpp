@@ -224,6 +224,7 @@ void QtNXWindow::resumeResumePressed(QString id)
 
 void QtNXWindow::noSessions()
 {
+	session.suspended = false;
 	nxClient.setSession(&session);
 }
 
