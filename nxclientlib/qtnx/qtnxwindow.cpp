@@ -26,6 +26,8 @@
 
 QtNXWindow::QtNXWindow() : QMainWindow()
 {
+	sessionsDialog = 0;
+
 	logWindow = new QDialog(0);
 	ui_lw.setupUi(logWindow);
 
