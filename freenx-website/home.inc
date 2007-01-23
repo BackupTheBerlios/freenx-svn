@@ -10,6 +10,82 @@
 	<h2>
 		News
 	</h2>
+	<h3>
+		<a
+	href="http://mail.kde.org/pipermail/freenx-knx/2007-January/004535.html">FreeNX
+	0.6.0 Released</a> 
+        - Tuesday, January 23, 2007 - 	
+	[<a title="Download"
+	href="http://prdownload.berlios.de/freenx/freenx-0.6.0.tar.gz">Download</a>]
+	</h3>
+	<pre>
+23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
+        * Opened the 0.6.0 branch.
+        * Added nxnode slave mode.
+        * General code cleanup.
+                * Huge cleanup of nxnode.
+        * Removed "no-x11-forwarding" from keys to allow client to use the
+          faster interactive sessions.
+        * Fixed nxsetup automatic testing of sessions and cleared up
+          explanations.
+        * Added support for NX 2.0.0 style nxclient dialogs.
+        * Support for NX 2.0.0 backend in nxloadconfig.
+        * Fixed cups printing (added username and password).
+        * Fixed one more stray tail process.
+        * Added example script for "load" based loadbalancing.
+        * Fixed spaces in parameters for NX Client 2.0.0.
+          (ssycplkbocve@spammotel.com)
+        * Added version 2.1.0 support.
+        * Fixed LD_LIBRARY_PRELOAD default path in nxloadconfig.
+        * Fixed nxclient to work with 2.1.0 backend.
+        * Added autodetection of backend.
+
+01.07.2006 FreeNX 0.5.0 "UKUUG 2006 Edition"
+        * Opened the 0.5.0 branch.
+        * Added load balancing.
+        * Completely removed support for 1.4.0 backend.
+        * Rootless mode is now the default.
+        * Reworked nxnode / suspend on connection failure should work now.
+        * Added support for "Running" sessions.
+        * Fixed --send command. (Emmanuel Blindauer )
+        * Fixed resume with nxclient >=1.5.0-106 for Windows.
+        * Fixed rootless sessions with Windows nxclient.
+        * Fixed keyboard issues by enabling the keybd channel.
+        * Fixed one more stray tail process and being able to
+          cleanup after a hopelessly failed reconnection. (i.e. agent died)
+        * Fixed detection of xauth / netcat. Added option to disable extra
+          checks.
+        * Fixed --terminate / --suspend when hostname has a '-' in it.
+          (Emmanuel Blindauer )
+        * ESD_NO_SPAWN is always set when ESPEAKER is set.
+          ("Felipe Alfaro Solana" )
+        * Added perl replacement for 'rev' function on Sun OS 5.10.
+        * Fixed NODE_AUTOSTART to be unable to block sessions.
+        * Fixed stale sessions introduced by the new session handling model.
+        * Added usage of TCP NODELAY option.
+        * Fixed loadbalancing IP issues.
+        * Added --force-terminate to remove session info.
+          Fixed issue with suspend/terminate commands.
+        * Added correct errorcode 596 instead of 504.
+        * Implemented "round-robin" and "load" loadbalancing algorithms.
+          Cleaned up node.conf keys.
+        * Fixed help for --restart.
+        * Fixed session_running function, which fixes all remaining stale
+          session problems.
+        * Removed termination of nxagent in case of rootless mode.
+          (Fixes kontact without --nofork)
+        * Last minute fixes for new functions using rev.
+        * Added experimental last minute support for NX 2.0.0 backend.
+          (set ENABLE_2_0_0_BACKEND=1)
+
+XX.XX.2006 FreeNX 0.4.5 "aKademy Edition"
+        * Made nxsetup more user-friendly and hopefully finally failsafe.
+        * Added --agent to nxnode/nxserver to allow easier debugging.
+        * Added addgroup/groupadd to nxsetup
+        * Added --ignore-errors support on nxsetup/nxloadconfig
+        * Added check for expect.
+	</pre>
+
 	<h3>		<a
 	href="http://wiki.debian.org/DebianEdu/DevCamp2006">FreeNX at Debian-Edu DevCamp 2006.</a> 
         - Saturday, July 08, 2006 -
