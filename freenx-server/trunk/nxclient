@@ -43,8 +43,8 @@ do
 		--local) DIALOG_LOCAL="yes"; shift ;;
 		--noautokill) DIALOG_NOAUTOKILL="yes"; shift ;;
 		--display) DISPLAY="$2"; shift 2 ;;
-		--printer) DIALOG_PRINTER="$2"; shift 2 ; break ;;
-		--parent) DIALOG_PARENT="$2"; shift 2 ; break ;;
+		--printer) DIALOG_PRINTER="$2"; shift 2 ;;
+		--parent) DIALOG_PARENT="$2"; shift 2 ;;
 		--) shift ; break ;;
                 *) echo "Internal error!" ; exit 1; ;;
 	esac
