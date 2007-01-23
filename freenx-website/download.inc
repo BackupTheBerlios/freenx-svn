@@ -20,10 +20,10 @@
 		<dt>
 			Debian/Ubuntu DEBs
 		</dt>
-		<dd>
+<!--		<dd>
 			<a href="http://kanotix.com/files/debian/pool/main/f/freenx/">http://kanotix.com/files/debian/pool/main/f/freenx/</a>
 		</dd>
-<!--                <dd>
+                <dd>
                         <a href="http://kalyxo-archive.mornfall.net/pool/main/f/freenx/">http://kalyxo-archive.mornfall.net/pool/main/f/freenx/</a>
                 </dd>
 		<dd>
@@ -31,6 +31,12 @@
 		</dd> -->
 		<dd>
 			<a href="http://packages.debianbase.de/">http://packages.debianbase.de/</a>
+		</dd>
+		<dt>
+			CentOS RPMs &amp; HOWTO
+		</dt>
+		<dd>
+			<a href="http://wiki.centos.org/FreeNX">http://wiki.centos.org/FreeNX</a>
 		</dd>
 		<dt>
 			Fedora/Redhat RPMs &amp; HOWTO
