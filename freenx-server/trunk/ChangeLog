@@ -1,4 +1,4 @@
-xx.xx.2006 FreeNX 0.6.0
+23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
 	* Added nxnode slave mode.
 	* General code cleanup.
@@ -14,6 +14,9 @@ xx.xx.2006 FreeNX 0.6.0
 	* Added example script for "load" based loadbalancing.
 	* Fixed spaces in parameters for NX Client 2.0.0.
 	  (ssycplkbocve@spammotel.com)
+	* Added version 2.1.0 support.
+	* Fixed LD_LIBRARY_PRELOAD default path in nxloadconfig.
+	* Added autodetection of backend.
 
 01.07.2006 FreeNX 0.5.0 "UKUUG 2006 Edition"
 	* Opened the 0.5.0 branch.
