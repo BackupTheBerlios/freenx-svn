@@ -1,7 +1,12 @@
 #!/bin/sh
 
-echo "PidFile /home/info/ff/.nx/cups/cupsd.pid" >> $NX_HOME/.nx/cups/cupsd.conf
-echo "StateDir /home/info/ff/.nx/cups/" >> $NX_HOME/.nx/cups/cupsd.conf
+
+[ -f "$NX_HOME/.nx/cups/cupsd.pid" ] && CPID=$(cat "$NX_HOME/.nx/cups/cupsd.pid")
+
+[ -n "$PID" ] && kill -0 $PID && kill $PID && sleep 2 &&  kill -9 $PID 2>/dev/null
+
+echo "PidFile $NX_HOME/.nx/cups/cupsd.pid" >> $NX_HOME/.nx/cups/cupsd.conf
+echo "StateDir $NX_HOME/.nx/cups/" >> $NX_HOME/.nx/cups/cupsd.conf
 
 mkdir -p $NX_HOME/.nx/cups/ppd/
 
@@ -10,4 +15,5 @@ do
 	LD_LIBRARY_PATH="" wget -q ${i/ipp/http}.ppd -O $NX_HOME/.nx/cups/ppd/$(basename $i)_nxdl.ppd
 done
 
-exec /usr/sbin/cupsd "$@"
+/usr/sbin/cupsd "$@"
+rm -f "$NX_HOME/.nx/cups/cupsd.pid"
