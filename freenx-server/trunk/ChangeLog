@@ -8,6 +8,7 @@ xx.xx.2007 FreeNX 0.6.1
 	          /usr/lib/cups/driver/
 	* Added setting of CUPS_SERVER environment var.
 	* Added automatic downloading of PPDs, if the client supports it.
+	* Added configuration vars to tweak the new behaviour.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.

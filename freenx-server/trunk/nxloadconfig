@@ -52,7 +52,7 @@ fi
 # DO NOT TOUCH unless you REALLY know what you are doing
 #########################################################################
 
-NX_VERSION=1.5.0-61
+NX_VERSION=1.5.0-61-SVN
 NX_LICENSE="OS (GPL)"
 
 # Where can different nx components be found
@@ -144,6 +144,12 @@ ARTSD_BIN_PRELOAD="artsdsp"
 
 ENABLE_KDE_CUPS="0"
 KDE_PRINTRC="" # Calculated
+
+ENABLE_CUPS_SERVER_EXPORT="1"
+ENABLE_FOOMATIC="1"
+COMMAND_FOOMATIC="/usr/lib/cups/driver/foomatic-ppdfile"
+
+CUPS_BACKEND="/usr/lib/cups/backend"
 CUPS_ETC="/etc/cups/"
 
 # Path directives
@@ -436,6 +442,17 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_KDE_CUPS=$ENABLE_KDE_CUPS\""
 	[ "$ENABLE_KDE_CUPS" = "1" -a ! -e "$KDE_PRINTRC" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"KDE_PRINTRC=$KDE_PRINTRC\""
+
+
+	[ "$ENABLE_FOOMATIC" = "1" ] && ! which "$COMMAND_FOOMATIC" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_FOOMATIC=$COMMAND_FOOMATIC\"" \
+					  && echo "         Users will not be able to use foomatic."
+	[ ! -x "$CUPS_BACKEND/ipp" ] && \
+		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/ipp\" is not executable." \
+					  && echo "         Users will not be able to enable printing."
+	[ ! -x "$CUPS_BACKEND/smb" ] && \
+		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/smb\" is not executable." \
+					  && echo "         Users will not be able to enable printing."
 	[ ! -e "$CUPS_ETC/mime.types" -o ! -e "$CUPS_ETC/mime.convs" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"CUPS_ETC=$CUPS_ETC\"" \
 					  && echo "         Users will not be able to enable printing."
@@ -482,6 +499,9 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH_KEYGEN=$COMMAND_SSH_KEYGEN\""
 	! which "$COMMAND_CUPSD" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_CUPSD=$COMMAND_CUPSD\"" \
+					  && echo "         Users will not be able to enable printing."
+	[ -z "$(strings $COMMAND_CUPSD | egrep 'CUPS\/1.2')" ] && \
+		WARNING="yes" && echo "Warning: Invalid cupsd version of \"$COMMAND_CUPSD\". Need version 1.2." \
 					  && echo "         Users will not be able to enable printing."
 	! which "$COMMAND_MD5SUM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_MD5SUM=$COMMAND_MD5SUM\""

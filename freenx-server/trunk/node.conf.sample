@@ -252,6 +252,23 @@
 
 #ENABLE_KDE_CUPS="0"
 #KDE_PRINTRC="$KDEHOME/share/config/kdeprintrc"
+
+# FreeNX with ENABLE_CUPS_SERVER_EXPORT="1" will automatically
+# export the environment variable CUPS_SERVER.
+
+#ENABLE_CUPS_SERVER_EXPORT="1"
+
+# FreeNX with ENABLE_FOOMATIC will integrate the foomatic db to the list
+# of available ppd drivers via the $COMMAND_FOOMATIC command.
+
+#ENABLE_FOOMATIC="1"
+#COMMAND_FOOMATIC="/usr/lib/cups/driver/foomatic-ppdfile"
+
+
+# CUPS_BACKEND and CUPS_ETC are the corresponding paths of your CUPS 
+# installation.
+
+#CUPS_BACKEND="/usr/lib/cups/backend"
 #CUPS_ETC="/etc/cups"
 
 #########################################################################

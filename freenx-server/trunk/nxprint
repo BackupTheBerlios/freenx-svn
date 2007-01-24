@@ -9,9 +9,6 @@
 # SVN: $Id$
 #
 
-# enable foomatic by default
-FOOMATIC="yes"
-
 HELP="no"
 DRIVERS="no"
 PRINTERS="no"
@@ -56,9 +53,10 @@ then
                           print "driver|" (a[i]=="ESP"?substr(b[i],0,index(b[i]," ")-1):a[i]) "|"b[i]"|"i"|en"
                     }' $(find -name "*.ppd")
 
-	if [ "$FOOMATIC" = "yes" ]
+	if [ "$ENABLE_FOOMATIC" = "1" ]
 	then
-		foomatic-ppdfile list | awk -F'"' '{ A=""; if ($4 == "HP") { B=substr($6,index($6," ")+1); A=" "substr(B,0,index(B," ")); } printf("driver|%s%s|%s|%s|%s\n",$4,A,$6,$2,substr($3,2)) } '
+		[ -z "$COMMAND_FOOMATIC" ] && COMMAND_FOOMATIC="foomatic-ppdfile" 
+		$COMMAND_FOOMATIC list | awk -F'"' '{ A=""; if ($4 == "HP") { B=substr($6,index($6," ")+1); A=" "substr(B,0,index(B," ")); } printf("driver|%s%s|%s|%s|%s\n",$4,A,$6,$2,substr($3,2)) } '
 	fi
 	} | sort
 fi

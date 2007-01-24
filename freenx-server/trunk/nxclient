@@ -98,6 +98,8 @@ utility_printer()
 	[ -n "$USER_FAKE_HOME" ] && UTILITY_DRIVERS_CACHE="$USER_FAKE_HOME/.nx/config/drivers.cache"
 	UTILITY_NXPRINT="nxprint"
 	[ -n "$PATH_BIN" ] && UTILITY_NXPRINT="$PATH_BIN/nxprint"
+	# Export configuration vars for nxprint
+	export ENABLE_FOOMATIC COMMAND_FOOMATIC
 	case "$1" in 
 		get)
 			grep "driver|$2|" "$UTILITY_DRIVERS_CACHE" 2>/dev/null

@@ -283,7 +283,7 @@ node_start_applications()
 		fi
 	fi
 
-	[ "$cups" = "1" ] && export CUPS_SERVER=$USER_FAKE_HOME/.nx/C-$sess_id/cups/cups.sock
+	[ "$cups" = "1" -a "$ENABLE_CUPS_SERVER_EXPORT" = "1" ] && export CUPS_SERVER="$USER_FAKE_HOME/.nx/C-$sess_id/cups/cups.sock"
 
 	#
 	# Do we need to PRELOAD any libraries?
