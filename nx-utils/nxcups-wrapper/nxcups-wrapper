@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "PidFile /home/info/ff/.nx/cups/cupsd.pid" >> $NX_HOME/.nx/cups/cupsd.conf
+echo "StateDir /home/info/ff/.nx/cups/" >> $NX_HOME/.nx/cups/cupsd.conf
+
+mkdir -p $NX_HOME/.nx/cups/ppd/
+
+for i in $(lpstat -s | cut -d" " -f4)
+do
+	LD_LIBRARY_PATH="" wget -q ${i/ipp/http}.ppd -O $NX_HOME/.nx/cups/ppd/$(basename $i)_nxdl.ppd
+done
+
+exec /usr/sbin/cupsd "$@"
