@@ -1198,6 +1198,7 @@ cmd_node_addprinter()
 	then
 		DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
 		NAME="$share"
+		ENABLE_CUPS_SEAMLESS="0"
 	else
 		DEVICE_URI="ipp://$username:$password@127.0.0.1:$port/printers/$printer"
 		NAME="$printer"

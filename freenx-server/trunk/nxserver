@@ -798,6 +798,7 @@ server_remove_usession()
 
 server_nxnode_echo()
 {
+	log 6 "server_nxnode_echo: $@"
 	[ "$SERVER_CHANNEL" = "1" ] && echo "$@"
 	[ "$SERVER_CHANNEL" = "2" ] && echo "$@" >&2
 }
@@ -839,18 +840,30 @@ server_nxnode_start_wait()
 					*running*)
 						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
 						KILL_WAIT_PID=0
+						log 6 session_status $uniqueid "Running"
 						session_status $uniqueid "Running"
 						[ "$SERVER_CHANNEL" = "1" ] && SERVER_CHANNEL=2
 					;;
 					*closed*)
+						log 6 session_close $uniqueid
 						session_close $uniqueid
 					;;
 					*suspended*)
 						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
 						KILL_WAIT_PID=0
+						log 6 session_suspend $uniqueid
 						session_suspend $uniqueid
 					;;
+					*suspending*)
+						log 6 session_status $uniqueid "Suspending"
+						session_status $uniqueid "Suspending"
+						# we need to stop sending to client as it will have already
+						# closed his side of the channel and this will lead to not 
+						# closed sessions.
+						SERVER_CHANNEL=0
+					;;
 					*terminating*)
+						log 6 session_status $uniqueid "Terminating"
 						session_status $uniqueid "Terminating"
 						# we need to stop sending to client as it will have already
 						# closed his side of the channel and this will lead to not 

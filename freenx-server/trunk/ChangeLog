@@ -12,6 +12,7 @@ xx.xx.2007 FreeNX 0.6.1
 	* Added cups seamless support with no "use this driver?" dialogs at all.
 	  * Note: You need nxcupsd-wrapper on the client side.
 	          Get it from nxutils repository.
+	* Fixed Support for "Running" sessions - again.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
