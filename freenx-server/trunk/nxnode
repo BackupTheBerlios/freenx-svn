@@ -497,7 +497,8 @@ node_start_agent()
 	NODE_FAILED=""
 	if [ $NODE_AGENT_EXIT_STATUS -ne 0 ]
 	then
-		echo "NX> 1004 Error: NX Agent exited with exit status 1."
+		echo "NX> 1004 Error: NX Agent exited with exit status 1. To troubleshoot set SESSION_LOG_CLEAN=0 in node.conf and investigate \"$USER_FAKE_HOME/.nx/F-C-$sess_id/session\". You might also want to try: ssh -X myserver; $PATH_BIN/nxnode --agent to test the basic functionality. Session log follows:"
+		cat "$USER_FAKE_HOME/.nx/C-$sess_id/session" 1>&2
 		NODE_FAILED="failed"
 	fi
 	echo "NX> 1006 Session status: closed"
@@ -1198,7 +1199,6 @@ cmd_node_addprinter()
 	then
 		DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
 		NAME="$share"
-		# SEAMLESS mode is not available with smb
 		ENABLE_CUPS_SEAMLESS="0"
 	else
 		DEVICE_URI="ipp://$username:$password@127.0.0.1:$port/printers/$printer"

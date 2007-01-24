@@ -13,6 +13,7 @@ xx.xx.2007 FreeNX 0.6.1
 	  * Note: You need nxcupsd-wrapper on the client side.
 	          Get it from nxutils repository.
 	* Fixed Support for "Running" sessions - again.
+	* Made the NXAgent exited with exit code 1 message more verbose.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
