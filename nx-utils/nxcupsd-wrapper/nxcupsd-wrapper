@@ -1,17 +1,49 @@
 #!/bin/sh
 
+CUPS_1_1=""
+strings /usr/sbin/cupsd | grep -q "CUPS/1.1" && CUPS_1_1="1"
+
 [ -f "$NX_ROOT/cups/cupsd.pid" ] && CPID=$(cat "$NX_ROOT/cups/cupsd.pid")
 
 [ -n "$CPID" ] && kill -0 $CPID && kill $CPID
 
-echo "PidFile $NX_ROOT/cups/cupsd.pid" >> $NX_ROOT/cups/cupsd.conf
-echo "StateDir $NX_ROOT/cups/" >> $NX_ROOT/cups/cupsd.conf
+if [ -z "$CUPS_1_1" ]
+then
+	echo "PidFile $NX_ROOT/cups/cupsd.pid" >> $NX_ROOT/cups/cupsd.conf
+	echo "StateDir $NX_ROOT/cups/" >> $NX_ROOT/cups/cupsd.conf
+fi
 
-mkdir -p $NX_HOME/cups/ppd/
+mkdir -p $NX_ROOT/cups/ppd/
 
-for i in $(lpstat -s | cut -d" " -f4)
+lpstat -s | egrep "^device" | while read x x printer destination
 do
-	LD_LIBRARY_PATH="" wget -q ${i/ipp/http}.ppd -O $NX_ROOT/cups/ppd/$(basename $i)_nxdl.ppd
+	proto=$(echo $destination | cut -d: -f1)
+	printer=$(echo $printer | cut -d: -f1)
+	if [ $proto = "ipp" -o "$proto" = "http" ]
+	then
+		# get it from remote printer
+		LD_LIBRARY_PATH="" wget -q -t 1 -T 1 ${destination/ipp/http}.ppd -O $NX_ROOT/cups/ppd/${printer}_nxdl.ppd
+	else
+		# get it from local host
+		[ -z "$IPP_PORT" ] && IPP_PORT=631
+		LD_LIBRARY_PATH="" wget -q -t 1 -T 1 "http://127.0.0.1:$IPP_PORT/printers/$printer.ppd" -O $NX_ROOT/cups/ppd/${printer}_nxdl.ppd
+	fi
 done
 
-exec /usr/sbin/cupsd "$@" 
+start_cupsd_1_1()
+{
+	/usr/sbin/cupsd -f "$@" &
+	CPID=$!
+	echo "$CPID" >"$NX_ROOT/cups/cupsd.pid"
+	trap "kill $CPID; rm -f $NX_ROOT/cups/cupsd.pid" EXIT
+	wait $CPID
+	rm -f "$NX_ROOT/cups/cupsd.pid"
+}
+
+if [ -z "$CUPS_1_1" ]
+then
+	exec /usr/sbin/cupsd "$@" 
+else
+	start_cupsd_1_1 "$@" &
+	disown $!
+fi
