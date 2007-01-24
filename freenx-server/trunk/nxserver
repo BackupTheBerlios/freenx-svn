@@ -1340,6 +1340,7 @@ do
 			PARAMS=$SERVER_PARAMS
 			# TODO: This redirecion is crap here.
 			server_nxnode_start --addprinter "$USER" "$PARAMS" >/dev/null 2>&1 | log_error >/dev/null
+			echo_x "NX> 719 CUPS printer: running"
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client

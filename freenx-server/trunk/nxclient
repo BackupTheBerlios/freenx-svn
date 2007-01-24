@@ -251,7 +251,7 @@ xdialog_printer_configure_vendor()
 # xdialog_printer_configure_driver vendor old_driver
 xdialog_printer_configure_driver()
 {
-	IFS='|' XDIALOG_LIST=( $(utility_printer getextdrvlist "$1" | sed 's/$/|off/g; /'"$2"'/ s/|off/|on/g' | tr '\n' '|') )
+	IFS='|' XDIALOG_LIST=( $(utility_printer getextdrvlist "$1" | sed 's,$,|off,g; /'"$(basename $2)"'/ s,|off,|on,g' | tr '\n' '|') )
 	$DIALOG --stdout --title "$DIALOG_CAPTION" --radiolist "$DIALOG_MESSAGE" 0 0 6 "${XDIALOG_LIST[@]}"
 }
 

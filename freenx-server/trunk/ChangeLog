@@ -1,3 +1,14 @@
+xx.xx.2007 FreeNX 0.6.1
+	* Fixed the printing support for CUPS 1.2.
+	  Older versions of CUPS are no longer supported.
+	  * Note: You might need to do: chmod 755
+		  /usr/lib/cups/backend/{ipp, http}
+	* Added foomatic support.
+	  * Note: You might need to do: ln -s /usr/bin/foomatic-ppdfile
+	          /usr/lib/cups/driver/
+	* Added setting of CUPS_SERVER environment var.
+	* Added automatic downloading of PPDs, if the client supports it.
+
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
 	* Added nxnode slave mode.

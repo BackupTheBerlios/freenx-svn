@@ -283,6 +283,8 @@ node_start_applications()
 		fi
 	fi
 
+	[ "$cups" = "1" ] && export CUPS_SERVER=$USER_FAKE_HOME/.nx/C-$sess_id/cups/cups.sock
+
 	#
 	# Do we need to PRELOAD any libraries?
 	#	
@@ -551,12 +553,13 @@ node_cupsd_setup()
 	let NODE_CUPSD_PORT=$display+9000 # offset 9000 for userspace cupsd's
 	export NODE_CUPSD_PORT
 	
+	export NODE_CUPSD_SOCKET="$USER_FAKE_HOME/.nx/C-$sess_id/cups/cups.sock"
+	
 	mkdir -p "$USER_FAKE_HOME/.nx/C-$sess_id/pids/"
 	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd" ] && return
 	touch "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd"
 	
-	mkdir -p "$USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/tmp" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/certs" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/ppd"
-	ln -sf spool/certs "$USER_FAKE_HOME/.nx/C-$sess_id/cups/certs"
+	mkdir -p "$USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/tmp" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/certs" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/ppd" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/cache"
 
 cat <<EOF > $USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf
 AccessLog /dev/null
@@ -566,15 +569,27 @@ LogLevel info
 TempDir $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/tmp
 RequestRoot $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool
 ServerRoot $USER_FAKE_HOME/.nx/C-$sess_id/cups/
-Port $NODE_CUPSD_PORT
+StateDir $USER_FAKE_HOME/.nx/C-$sess_id/cups/
+CacheDir $USER_FAKE_HOME/.nx/C-$sess_id/cups/cache
+
+Listen $NODE_CUPSD_SOCKET
 Browsing Off
 ServerName localhost
+PidFile $USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd
 
 <Location />
 Order Deny,Allow
 Deny From All
 Allow from 127.0.0.1
 </Location>
+
+# Allow everything for anonymous, because we are protected through UNIX socket
+<Policy default>
+  <Limit All>
+    AuthType None
+    Order deny,allow
+  </Limit>
+</Policy>
 EOF
 
 	touch "$USER_FAKE_HOME/.nx/C-$sess_id/cups/printers.conf" "$USER_FAKE_HOME/.nx/C-$sess_id/cups/classes.conf"
@@ -583,20 +598,17 @@ EOF
 	cp -af "$CUPS_ETC"/mime.* "$USER_FAKE_HOME/.nx/C-$sess_id/cups/"
 
 	# start cupsd
-	$COMMAND_CUPSD -f -c "$USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf" &>/dev/null </dev/null &
-	NODE_CUPSD_PID=$!
-	sleep 3
-	echo $NODE_CUPSD_PID >"$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd"
+	$COMMAND_CUPSD -c "$USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf" &>/dev/null </dev/null
 
 	# setup KDE
 	if [ "$ENABLE_KDE_CUPS" = "1" -a -e "$KDE_PRINTRC" ]
 	then
-		if egrep -q "^Port=" "$KDE_PRINTRC"
+		if egrep -q "^Host=" "$KDE_PRINTRC"
 		then
-			perl -pi -e 's/^Port=.*/Port='"$NODE_CUPSD_PORT"'/g' "$KDE_PRINTRC"
+			perl -pi -e 's/^Host=.*/Host='"$NODE_CUPSD_SOCKET"'/g' "$KDE_PRINTRC"
 		else
 			echo "[CUPS]" >> "$KDE_PRINTRC"
-			echo "Port=$NODE_CUPSD_PORT" >> "$KDE_PRINTRC"
+			echo "Host=$NODE_CUPSD_SOCKET" >> "$KDE_PRINTRC"
 		fi
 	fi
 }
@@ -614,10 +626,10 @@ node_cupsd_reload()
 	[ -n "$NODE_CUPSD_PID" ] && kill -0 $NODE_CUPSD_PID && kill -HUP $NODE_CUPSD_PID
 }
 
-node_cupsd_get_port()
+node_cupsd_get_socket()
 {
 	node_cupsd_setup
-	echo $NODE_CUPSD_PORT
+	echo $NODE_CUPSD_SOCKET
 }
 
 node_umount_smb()
@@ -1180,25 +1192,46 @@ cmd_node_addprinter()
 	sess_id="$SERVER_NAME-$display-$sessionid"
 	
 	# this will also setup the userspace cupsd
-	IPP_PORT=$(node_cupsd_get_port)
-	export IPP_PORT
+	export CUPS_SERVER=$(node_cupsd_get_socket)
 	
 	if [ "$type" = "smb" ]
 	then
-		DEVICE_URI="smb://$username:$password@localhost:$port/$share"
+		DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
 		NAME="$share"
 	else
-		DEVICE_URI="ipp://$username:$password@localhost:$port/printers/$printer"
+		DEVICE_URI="ipp://$username:$password@127.0.0.1:$port/printers/$printer"
 		NAME="$printer"
 	fi
+	export PATH_BIN
 	
 	MODEL=$($PATH_BIN/nxclient -printer "$NAME" -noautokill -display :$display)
 	[ -z "$MODEL" -o "$MODEL" = "cancel: aborted" ] && return
 	
 	PUBLIC="-u allow:$USER"
 	[ "$public" == "1" ] && PUBLIC=""
-	lpadmin -p "$NAME" -E -v "$DEVICE_URI" -m "$MODEL" $PUBLIC
-	[ "$defaultPrinter" = "1" ] && lpadmin -d "$NAME"
+
+	if [ "$MODEL" = "download_new" -o "$MODEL" = "download_cached" ]
+	then
+		mkdir -p "$USER_FAKE_HOME/.nx/config/ppd/"
+		if [ "$MODEL" = "download_new" -o ! -r "$USER_FAKE_HOME/.nx/config/ppd/$printer.ppd" ]
+		then
+			curl --digest -o "$USER_FAKE_HOME/.nx/config/ppd/$printer.ppd" "http://$username:$password@127.0.0.1:$port/ppd/${printer}_nxdl.ppd" &> $USER_FAKE_HOME/.nx/C-$sess_id/cups/curl.log
+		RC=$?
+		[ $RC -eq 0 ] && $PATH_BIN/nxclient --message "Download successful." -noautokill -display :$display
+		[ $RC -eq 0 ] || $PATH_BIN/nxclient --message "Download failed. Log is: $USER_FAKE_HOME/.nx/C-$sess_id/cups/curl.log" -noautokill -display :$display
+		fi
+		MODEL="$USER_FAKE_HOME/.nx/config/ppd/$printer.ppd"
+	fi
+	
+	if [ ! -r "$MODEL" ]
+	then
+		# Foomatic and co
+		/usr/sbin/lpadmin -p "$NAME" -E -v "$DEVICE_URI" -m "$MODEL" $PUBLIC
+	else
+		/usr/sbin/lpadmin -p "$NAME" -E -v "$DEVICE_URI" -P "$MODEL" $PUBLIC
+	fi
+
+	[ "$defaultPrinter" = "1" ] && /usr/sbin/lpadmin -d "$NAME"
 }
 
 nxnode_func()
