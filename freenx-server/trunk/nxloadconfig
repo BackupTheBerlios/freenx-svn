@@ -279,7 +279,8 @@ then
 fi 
 
 [ -z "$KDE_PRINTRC" -a -n "$KDEHOME" ] && KDE_PRINTRC="$KDEHOME/share/config/kdeprintrc"
-[ -z "$KDE_PRINTRC" -a -z "$KDEHOME" ] && KDE_PRINTRC="$HOME/.kde/share/config/kdeprintrc"
+[ -z "$KDE_PRINTRC" ] && KDE_PRINTRC=$(kde-config --localprefix)"/share/config/kdeprintrc"
+[ -z "$KDE_PRINTRC" -o ! -r "$KDE_PRINTRC" ] && KDE_PRINTRC="$HOME/.kde/share/config/kdeprintrc"
 
 #########################################################################
 # Support for --check
