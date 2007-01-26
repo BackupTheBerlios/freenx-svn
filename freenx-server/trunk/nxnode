@@ -606,10 +606,12 @@ EOF
 	then
 		if egrep -q "^Host=" "$KDE_PRINTRC"
 		then
-			perl -pi -e 's/^Host=.*/Host='"$NODE_CUPSD_SOCKET"'/g' "$KDE_PRINTRC"
+			[ "$ENABLE_KDE_CUPS_DYNAMIC" = "1" ] && perl -pi -e 's,^Host=.*,Host[\$ie]=\$\('"$PATH_BIN/nxcups-gethost"'),g' "$KDE_PRINTRC"
+			[ "$ENABLE_KDE_CUPS_DYNAMIC" != "1" ] && perl -pi -e 's,^Host=.*,Host='"$NODE_CUPSD_SOCKET"',g' "$KDE_PRINTRC"
 		else
 			echo "[CUPS]" >> "$KDE_PRINTRC"
-			echo "Host=$NODE_CUPSD_SOCKET" >> "$KDE_PRINTRC"
+			[ "$ENABLE_KDE_CUPS_DYNAMIC" = "1" ] && echo "Host[\$ie]=\$($PATH_BIN/nxcups-gethost)" >> "$KDE_PRINTRC"
+			[ "$ENABLE_KDE_CUPS_DYNAMIC" != "1" ] && echo "Host=$NODE_CUPSD_SOCKET" >> "$KDE_PRINTRC"
 		fi
 	fi
 }
@@ -1201,7 +1203,7 @@ cmd_node_addprinter()
 		NAME="$share"
 		ENABLE_CUPS_SEAMLESS="0"
 	else
-		DEVICE_URI="ipp://$username:$password@127.0.0.1:$port/printers/$printer"
+		DEVICE_URI="nxipp://$username:$password@127.0.0.1:$port/printers/$printer"
 		NAME="$printer"
 	fi
 	export PATH_BIN

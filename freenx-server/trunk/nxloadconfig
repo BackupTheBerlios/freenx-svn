@@ -143,6 +143,7 @@ ENABLE_ARTSD_PRELOAD="0"
 ARTSD_BIN_PRELOAD="artsdsp"
 
 ENABLE_KDE_CUPS="0"
+ENABLE_KDE_CUPS_DYNAMIC="0"
 KDE_PRINTRC="" # Calculated
 
 ENABLE_CUPS_SERVER_EXPORT="1"
@@ -152,6 +153,8 @@ ENABLE_FOOMATIC="1"
 COMMAND_FOOMATIC="/usr/lib/cups/driver/foomatic-ppdfile"
 
 CUPS_BACKEND="/usr/lib/cups/backend"
+CUPS_IPP_BACKEND="$CUPS_BACKEND/nxipp"
+CUPS_DEFAULT_SOCK="/var/run/cups/cups.sock"
 CUPS_ETC="/etc/cups/"
 
 # Path directives
@@ -450,8 +453,8 @@ then
 	[ "$ENABLE_FOOMATIC" = "1" ] && ! which "$COMMAND_FOOMATIC" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_FOOMATIC=$COMMAND_FOOMATIC\"" \
 					  && echo "         Users will not be able to use foomatic."
-	[ ! -x "$CUPS_BACKEND/ipp" ] && \
-		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/ipp\" is not executable." \
+	[ ! -x "$CUPS_BACKEND/$CUPS_IPP_BACKEND" ] && \
+		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/$CUPS_IPP_BACKEND\" is not executable." \
 					  && echo "         Users will not be able to enable printing."
 	[ ! -x "$CUPS_BACKEND/smb" ] && \
 		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/smb\" is not executable." \

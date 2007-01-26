@@ -247,10 +247,21 @@
 #ARTSD_BIN_PRELOAD="artsdsp"
 
 # FreeNX with ENABLE_KDE_CUPS="1" will automatically write 
-# $KDE_PRINTRC and put the current used port into it.
+# $KDE_PRINTRC and put the current used socket into it.
+#
+# If you additionally enable ENABLE_KDE_CUPS_DYNAMIC it will set the 
+# Host entry to the script nxcups-gethost, which dynamically tries all 
+# possible entries to find the current printing host.
+#
+# The order is: CUPS_SERVER (env var), ~/.cups/client.conf, $KDE_PRINTRC,
+#               $CUPS_DEFAULT_SOCK, localhost
+#
+# So this option is most useful with ENABLE_CUPS_SERVER_EXPORT="1".
+# 
 # $KDE_PRINTRC is automatically calculated if its not set.
 
 #ENABLE_KDE_CUPS="0"
+#ENABLE_KDE_CUPS_DYNAMIC="0"
 #KDE_PRINTRC="$KDEHOME/share/config/kdeprintrc"
 
 # FreeNX with ENABLE_CUPS_SERVER_EXPORT="1" will automatically
@@ -279,6 +290,8 @@
 # installation.
 
 #CUPS_BACKEND="/usr/lib/cups/backend"
+#CUPS_IPP_BACKEND="$CUPS_BACKEND/nxipp"
+#CUPS_DEFAULT_SOCK="/var/run/cups/cups.sock"
 #CUPS_ETC="/etc/cups"
 
 #########################################################################
