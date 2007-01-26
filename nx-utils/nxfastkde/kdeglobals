@@ -4,6 +4,8 @@ Animated[$i]=false
 
 [KDE]
 EffectAnimateCombo[$i]=false
+EffectAnimateMenu[$i]=false
+EffectAnimateTooltip[$i]=false
 EffectFadeMenu[$i]=false
 EffectFadeTooltip[$i]=false
 EffectsEnabled[$i]=false
@@ -12,3 +14,4 @@ ShowIconsOnPushButtons[$i]=false
 
 [PanelIcons]
 ActiveEffect[$i]=none
+Animated[$i]=false
