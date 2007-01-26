@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 
+# nx-fishrv.pl - Originally based on KDE sources.
+#
+#   A simple fileserver to allow remote browsing via nxfish://.
+# 
+# License: GPL - v2
+#
+# Made "secure" for use by NX by Fabian Franz <freenx@fabian-franz.de>.
+# 
+# Version: 0.0.3-nx-3
+#
+# SVN: $$ 
+
 =pod
 =cut
 
@@ -7,10 +19,17 @@ use Fcntl;
 $|++;
 
 my $substpath=$ARGV[0];
+my $cookie=$ARGV[1];
+my $authenticated=0;
 
-if ($substpath eq '')
+if ($substpath eq '' or $substpath eq '.')
 {
-	$substpath='.';
+	$substpath='./';
+}
+
+if ($cookie eq '')
+{
+	$authenticated=1;
 }
 
 use strict;
@@ -20,6 +39,30 @@ $| = 1;
 MAIN: while (<STDIN>) {
     chomp;
     chomp;
+
+    #print STDERR "$_\n"; # debug
+    
+    /^#PASS\s+((?:\\.|[^\\])*?)\s*$/ && do {
+        my $usercookie    = $1;
+	
+	if ($usercookie eq $cookie or $authenticated eq 1)
+	{
+		$authenticated=1;
+		#print "### 200\n";
+	}
+	else
+	{
+		print "### 500 Wrong password supplied.\n";
+	}
+        next; # or should we bail out here?
+    };
+    
+    if ($authenticated eq 0)
+    {
+    	print "### 500 Not authenticated please use #PASS command.\n";
+	next;
+    }
+
     /\#FISH/ && do {
 	print "### 200\n";
 	next;
