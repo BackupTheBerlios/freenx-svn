@@ -453,11 +453,11 @@ then
 	[ "$ENABLE_FOOMATIC" = "1" ] && ! which "$COMMAND_FOOMATIC" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_FOOMATIC=$COMMAND_FOOMATIC\"" \
 					  && echo "         Users will not be able to use foomatic."
-	[ ! -x "$CUPS_BACKEND/$CUPS_IPP_BACKEND" ] && \
-		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/$CUPS_IPP_BACKEND\" is not executable." \
+	[ ! -x "$CUPS_IPP_BACKEND" ] && \
+		WARNING="yes" && echo "Warning: \"$CUPS_IPP_BACKEND\" is not executable." \
 					  && echo "         Users will not be able to enable printing."
 	[ ! -x "$CUPS_BACKEND/smb" ] && \
-		WARNING="yes" && echo "Warning: \"CUPS_BACKEND/smb\" is not executable." \
+		WARNING="yes" && echo "Warning: \"$CUPS_BACKEND/smb\" is not executable." \
 					  && echo "         Users will not be able to enable printing."
 	[ ! -e "$CUPS_ETC/mime.types" -o ! -e "$CUPS_ETC/mime.convs" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"CUPS_ETC=$CUPS_ETC\"" \
