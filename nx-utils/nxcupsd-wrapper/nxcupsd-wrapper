@@ -15,7 +15,7 @@ fi
 
 mkdir -p $NX_ROOT/cups/ppd/
 
-lpstat -s | egrep "^device" | while read x x printer destination
+LANG=C LC_ALL=C lpstat -s | egrep "^device" | while read x x printer destination
 do
 	proto=$(echo $destination | cut -d: -f1)
 	printer=$(echo $printer | cut -d: -f1)
