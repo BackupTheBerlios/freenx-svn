@@ -6,6 +6,8 @@
 *PCFileName:	"POSTSCRIPT.PPD"
 *Manufacturer:	"Postscript"
 *Product:	"(WINE v20021009)"
+*cupsFilter:    "application/vnd.cups-postscript 0 ff-uniprn-pdf.sh"
+*cupsFilter:    "application/pdf 0 ff-uniprn.sh"
 *ModelName:     "Generic postscript printer"
 *ShortNickName: "Generic postscript printer"
 *NickName:      "Generic postscript printer"
