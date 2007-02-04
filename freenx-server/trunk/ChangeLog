@@ -26,6 +26,8 @@ xx.xx.2007 FreeNX 0.6.1
 	* Added nxcups-gethost script for automatic usage in KDE.
 	* Fixed RDP/VNC sessions. No application should be started for that type. 
 	  (Patch by Bernard Cafarelli <voyageur@operamail.com>)
+	* Added backingstore fix for older clients from Gentoo.
+	  (http://bugs.gentoo.org/show_bug.cgi?id=149298)
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.

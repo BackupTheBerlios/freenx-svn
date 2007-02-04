@@ -412,7 +412,11 @@ node_start_agent()
 	# backingstore
 	
 	B=""
-	[ -n "$backingstore" -a "$ENABLE_2_0_0_BACKEND" != "1" ] && B="-bs $backingstore"
+	if [ -n "$backingstore" -a "$ENABLE_2_0_0_BACKEND" != "1" ]
+	then
+		[ "$backingstore" != 1 ] && B="-bs $backingstore"
+		[ "$backingstore" = 1 ] && B="+bs"
+	fi
 
 	# geometry
 	
