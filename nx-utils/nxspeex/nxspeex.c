@@ -25,7 +25,7 @@
 #define MAX_FRAME_BYTES 2000
 
 /* After how many frames should we resync with server? */
-#define DO_SYNC_SEQ	20
+#define DEFAULT_DO_SYNC_SEQ	20
 
 /* #define DEBUG 1 */
 
@@ -38,47 +38,6 @@ int do_fwd(int from, int to, void* buf, size_t count)
 
 	len=read(from, buf, count);
         return write(to, buf, len);
-}
-
-int do_fwd_all(int from, int to, void* buf, size_t count)
-{
-	size_t erg, len=0;
-	
-	do
-	{
-		erg=do_fwd(from, to, buf+len, count-len);
-		if (erg <= 0)
-			break;
-		len+=erg;
-	}
-	while (len < count);
-	
-	return len;
-}
-
-int do_fwd_noblock(int from, int to, void* buf, size_t count)
-{
-	size_t erg, len=0, olen=0;
-	
-	do
-	{
-		erg=read(from, buf+len, count-len);
-		if (erg <= 0)
-			return len;
-		len+=erg;
-	}
-	while (len < count);
-
-	do
-	{
-		erg=write(to, buf+olen, count-olen);
-		if (erg <= 0)
-			break;
-		olen+=erg;
-	}
-	while (olen < count);
-	
-	return olen;
 }
 
 void do_sockopts(int sock, int buf_size)
@@ -154,6 +113,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	SpeexPreprocessState *preprocess = NULL;
 	int frame_size, frame_size2;
 	unsigned int seqNr = 0;
+	unsigned int do_sync_seq=DEFAULT_DO_SYNC_SEQ;
 	
 	/* Configuration variables */
 	/* FIXME: Depend on NX setting */
@@ -183,6 +143,10 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 		preprocess = speex_preprocess_state_init(frame_size, speed);
 		speex_preprocess_ctl(preprocess, SPEEX_PREPROCESS_SET_DENOISE, &denoise_enabled);
 	}
+
+	/* Send do_sync_seq to decoder */
+	if (write(server, &do_sync_seq, sizeof(do_sync_seq)) != sizeof(do_sync_seq))
+		goto out;
 
 	/* Main encoding loop */
 
@@ -223,6 +187,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 			break;
 	}
 
+out:
 	/* Encoder shutdown */
 	speex_bits_destroy(&bits); 
 
@@ -280,6 +245,7 @@ int do_decode(int client, int server, esd_format_t format, int speed, char* iden
 	int frame_size, frame_size2;
 	SpeexCallback callback;
 	SpeexStereoState stereo = SPEEX_STEREO_STATE_INIT;
+	unsigned int do_sync_seq;
 	
 	/* Configuration variables */
 	/* FIXME: Depend on NX setting and read from network */
@@ -307,6 +273,11 @@ int do_decode(int client, int server, esd_format_t format, int speed, char* iden
 	//do_sockopts(client, 200);
 	do_sockopts(server, frame_size2 * (((format & ESD_BITS16)?16:8) / 8));
 	//esd_set_socket_buffers(server, format, speed, 44100);
+	//
+	
+	/* Get do_sync_seq from encoder */
+	if (do_read_complete(client, &do_sync_seq, sizeof(do_sync_seq)) != sizeof(do_sync_seq))
+		goto out;
 
 	/* Main decoding loop */
 
@@ -323,7 +294,7 @@ int do_decode(int client, int server, esd_format_t format, int speed, char* iden
 		fprintf(stderr, "SeqNr: %d\n", seqNr);
 #endif
 
-		if (seqNr % DO_SYNC_SEQ == 0)
+		if (seqNr % do_sync_seq == 0)
 			if (write(client, &seqNr, sizeof(seqNr)) != sizeof(seqNr))
 				break;
 		
@@ -342,6 +313,7 @@ int do_decode(int client, int server, esd_format_t format, int speed, char* iden
 			break;
 	}
 
+out:
 	/* Decoder shutdown */
 	speex_bits_destroy(&bits); 
 
