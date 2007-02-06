@@ -176,7 +176,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 		fprintf(stderr, "Encoder SeqNr: %d\n", seqNr);
 #endif
 		
-		if (seqNr % DO_SYNC_SEQ == 0)
+		if (seqNr % do_sync_seq == 0)
 			if (do_read_complete(server, &newSeq, sizeof(newSeq)) != sizeof(newSeq))
 				break;
 
