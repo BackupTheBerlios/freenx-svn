@@ -39,6 +39,12 @@ Of course this might be easily and transparently incorporated into nxcomp/Loop.c
 
 Note:
 
+- No 8 bit files are supported until now.
+
+- ESD_MIXER and other ESD commands are just discarded.
+
+- Latency issues:
+
 Its not yet perfect, as it depends on latency being quite low at the moment.
 
 To remove this limitation, nxspeex should check via select if there is a heartbeat and just if it can't find one in a certain latency limit, do the real read and resync.
