@@ -36,3 +36,9 @@ On client:
 Thats it!
 
 Of course this might be easily and transparently incorporated into nxcomp/Loop.cpp in the future.
+
+Note:
+
+Its not yet perfect, as it depends on latency being quite low at the moment.
+
+To remove this limitation, nxspeex should check via select if there is a heartbeat and just if it can't find one in a certain latency limit, do the real read and resync.
