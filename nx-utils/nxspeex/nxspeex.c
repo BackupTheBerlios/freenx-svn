@@ -20,6 +20,14 @@
 #include <speex/speex_stereo.h>
 #include <speex/speex_callbacks.h>
 
+#define MAX_FRAME_SIZE 2000
+#define MAX_FRAME_BYTES 2000
+
+/* After how many frames should we resync with server? */
+#define DO_SYNC_SEQ	20
+
+/* #define DEBUG 1 */
+
 int esd_set_socket_buffers( int sock, int src_format,
 		            int src_rate, int base_rate );
 
@@ -95,11 +103,6 @@ int do_read_complete(int from, void* buf, size_t count)
 	return len;
 }
 
-#define MAX_FRAME_SIZE 2000
-#define MAX_FRAME_BYTES 2000
-
-/* After how many frames should we resync with server? */
-#define DO_SYNC_SEQ	20
 
 int do_read_samples(int from, short* sbuf, int frame_size, int bits)
 {
@@ -148,7 +151,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	SpeexBits bits;
 	const SpeexMode* mode = NULL;
 	int frame_size, frame_size2;
-	int seqNr = 0;
+	unsigned int seqNr = 0;
 	
 	/* Configuration variables */
 	/* FIXME: Depend on NX setting */
@@ -179,7 +182,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	while (1)
 	{
 		int nbBytes;
-		int newSeq;
+		unsigned int newSeq;
 		short input[MAX_FRAME_SIZE+1];
 		char output[MAX_FRAME_BYTES+1];
 
@@ -195,15 +198,13 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	
 		if (write(server, &seqNr, sizeof(seqNr)) != sizeof(seqNr))
 			break;
+#ifdef DEBUG
 		fprintf(stderr, "Encoder SeqNr: %d\n", seqNr);
+#endif
 		
 		if (seqNr % DO_SYNC_SEQ == 0)
-		{
 			if (do_read_complete(server, &newSeq, sizeof(newSeq)) != sizeof(newSeq))
 				break;
-			if (seqNr != newSeq)
-				fprintf(stderr,"Warning: Seq Nr mismatch!\n");
-		}
 
 		seqNr++;
 		if (write(server, &nbBytes, sizeof(nbBytes)) != sizeof(nbBytes))
@@ -301,15 +302,16 @@ int do_decode(int client, int server, esd_format_t format, int speed, char* iden
 
 	while (1)
 	{
-		int seqNr = 0;
+		unsigned int seqNr = 0;
 		int nbBytes;
 		char input[MAX_FRAME_BYTES+1];
 		short output[MAX_FRAME_SIZE+1];
 		
 		if (do_read_complete(client, &seqNr, sizeof(seqNr)) != sizeof(seqNr))
 			break;
-		
+#ifdef DEBUG	
 		fprintf(stderr, "SeqNr: %d\n", seqNr);
+#endif
 
 		if (seqNr % DO_SYNC_SEQ == 0)
 			if (write(client, &seqNr, sizeof(seqNr)) != sizeof(seqNr))
@@ -387,7 +389,9 @@ int main(int argc, char** argv)
 	{
 		write(server, &proto, sizeof(proto));
 
+#ifdef DEBUG
 		fprintf(stderr, "proto = %d\n", proto);
+#endif
 
 	 	switch(proto)
 		{
