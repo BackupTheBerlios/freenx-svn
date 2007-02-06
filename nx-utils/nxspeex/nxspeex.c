@@ -19,6 +19,7 @@
 #include <speex/speex.h>
 #include <speex/speex_stereo.h>
 #include <speex/speex_callbacks.h>
+#include <speex/speex_preprocess.h>
 
 #define MAX_FRAME_SIZE 2000
 #define MAX_FRAME_BYTES 2000
@@ -150,6 +151,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	void *enc_state;
 	SpeexBits bits;
 	const SpeexMode* mode = NULL;
+	SpeexPreprocessState *preprocess = NULL;
 	int frame_size, frame_size2;
 	unsigned int seqNr = 0;
 	
@@ -157,6 +159,7 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	/* FIXME: Depend on NX setting */
 	int modeID = SPEEX_MODEID_UWB;
 	int complexity=3;
+	int denoise_enabled=1;
 	
 	/* Encoder initialisation */
 	speex_bits_init(&bits);
@@ -175,7 +178,11 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 	esd_set_socket_buffers(client, format, speed, 44100);
 	do_sockopts(server, 200);
 
-	/* FIXME: Add denoise */
+	if (denoise_enabled)
+	{
+		preprocess = speex_preprocess_state_init(frame_size, speed);
+		speex_preprocess_ctl(preprocess, SPEEX_PREPROCESS_SET_DENOISE, &denoise_enabled);
+	}
 
 	/* Main encoding loop */
 
@@ -192,6 +199,9 @@ int do_encode(int client, int server, esd_format_t format, int speed, char* iden
 		speex_bits_reset(&bits); 
 		if (format & ESD_STEREO)
 			speex_encode_stereo_int(input, frame_size, &bits);
+
+		if (preprocess)
+			speex_preprocess(preprocess, input, NULL);
 			
 		speex_encode_int(enc_state, input, &bits);
 		nbBytes = speex_bits_write(&bits, output, MAX_FRAME_BYTES);
