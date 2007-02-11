@@ -997,7 +997,7 @@ startsession()
 	status=$(getparam status)
 	host=$(getparam host)
 
-	fullscreen=""
+	fullscreen=$(getparam fullscreen)
 	[ "$geometry" = "fullscreen" ] && fullscreen="1"
 
 	[ "$EXPORT_USERIP" = "1" ] && export NXUSERIP="$userip"
