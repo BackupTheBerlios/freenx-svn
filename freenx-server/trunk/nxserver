@@ -1644,8 +1644,8 @@ cmd_send()
 	else
 	  CMD_PARAMS=$(cmd_parse_3_params "$2")
 	  [ -z "$CMD_PARAMS" ] && exit 1
+	  shift
 	fi
-	shift
 	shift
 	for i in $CMD_PARAMS;
 	do

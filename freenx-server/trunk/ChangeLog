@@ -31,6 +31,7 @@ xx.xx.2007 FreeNX 0.6.1
 	* Fixed VNC sessions.
 	* Fixed fullscreen sessions.
 	  (Patch by Gentoo Bugtracker)
+	* Fixed --broadcast.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
