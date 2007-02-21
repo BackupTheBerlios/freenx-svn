@@ -59,11 +59,13 @@ GtkWidget *link_select;
 GtkWidget *desktop_advanced;
 GtkWidget *compression_type;
 GtkWidget *use_render;
+GtkWidget *jpeg_quality;
 GtkWidget *desktop_labels_layout;
 GtkWidget *desktop_selects_layout;
 GtkWidget *desktop_type_hlayout;
 GtkWidget *desktop_type_vlayout;
 GtkWidget *desktop_hlayout;
+GtkWidget *desktop_jpeg_layout;
 
 GtkWidget *use_ssh_encryption;
 GtkWidget *cache_size;
@@ -148,8 +150,11 @@ void setup_config(GtkWidget *window)
     session_name = gtk_entry_new();
     host_name = gtk_entry_new();
     port_number = gtk_spin_button_new_with_range(1, 65535, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(port_number), 22);
     use_default_key = gtk_check_button_new_with_label("Use default NoMachine key");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_default_key), TRUE);
     advanced_key_settings = gtk_button_new_with_label("Set custom key");
+    gtk_widget_set_state(advanced_key_settings, GTK_STATE_INSENSITIVE);
 
     gtk_widget_set_size_request(advanced_key_settings, -1, 40);
 
@@ -180,16 +185,42 @@ void setup_config(GtkWidget *window)
     gtk_box_pack_start(GTK_BOX(config_server_page), server_key_layout, TRUE, FALSE, 0);
  
     platform_select = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(platform_select), "UNIX");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(platform_select), "Windows");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(platform_select), "VNC Proxy");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(platform_select), 0);
+
     type_select = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(type_select), "KDE");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(type_select), "GNOME");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(type_select), "CDE");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(type_select), "XDM");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(type_select), "Custom");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(type_select), 0);
+
     link_select = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(link_select), "Modem");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(link_select), "ISDN");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(link_select), "ADSL");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(link_select), "WAN");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(link_select), "LAN");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(link_select), 0);
 
     desktop_advanced = gtk_button_new_with_label("Advanced");
-
+    gtk_widget_set_state(desktop_advanced, GTK_STATE_INSENSITIVE);
     gtk_widget_set_size_request(desktop_advanced, -1, 40);
 
     compression_type = gtk_combo_box_new_text();
-    use_render = gtk_check_button_new_with_label("Use RENDER extension");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(compression_type), "PNG");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(compression_type), "JPEG");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(compression_type), "Raw X11");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(compression_type), 0);
 
+    use_render = gtk_check_button_new_with_label("Use RENDER extension");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_render), TRUE);
+
+    jpeg_quality = gtk_hscale_new_with_range(1, 9, 1);
+    gtk_widget_set_state(jpeg_quality, GTK_STATE_INSENSITIVE);
     desktop_labels_layout = gtk_vbox_new(TRUE, 10);
     desktop_selects_layout = gtk_vbox_new(TRUE, 10);
     desktop_type_hlayout = gtk_hbox_new(FALSE, 10);
@@ -218,15 +249,29 @@ void setup_config(GtkWidget *window)
 
     gtk_box_pack_start(GTK_BOX(config_desktop_page), desktop_hlayout, TRUE, TRUE, 0);
 
+    desktop_jpeg_layout = gtk_hbox_new(FALSE, 10);
+    gtk_box_pack_start(GTK_BOX(desktop_jpeg_layout), gtk_label_new("JPEG Quality"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_jpeg_layout), jpeg_quality, TRUE, TRUE, 0);
+
+    gtk_box_pack_start(GTK_BOX(config_desktop_page), desktop_jpeg_layout, TRUE, FALSE, 10);
+
     use_ssh_encryption = gtk_check_button_new_with_label("Use SSH encryption");
-    cache_size = gtk_combo_box_new_text();
-    disk_size = gtk_combo_box_new_text();
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_ssh_encryption), TRUE);
+
+    cache_size = gtk_spin_button_new_with_range(1, 32, 1);
+    disk_size = gtk_spin_button_new_with_range(1, 32, 1);
+
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(cache_size), 4);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(disk_size), 4);
 
     cache_layout = gtk_hbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new("Memory cache"), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(cache_layout), cache_size, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new("MB"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new(0), TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new("Disk cache"), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(cache_layout), disk_size, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new("MB"), FALSE, FALSE, 0);
 
     gtk_box_pack_start(GTK_BOX(config_advanced_page), use_ssh_encryption, TRUE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(config_advanced_page), cache_layout, TRUE, FALSE, 0);
@@ -237,6 +282,7 @@ void setup_config(GtkWidget *window)
 static void config_clicked(GtkWidget *widget, gpointer data)
 {
     gtk_widget_show_all(config_dialog);
+    //g_signal_connect(G_OBJECT(config_dialog), "response", G_CALLBACK(destroy), NULL);
 }
 
 static void login_clicked(GtkWidget *widget, gpointer data)
