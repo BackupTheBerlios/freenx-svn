@@ -103,8 +103,8 @@ void setup_gui(GtkWidget *window)
     gtk_widget_set_size_request(username_input, 400, 30);
     gtk_widget_set_size_request(sessions_combo, 400, 30);
 
-    gtk_widget_set_size_request(config_button, 150, 50);
-    gtk_widget_set_size_request(login_button, 150, 50);
+    gtk_widget_set_size_request(config_button, 150, 40);
+    gtk_widget_set_size_request(login_button, 150, 40);
     gtk_widget_set_size_request(fixed_layout, 672, 220);
     gtk_widget_set_size_request(separator, 600, 0);
 
@@ -116,7 +116,7 @@ void setup_gui(GtkWidget *window)
     gtk_layout_put(GTK_LAYOUT(fixed_layout), gtk_label_new("Password:"), 36, 50);
     gtk_layout_put(GTK_LAYOUT(fixed_layout), gtk_label_new("Session:"), 36, 100);
 
-    gtk_layout_put(GTK_LAYOUT(fixed_layout), separator, 20, 150);
+    gtk_layout_put(GTK_LAYOUT(fixed_layout), separator, 36, 150);
 
     gtk_layout_put(GTK_LAYOUT(fixed_layout), config_button, 36, 170);
     gtk_layout_put(GTK_LAYOUT(fixed_layout), login_button, 486, 170);
@@ -131,9 +131,9 @@ void setup_config(GtkWidget *window)
     config_server_page = gtk_vbox_new(FALSE, 10);
     config_desktop_page = gtk_vbox_new(FALSE, 10);
     config_advanced_page = gtk_vbox_new(FALSE, 10);
-    gtk_widget_set_size_request(config_server_page, 630, 200);
-    gtk_widget_set_size_request(config_desktop_page, 630, 200);
-    gtk_widget_set_size_request(config_advanced_page, 630, 200);
+    gtk_widget_set_size_request(config_server_page, -1, 200);
+    gtk_widget_set_size_request(config_desktop_page, -1, 200);
+    gtk_widget_set_size_request(config_advanced_page, -1, 200);
 
     gtk_dialog_add_button(GTK_DIALOG(config_dialog), "OK", GTK_RESPONSE_OK);
     gtk_dialog_add_button(GTK_DIALOG(config_dialog), "Cancel", GTK_RESPONSE_CANCEL);
@@ -150,6 +150,8 @@ void setup_config(GtkWidget *window)
     port_number = gtk_spin_button_new_with_range(1, 65535, 1);
     use_default_key = gtk_check_button_new_with_label("Use default NoMachine key");
     advanced_key_settings = gtk_button_new_with_label("Set custom key");
+
+    gtk_widget_set_size_request(advanced_key_settings, -1, 40);
 
     server_layout = gtk_hbox_new(FALSE, 10);
 
@@ -182,6 +184,8 @@ void setup_config(GtkWidget *window)
     link_select = gtk_combo_box_new_text();
 
     desktop_advanced = gtk_button_new_with_label("Advanced");
+
+    gtk_widget_set_size_request(desktop_advanced, -1, 40);
 
     compression_type = gtk_combo_box_new_text();
     use_render = gtk_check_button_new_with_label("Use RENDER extension");
