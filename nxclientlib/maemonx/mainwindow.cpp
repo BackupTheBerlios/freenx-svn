@@ -131,6 +131,9 @@ void setup_config(GtkWidget *window)
     config_server_page = gtk_vbox_new(FALSE, 10);
     config_desktop_page = gtk_vbox_new(FALSE, 10);
     config_advanced_page = gtk_vbox_new(FALSE, 10);
+    gtk_widget_set_size_request(config_server_page, 630, 200);
+    gtk_widget_set_size_request(config_desktop_page, 630, 200);
+    gtk_widget_set_size_request(config_advanced_page, 630, 200);
 
     gtk_dialog_add_button(GTK_DIALOG(config_dialog), "OK", GTK_RESPONSE_OK);
     gtk_dialog_add_button(GTK_DIALOG(config_dialog), "Cancel", GTK_RESPONSE_CANCEL);
@@ -151,14 +154,14 @@ void setup_config(GtkWidget *window)
     server_layout = gtk_hbox_new(FALSE, 10);
 
     server_labels_layout = gtk_vbox_new(TRUE, 10);
-    gtk_box_pack_start(GTK_BOX(server_labels_layout), gtk_label_new("Session name"), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(server_labels_layout), gtk_label_new("Hostname"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(server_labels_layout), gtk_label_new("Session name"), TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(server_labels_layout), gtk_label_new("Hostname"), TRUE, FALSE, 0);
 
-    server_inputs_vlayout = gtk_vbox_new(TRUE, 10);
+    server_inputs_vlayout = gtk_vbox_new(FALSE, 10);
     server_inputs_hlayout = gtk_hbox_new(FALSE, 10);
     
-    gtk_box_pack_start(GTK_BOX(server_inputs_vlayout), session_name, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(server_inputs_vlayout), server_inputs_hlayout, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(server_inputs_vlayout), session_name, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(server_inputs_vlayout), server_inputs_hlayout, TRUE, FALSE, 0);
 
     gtk_box_pack_start(GTK_BOX(server_inputs_hlayout), host_name, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(server_inputs_hlayout), gtk_label_new("Port"), FALSE, FALSE, 0);
@@ -166,21 +169,21 @@ void setup_config(GtkWidget *window)
 
     gtk_box_pack_start(GTK_BOX(server_layout), server_labels_layout, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(server_layout), server_inputs_vlayout, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(config_server_page), server_layout, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(config_server_page), server_layout, TRUE, TRUE, 0);
 
     server_key_layout = gtk_hbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(server_key_layout), use_default_key, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(server_key_layout), advanced_key_settings, FALSE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(config_server_page), server_key_layout, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(config_server_page), server_key_layout, TRUE, FALSE, 0);
  
-    platform_select = gtk_combo_box_new();
-    type_select = gtk_combo_box_new();
-    link_select = gtk_combo_box_new();
+    platform_select = gtk_combo_box_new_text();
+    type_select = gtk_combo_box_new_text();
+    link_select = gtk_combo_box_new_text();
 
     desktop_advanced = gtk_button_new_with_label("Advanced");
 
-    compression_type = gtk_combo_box_new();
+    compression_type = gtk_combo_box_new_text();
     use_render = gtk_check_button_new_with_label("Use RENDER extension");
 
     desktop_labels_layout = gtk_vbox_new(TRUE, 10);
@@ -188,20 +191,20 @@ void setup_config(GtkWidget *window)
     desktop_type_hlayout = gtk_hbox_new(FALSE, 10);
     desktop_type_vlayout = gtk_vbox_new(TRUE, 10);
 
-    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Platform"), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Link"), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Compression"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Platform"), TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Link"), TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_labels_layout), gtk_label_new("Compression"), TRUE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), platform_select, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), link_select, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), compression_type, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), platform_select, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), link_select, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_selects_layout), compression_type, TRUE, FALSE, 0);
 
     gtk_box_pack_start(GTK_BOX(desktop_type_hlayout), gtk_label_new("Type"), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(desktop_type_hlayout), type_select, TRUE, TRUE, 0);
 
-    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), desktop_type_hlayout, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), desktop_advanced, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), use_render, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), desktop_type_hlayout, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), desktop_advanced, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(desktop_type_vlayout), use_render, TRUE, FALSE, 0);
 
     desktop_hlayout = gtk_hbox_new(FALSE, 10);
 
@@ -209,11 +212,11 @@ void setup_config(GtkWidget *window)
     gtk_box_pack_start(GTK_BOX(desktop_hlayout), desktop_selects_layout, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(desktop_hlayout), desktop_type_vlayout, FALSE, FALSE, 0);
 
-    gtk_box_pack_start(GTK_BOX(config_desktop_page), desktop_hlayout, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(config_desktop_page), desktop_hlayout, TRUE, TRUE, 0);
 
     use_ssh_encryption = gtk_check_button_new_with_label("Use SSH encryption");
-    cache_size = gtk_combo_box_new();
-    disk_size = gtk_combo_box_new();
+    cache_size = gtk_combo_box_new_text();
+    disk_size = gtk_combo_box_new_text();
 
     cache_layout = gtk_hbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(cache_layout), gtk_label_new("Memory cache"), FALSE, FALSE, 0);
@@ -223,16 +226,13 @@ void setup_config(GtkWidget *window)
 
     gtk_box_pack_start(GTK_BOX(config_advanced_page), use_ssh_encryption, TRUE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(config_advanced_page), cache_layout, TRUE, FALSE, 0);
-
-
-    gtk_widget_show_all(config_dialog);
 }
 
 
 
 static void config_clicked(GtkWidget *widget, gpointer data)
 {
-    printf("Lalala config pressed\n");
+    gtk_widget_show_all(config_dialog);
 }
 
 static void login_clicked(GtkWidget *widget, gpointer data)
