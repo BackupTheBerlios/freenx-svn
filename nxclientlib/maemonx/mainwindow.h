@@ -23,6 +23,7 @@
 #include <gtk/gtk.h>
 
 void setup_gui(GtkWidget *window);
+void setup_config(GtkWidget *window);
 
 /* Callback functions */
 

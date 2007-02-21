@@ -24,27 +24,26 @@ static void destroy(GtkWidget *widget, gpointer data);
 
 int main(int argc, char **argv)
 {
-	HildonProgram *program;
-	HildonWindow *window;
+    HildonProgram *program;
+    HildonWindow *window;
 
-	gtk_init(&argc, &argv);
+    gtk_init(&argc, &argv);
 
-	program = HILDON_PROGRAM(hildon_program_get_instance());
-	g_set_application_name("NX Client");
+    program = HILDON_PROGRAM(hildon_program_get_instance());
+    g_set_application_name("NX Client");
 
-	window = HILDON_WINDOW(hildon_window_new());
+    window = HILDON_WINDOW(hildon_window_new());
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
 
-  g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
+    hildon_program_add_window(program, window);
 
-	hildon_program_add_window(program, window);
-	
-	setup_gui(GTK_WIDGET(window));
+    setup_gui(GTK_WIDGET(window));
 
-	gtk_widget_show_all(GTK_WIDGET(window));
+    gtk_widget_show_all(GTK_WIDGET(window));
 
-	gtk_main();
+    gtk_main();
 
-	return 0;
+    return 0;
 }
 
 static void destroy(GtkWidget *widget, gpointer data)

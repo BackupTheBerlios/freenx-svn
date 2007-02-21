@@ -15,12 +15,18 @@
  *                                                                         *
  ***************************************************************************/
 
-/* The main function which creates all the GUI components */
+/*
+ * An accessor class that handles NXClientLib and manages the session and
+ * configuration data
+ */
 
 #ifndef NXHANDLER_H
 #define NXHANDLER_H
 
 #include <QObject>
+
+#include "nxclientlib.h"
+#include "nxdata.h"
 
 class NXHandler : public QObject
 {
@@ -28,6 +34,14 @@ class NXHandler : public QObject
     public:
         NXHandler();
         ~NXHandler();
+
+        void startConnect();
+
+    private:
+        NXSessionData m_session;
+        NXConfigData m_config;
+        NXClientLib m_nxclient;
+
 };
 #endif
 
