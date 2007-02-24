@@ -193,6 +193,9 @@ useradd_nx()
 
 		
 	fi
+
+	# the nx user account might be locked, so unlock it.
+	passwd -u nx
 }
 
 install_nx()

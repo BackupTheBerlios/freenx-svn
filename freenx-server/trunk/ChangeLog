@@ -32,6 +32,7 @@ xx.xx.2007 FreeNX 0.6.1
 	* Fixed fullscreen sessions.
 	  (Patch by Gentoo Bugtracker)
 	* Fixed --broadcast.
+	* Added "passwd -u nx" to nxsetup to fix slackware.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
