@@ -33,6 +33,7 @@ xx.xx.2007 FreeNX 0.6.1
 	  (Patch by Gentoo Bugtracker)
 	* Fixed --broadcast.
 	* Added "passwd -u nx" to nxsetup to fix slackware.
+	* Fixed respecting of enconding settings in case of rootless mode.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.
