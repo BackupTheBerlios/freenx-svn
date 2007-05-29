@@ -36,6 +36,7 @@ xx.xx.2007 FreeNX 0.6.1
 	* Fixed respecting of enconding settings in case of rootless mode.
 	* Fixed smb mounting in case nxclient sends the wrong port. 
 	  (Patch by Jan Lockenvitz <jan.lockenvitz.ext@siemens.com>)
+	* Fixed loadbalancing - was still using an undocumented variable.
 
 23.01.2007 FreeNX 0.6.0 "Juliana birthday edition"
 	* Opened the 0.6.0 branch.

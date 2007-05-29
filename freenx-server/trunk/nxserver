@@ -1046,12 +1046,12 @@ server_loadbalance_load()
 server_loadbalance()
 {
 	SERVER_HOST="127.0.0.1"
-	if [ -n "$SERVER_LOADBALANCING" ]
+	if [ -n "$LOAD_BALANCE_SERVERS" ]
 	then
 		SERVER_HOST=""
 		if [ -n "$PREFERRED_HOST" -a "$ENABLE_LOAD_BALANCE_PREFERENCE" = "1" ]
 		then
-			stringinstring " $PREFERRED_HOST " " $SERVER_LOADBALANCING " && SERVER_HOST="$PREFERRED_HOST"
+			stringinstring " $PREFERRED_HOST " " $LOAD_BALANCE_SERVERS " && SERVER_HOST="$PREFERRED_HOST"
 		fi
 		
 		# Fallback if still empty
