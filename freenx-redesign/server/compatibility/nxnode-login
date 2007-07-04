@@ -4,8 +4,9 @@
 #
 # Environment variables used:
 #
-# @param COMMAND_SSH The to be used command for spawning ssh.
-# @param NODE_PUBLICKEY The to be used public key for test-nx mode.
+# @param COMMAND_SSH	Command for spawning ssh.
+# @param NODE_PUBLICKEY	Public key for test-nx mode.
+# @param NODE_PASSWORD	Password for ssh|su mode.
 #
 # Copyright (c) 2004-2007 by Fabian Franz.
 #
@@ -24,6 +25,7 @@ set parameters [lindex $argv 4]
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
 set host "127.0.0.1"
+set timeout 2
 
 #
 # Special test-nx instruction for nxsetup
@@ -37,7 +39,6 @@ if { "$auth_method"=="test-nx" } {
 	
 	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -i "$publickey" -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" -p "$port" "$executable $parameters" ]
 
-	set timeout 2
 	expect {
 		timeout { exit 1 }
 		eof { exit 1 }
@@ -55,8 +56,8 @@ if { "$auth_method"=="test-nx" } {
 # Log the user in via the supplied method.
 #
 
-expect_user -re "(.*)\n" 
-set password $expect_out(1,string)
+set password ""
+catch {set password $env(NODE_PASSWORD)}
 
 set stty_init "raw icrnl -echo"
 
@@ -68,37 +69,16 @@ if { "$auth_method"=="ssh" } {
 	exit 1
 }
 
-while {1} {
-	expect {
-		"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
-		"assword*:"  { sleep 0.3; send "$password\r" }
-		"Permission denied*" { exit 1 }
-		"su: Authentication failure" { exit 1 }
-		"NX> 1000 NXNODE - Version" { 
-			break
-		}
-	} 
-}
-
-if { "$tosend"!="" } { 
-	send "$tosend\r"
-}
-
 expect {
-	"NX> 716 finished" { }
-	"NX> 700" { 
-			set timeout -1
-			expect {
-				"NX> 1001 Bye." { exit 0 }
-				"NX> *" { exp_continue }
-			}
-			exit 0
-		  }
-	"NX> 716 Slave mode started successfully." { interact }
-	"NX> 716 Public key is already present in:" { }
-	"NX> 716 Public key added to:" { }
-	"NX> 716 Terminating session * on user request." { }
-	"NX> 716 Suspending session * on user request." { }
-	"NX> 500 Error: " { exit 1}
-}
-expect "NX> 1001 Bye."
+	timeout { exit 1 }
+	eof { exit 1 }
+	"Are you sure you want to continue connecting (yes/no)?" { send "yes\r"; exp_continue }
+	"assword*:"  { sleep 0.3; send "$password\r"; set password ""; exp_continue }
+	"Permission denied*" { exit 1 }
+	"su: Authentication failure" { exit 1 }
+	"NX> 103" {
+		interact
+		exit 0
+	}
+} 
+exit 1
