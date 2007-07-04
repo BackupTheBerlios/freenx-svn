@@ -11,7 +11,7 @@
 #
 # License: GPL, version 2
 #
-# SVN: $Id$
+# SVN: $Id:$
 #
 
 # Syntax: nxnode-login {ssh|su|test-nx} user ssh-port executable parameters
