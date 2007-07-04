@@ -1,27 +1,29 @@
 #!/usr/bin/expect
 #
-# nxnode-login: spawns and controls ssh 
+# nxnode-login: spawns and controls ssh for backwards compatibility.
 #
-# Copyright (c) 2004-2006 by Fabian Franz.
+# Environment variables used:
+#
+# @param COMMAND_SSH The to be used command for spawning ssh.
+# @param NODE_PUBLICKEY The to be used public key for test-nx mode.
+#
+# Copyright (c) 2004-2007 by Fabian Franz.
 #
 # License: GPL, version 2
 #
-# SVN: $Id: nxnode-login 231 2006-07-05 02:03:45Z fabianx $
+# SVN: $Id$
 #
 
-# Syntax: nxnode-login {ssh|su|test-nx} user ssh-port executable command tosend
+# Syntax: nxnode-login {ssh|su|test-nx} user ssh-port executable parameters
 
 set auth_method [lindex $argv 0]
 set user [lindex $argv 1]
 set port [lindex $argv 2]
 set executable [lindex $argv 3]
-set command [lindex $argv 4]
-set tosend [lindex $argv 5]
-catch {set tosend $env(NXNODE_TOSEND)}
+set parameters [lindex $argv 4]
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
 set host "127.0.0.1"
-catch {set host $env(NODE_HOSTNAME)}
 
 #
 # Special test-nx instruction for nxsetup
@@ -33,20 +35,20 @@ if { "$auth_method"=="test-nx" } {
 	set publickey ""
 	catch {set publickey $env(NODE_PUBLICKEY)}
 	
-	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -i "$publickey" -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" -p "$port" "$executable $command" ]
-	
-	while {1} {
-		expect {
-			"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
-			"Permission denied*" { exit 1 }
-			"HELLO NXSERVER - Version*" { 
-				break
-			}
+	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -i "$publickey" -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" -p "$port" "$executable $parameters" ]
+
+	set timeout 2
+	expect {
+		timeout { exit 1 }
+		eof { exit 1 }
+		"Are you sure you want to continue connecting (yes/no)?" { send "yes\r"; exp_continue }
+		"Permission denied*" { exit 1 }
+		"HELLO NXSERVER - Version" { 
+			expect "NX> 105" { send "quit\r" }
+			expect "NX> 999 Bye" { exit 0 }
 		}
 	}
-	expect "NX> 105" { send "quit\r" }
-	expect "NX> 999 Bye"
-	exit 0
+	exit 1
 }
 
 #
@@ -59,9 +61,9 @@ set password $expect_out(1,string)
 set stty_init "raw icrnl -echo"
 
 if { "$auth_method"=="ssh" } { 
-	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]
+	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $parameters" ]
 } elseif { "$auth_method"=="su" } {
-	set pid [spawn -noecho su - "$user" -c "$executable $command" ]
+	set pid [spawn -noecho su - "$user" -c "$executable $parameters" ]
 } else {
 	exit 1
 }
