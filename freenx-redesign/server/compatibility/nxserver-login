@@ -57,10 +57,6 @@
 # @rsp exit	"NX> 999 Bye."
 # @rsp quit	"NX> 999 Bye."
 # 
-# Accepted protocol extensions from nxserver / nxnode:
-#
-# @protoext "FREENX> 100 Switch: <host>:<port>" Spawns netcat to enable SSL tunneling mode.
-#
 # FAQ-Questions:
 #
 # @faq "Where is the passdb authentication?" "The passdb authentication was dropped from FreeNX as it was not used by many users anyway and PAM authentication can basically do the same. As FreeNX now also discourages the nx@host login method and instead suggests logging the user in directly, there are even less reasons to keep it. "
@@ -69,7 +65,7 @@
 #
 # @faq "How can I restrict the users that are able to run an nxsession?" "You can set the configuration key NXSERVER_LOGIN_HOOK_CHECK_VALID_USER in nxserver-login.cfg to a custom script, which gets the username of the user to check as the first parameter. You can then use whatever method you want to check if the user is allowed to do so. An exit status of 0 means that the user is allowed to login. An exit status of 1 means that the user is not allowed to login. To give you just some ideas: file with names, part of group, LDAP, ... are all possible ways to check this."
 #
-# SVN: $Id$
+# SVN: $Id: $
 #
 
 # Defaults for configuration keys
