@@ -54,7 +54,7 @@
 #
 # nxserver-login-helper {ssh|su|test-nx} user ssh-port executable parameters
 #
-# SVN: $Id: $
+# SVN: $Id: fabianx $
 #
 
 set auth_method [lindex $argv 0]

@@ -65,7 +65,7 @@
 #
 # @faq "How can I restrict the users that are able to run an nxsession?" "You can set the configuration key NXSERVER_LOGIN_HOOK_CHECK_VALID_USER in nxserver-login.cfg to a custom script, which gets the username of the user to check as the first parameter. You can then use whatever method you want to check if the user is allowed to do so. An exit status of 0 means that the user is allowed to login. An exit status of 1 means that the user is not allowed to login. To give you just some ideas: file with names, part of group, LDAP, ... are all possible ways to check this."
 #
-# SVN: $Id: $
+# SVN: $Id: fabianx $
 #
 
 # Defaults for configuration keys
