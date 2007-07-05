@@ -71,6 +71,7 @@
 # Defaults for configuration keys
 NXSERVER_LOGIN_HOOK_CHECK_VALID_USER=""
 NXSERVER_LOGIN_AUTHENTICATION_METHOD="su"
+NXSERVER_LOGIN_SSH_PORT="22"
 
 #Read the nxserver-login.cfg file and load some helper functions
 #. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) -- --config=nxserver-login || { echo "NX 503> Internal server error. nxloadconfig could not be loaded."; exit 1; }
@@ -185,8 +186,7 @@ do
 
 			if [ "$AUTHENTICATION_FAILED" = "0" ]
 			then
-	#			$PATH_BIN/nxserver-login-helper "$PASS" -- $NXSERVER_LOGIN_AUTHENTICATION_METHOD "$USER" "" "$PATH_BIN/nxserver-suid" || AUTHENTICATION_FAILED="1"
-				NODE_PASSWORD="$PASS" $PATH_BIN/nxserver-login-helper -- $NXSERVER_LOGIN_AUTHENTICATION_METHOD "$USER" "22" "$HOME/con"
+				NODE_PASSWORD="$PASS" $PATH_BIN/nxserver-login-helper -- $NXSERVER_LOGIN_AUTHENTICATION_METHOD "$USER" "$PATH_BIN/nxserver-suid" "--proto=$PROTO"
 				AUTHENTICATION_FAILED="$?"
 			fi
 			

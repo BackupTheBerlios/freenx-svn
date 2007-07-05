@@ -12,6 +12,7 @@
 # @env COMMAND_NETCAT	Command for spawning netcat.
 # @env NODE_PUBLICKEY	Public key for test-nx mode.
 # @env NODE_PASSWORD	Password for ssh|su mode.
+# @env NODE_HOOK_LOGIN	Supplied hook used to login the user.
 #
 # Used external programs:
 #
@@ -47,23 +48,24 @@
 #
 # @param 1 "operation mode" - can be ssh or su or test-nx
 # @param 2 username - to be used username## @param 3 "ssh port" - port provided to ssh command line
-# @param 4 executable - program to be executed as <username>
-# @param 5 parameters - parameters provided for <executable>
+# @param 3 executable - program to be executed as <username>
+# @param 4 parameters - parameters provided for <executable>
 #
 # Syntax used:
 #
-# nxserver-login-helper {ssh|su|test-nx} user ssh-port executable parameters
+# nxserver-login-helper {ssh|su|test-nx} user executable parameters
 #
 # SVN: $Id$
 #
 
 set auth_method [lindex $argv 0]
 set user [lindex $argv 1]
-set port [lindex $argv 2]
-set executable [lindex $argv 3]
-set parameters [lindex $argv 4]
+set executable [lindex $argv 2]
+set parameters [lindex $argv 3]
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
+set command_user "false"
+catch {set command_user $env(NODE_HOOK_LOGIN)}
 set command_netcat "netcat"
 catch {set command_netcat $env(COMMAND_NETCAT)}
 set host "127.0.0.1"
@@ -104,9 +106,11 @@ catch {set password $env(NODE_PASSWORD)}
 set stty_init "raw icrnl -echo"
 
 if { "$auth_method"=="ssh" } { 
-	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $parameters" ]
+	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" "$executable $parameters" ]
 } elseif { "$auth_method"=="su" } {
 	set pid [spawn -noecho su - "$user" -c "$executable $parameters" ]
+} elseif { "$auth_method" == "user" } {
+	set pid [spawn -noecho $command_user "$user" "$executable $parameters" ]
 } else {
 	exit 1
 }
