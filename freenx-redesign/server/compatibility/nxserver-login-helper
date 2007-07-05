@@ -5,6 +5,7 @@
 # Environment variables used:
 #
 # @param COMMAND_SSH	Command for spawning ssh.
+# @param COMMAND_SSH	Command for spawning netcat.
 # @param NODE_PUBLICKEY	Public key for test-nx mode.
 # @param NODE_PASSWORD	Password for ssh|su mode.
 #
@@ -24,6 +25,8 @@ set executable [lindex $argv 3]
 set parameters [lindex $argv 4]
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
+set command_netcat "netcat"
+catch {set command_netcat $env(COMMAND_NETCAT)}
 set host "127.0.0.1"
 set timeout 2
 
@@ -77,8 +80,39 @@ expect {
 	"Permission denied*" { exit 1 }
 	"su: Authentication failure" { exit 1 }
 	"NX> 103" {
-		interact
+		set redir "0"
+		interact {
+			-o "FREENX> 100 " {
+				set redir "1"
+				log_user 0
+				expect "Switch:*" { set host_port $expect_out(buffer) }
+				log_user 1
+				return
+			}
+		}
+		if { "$redir" == "1" } {
+		        # Use the spawn id as fd and send everything received from nxserver to stderr.
+		        set fd [ exp_open ]
+
+		        set pid [ exec cat <@$fd >@stderr 2>/dev/null & ]
+
+		        # we do not need fd in here anymore
+		        close $fd
+
+			set host [ exec echo -n "$host_port" | cut -d: -f2 | tr -d "' '" ]
+			set port [ exec echo -n "$host_port" | cut -d: -f3 ]
+			
+			set rc [ catch { exec $command_netcat $host $port <@stdin >@stdout } error ]
+		        catch { exec kill $pid 2>/dev/null }
+			if { "$rc" != "0" } {
+				# redirection failed
+				exit 2
+			}
+		}
+
+		# all okay
 		exit 0
 	}
 } 
+# authentication failed
 exit 1
