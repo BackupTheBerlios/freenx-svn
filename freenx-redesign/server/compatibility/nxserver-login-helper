@@ -64,8 +64,8 @@ set executable [lindex $argv 2]
 set parameters [lindex $argv 3]
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
-set command_user "false"
-catch {set command_user $env(NODE_HOOK_LOGIN)}
+set command_login "false"
+catch {set command_login $env(NODE_HOOK_LOGIN)}
 set command_netcat "netcat"
 catch {set command_netcat $env(COMMAND_NETCAT)}
 set host "127.0.0.1"
@@ -80,7 +80,6 @@ if { "$auth_method"=="test-nx" } {
 
 	set publickey ""
 	catch {set publickey $env(NODE_PUBLICKEY)}
-	
 	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -i "$publickey" -o "RhostsAuthentication no" -o "PasswordAuthentication no" -o "RSAAuthentication no" -o "RhostsRSAAuthentication no" -o "PubkeyAuthentication yes" -o "PreferredAuthentications publickey" -p "$port" "$executable $parameters" ]
 
 	expect {
@@ -105,12 +104,8 @@ catch {set password $env(NODE_PASSWORD)}
 
 set stty_init "raw icrnl -echo"
 
-if { "$auth_method"=="ssh" } { 
-	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "$host" -o "NumberOfPasswordPrompts 1" "$executable $parameters" ]
-} elseif { "$auth_method"=="su" } {
-	set pid [spawn -noecho su - "$user" -c "$executable $parameters" ]
-} elseif { "$auth_method" == "user" } {
-	set pid [spawn -noecho $command_user "$user" "$executable $parameters" ]
+if { "$auth_method"!="test-nx" } {
+	set pid [ spawn -noecho $command_login "$auth_method" "$user" "$executable" "$parameters" ]
 } else {
 	exit 1
 }

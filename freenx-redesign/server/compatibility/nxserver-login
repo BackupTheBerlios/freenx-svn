@@ -10,7 +10,7 @@
 # Used configuration keys:
 #
 # @param NXSERVER_LOGIN_AUTHENTICATION_METHOD Authentication method to use. (ssh|su)
-# @param NXSERVER_LOGIN_HOOK_CHECK_VALID_USER Script to run to check if user is allowed. (executable script)
+# @param NXSERVER_LOGIN_HOOK_LOGIN_USER Script run to login the user. (executable script)
 #
 # Used internal subfunctions:
 # 
@@ -63,15 +63,14 @@
 #
 # @faq "What about the USERMODE? Why was it removed?" "The usermode is now one of the default modes of FreeNX. nxserver-login really is only a small wrapper to remain compatible with old clients."
 #
-# @faq "How can I restrict the users that are able to run an nxsession?" "You can set the configuration key NXSERVER_LOGIN_HOOK_CHECK_VALID_USER in nxserver-login.cfg to a custom script, which gets the username of the user to check as the first parameter. You can then use whatever method you want to check if the user is allowed to do so. An exit status of 0 means that the user is allowed to login. An exit status of 1 means that the user is not allowed to login. To give you just some ideas: file with names, part of group, LDAP, ... are all possible ways to check this."
+# @faq "How can I restrict the users that are able to run an nxsession?" "You can set the configuration key NXSERVER_LOGIN_HOOK_LOGIN_USER in nxserver-login.cfg to a custom script. This script gets the following parameters: <authentication method> <username> <executable> <parameters>. You can then control if the user is allowed to do so, before doing the actual login. To give you just some ideas: file with names, part of group, LDAP, ... are all possible ways to check this. There is an example script in examples/ called nxserver-login-userhook, which you can use as a basis."
 #
 # SVN: $Id$
 #
 
 # Defaults for configuration keys
-NXSERVER_LOGIN_HOOK_CHECK_VALID_USER=""
+NXSERVER_LOGIN_HOOK_LOGIN_USER=""
 NXSERVER_LOGIN_AUTHENTICATION_METHOD="su"
-NXSERVER_LOGIN_SSH_PORT="22"
 
 #Read the nxserver-login.cfg file and load some helper functions
 #. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) -- --config=nxserver-login || { echo "NX 503> Internal server error. nxloadconfig could not be loaded."; exit 1; }
@@ -104,6 +103,12 @@ read_x_prompt()
 
 # Re-check configuration keys
 
+if [ -n "$NXSERVER_LOGIN_HOOK_LOGIN_USER" -a ! -x "$NXSERVER_LOGIN_HOOK_LOGIN_USER" ]
+then
+	log $LOG_WARN $"Warning: Configuration key NXSERVER_LOGIN_HOOK_LOGIN_USER=$NXSERVER_LOGIN_HOOK_LOGIN_USER is invalid. Reset to \"\"."
+	NXSERVER_LOGIN_HOOK_LOGIN_USER=""
+fi
+
 case "$NXSERVER_LOGIN_AUTHENTICATION_METHOD" in
 	ssh|su)
 	;;
@@ -113,11 +118,6 @@ case "$NXSERVER_LOGIN_AUTHENTICATION_METHOD" in
 	;;
 esac
 
-if [ -n "$NXSERVER_LOGIN_HOOK_CHECK_VALID_USER" -a ! -x "$NXSERVER_LOGIN_HOOK_CHECK_VALID_USER" ]
-then
-	log $LOG_WARN $"Warning: Configuration key NXSERVER_LOGIN_HOOK_CHECK_VALID_USER=$NXSERVER_LOGIN_HOOK_CHECK_VALID_USER is invalid. Reset to \"\"."
-	NXSERVER_LOGIN_HOOK_CHECK_VALID_USER=""
-fi
 
 # helper functions
 
@@ -174,21 +174,12 @@ do
 			echo_x ""
 			log $LOG_INFO $"Info: Using authentication method $NXSERVER_LOGIN_AUTHENTICATION_METHOD for user $USER."
 
-			AUTHENTICATION_FAILED="0"
+			NODE_HOOK_LOGIN="$PATH_BIN/nxserver-login-hook"
+			[ -n "$NXSERVER_LOGIN_HOOK_LOGIN_USER" ] && NODE_HOOK_LOGIN="$NXSERVER_LOGIN_HOOK_LOGIN_USER"
+			export NODE_HOOK_LOGIN
 
-			# check if user is allowed to run a session
-			if [ -n "$NXSERVER_LOGIN_HOOK_CHECK_VALID_USER" ]
-			then
-				log $LOG_INFO $"Info: Running hook to check if user is allowed to run a nx session: $NXSERVER_LOGIN_HOOK_CHECK_VALID_USER."
-				$NXSERVER_LOGIN_HOOK_CHECK_VALID_USER "$USER" || AUTHENTICATION_FAILED="1"
-				log $LOG_INFO $"Info: Hook $NXSERVER_LOGIN_HOOK_CHECK_VALID_USER exited with status $AUTHENTICATION_FAILED."
-			fi
-
-			if [ "$AUTHENTICATION_FAILED" = "0" ]
-			then
-				NODE_PASSWORD="$PASS" $PATH_BIN/nxserver-login-helper -- $NXSERVER_LOGIN_AUTHENTICATION_METHOD "$USER" "$PATH_BIN/nxserver-suid" "--proto=$PROTO"
-				AUTHENTICATION_FAILED="$?"
-			fi
+			NODE_PASSWORD="$PASS" $PATH_BIN/nxserver-login-helper -- "$NXSERVER_LOGIN_AUTHENTICATION_METHOD" "$USER" "$PATH_BIN/nxserver-suid" "--proto=$PROTO"
+			AUTHENTICATION_FAILED="$?"
 			
 			if [ "$AUTHENTICATION_FAILED" = "1" ]
 			then
