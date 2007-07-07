@@ -1,4 +1,4 @@
-04.07.2007 FreeNX 0.6.1 "Jornade SPL Edition"
+07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
 	  Older versions of CUPS are no longer supported.
 	  * Note: You must do as root:
