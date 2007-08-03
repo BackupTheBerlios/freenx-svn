@@ -164,7 +164,10 @@ useradd_nx()
 
 		# adduser needs a valid group to add the user to
 		! nx_group_exists && addgroup --system --quiet $GROUPADD_OPTIONS nx
+		[ -f /etc/nscd.conf ] && { nscd --invalidate group; }
+
 		adduser $USERADD_OPTIONS nx
+		[ -f /etc/nscd.conf ] && { nscd --invalidate passwd; }
 		
 	# no, its a "normal" useradd
 	else
@@ -185,10 +188,16 @@ useradd_nx()
 		if [ "$SETUP_LOCAL_USER" = "yes" ]
 		then
 			! nx_group_exists && lgroupadd $GROUPADD_OPTIONS nx 
+			[ -f /etc/nscd.conf ] && { nscd --invalidate group; }
+
 			luseradd $USERADD_OPTIONS nx
+			[ -f /etc/nscd.conf ] && { nscd --invalidate passwd; }
 		else
 			! nx_group_exists && groupadd $GROUPADD_OPTIONS nx
+			[ -f /etc/nscd.conf ] && { nscd --invalidate group; }
+
 			useradd $USERADD_OPTIONS nx
+			[ -f /etc/nscd.conf ] && { nscd --invalidate passwd; }
 		fi
 
 		
@@ -448,6 +457,7 @@ then
 	#Perform cleanup?
 	[ "$CLEAN" = "yes" ] && uninstall_nx
 	
+	[ -f /etc/nscd.conf ] && { nscd --invalidate passwd; nscd --invalidate group; }
 	install_nx
 
 	[ "$AUTOMATIC" = "no" ] && test_nx
