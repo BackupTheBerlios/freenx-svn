@@ -1,3 +1,7 @@
+xx.10.2007 FreeNX 0.7.1
+	* Fixed the issue that makes fonts look tiny and unreadable by default 
+	  with freenx and the commercial client. (diamond@google.com)
+
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
 	  Older versions of CUPS are no longer supported.

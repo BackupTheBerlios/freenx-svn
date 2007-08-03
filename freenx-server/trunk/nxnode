@@ -304,6 +304,8 @@ node_start_applications()
 		NODE_WM_PID=$!
 	fi
 
+	echo "Xft.dpi: 96" | DISPLAY=unix:$display xrdb -merge >>"$USER_FAKE_HOME/.nx/C-$sess_id/session" 2>&1
+
 	#
 	# Startup the application
 	#
