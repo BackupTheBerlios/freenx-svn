@@ -3,6 +3,8 @@ xx.10.2007 FreeNX 0.7.1
 	  with freenx and the commercial client. (diamond@google.com)
 	* Added invalidating of NSCD cache after group and user add.
 	  (diamond@google.com)
+	* Added better wording with less misunderstanding to dialog of 
+	  nxclient for Suspend/Terminate/Close case.
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

@@ -216,7 +216,7 @@ xdialog_yesno()
 
 xdialog_yesnosuspend()
 {
-	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Suspend" --cancel-label "Terminate" --yesno "$DIALOG_MESSAGE Close window to cancel." 400x150
+	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Suspend" --cancel-label "Terminate" --yesno "$DIALOG_MESSAGE Close this dialog to cancel." 400x150
 	RC=$?
 	[ $RC -eq 0 ] && return 3
 	[ $RC -eq 1 ] && return 2
@@ -238,7 +238,7 @@ xdialog_quit()
 
 xdialog_printer_ask()
 {
-	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Ok" --cancel-label "Configure" --yesno "$DIALOG_MESSAGE\n\nClose window to cancel." 400x250
+	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Ok" --cancel-label "Configure" --yesno "$DIALOG_MESSAGE\n\nClose this dialog to cancel." 400x250
 	RC=$?
 	[ $RC -eq 255 ] && return 2
 	return $RC
