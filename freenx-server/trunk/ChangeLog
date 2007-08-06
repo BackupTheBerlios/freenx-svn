@@ -4,7 +4,11 @@ xx.10.2007 FreeNX 0.7.1
 	* Added invalidating of NSCD cache after group and user add.
 	  (diamond@google.com)
 	* Added better wording with less misunderstanding to dialog of 
-	  nxclient for Suspend/Terminate/Close case.
+	  nxclient for Suspend/Terminate/Close case. (diamond@google.com)
+	* Added 'dialog_interface=dialog' option since many installations may 
+	  not have Xdialog and since xmessage is very limiting. This new option 
+	  will work on any machine that has dialog and xterm.
+	  (puterguy@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

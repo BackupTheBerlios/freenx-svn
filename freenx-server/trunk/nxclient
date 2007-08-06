@@ -19,6 +19,21 @@ NXCLIENT="/usr/NX/bin/nxclient"
 [ -x "$NXCLIENT" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
 	&& exec ${NXCLIENT} "$@"
 
+#JJK: borrowed from Aron Griffis
+
+function requote 
+{
+	declare arg
+
+	for arg
+	do
+		arg=$(printf '%q' "$arg")
+		printf '%s ' "${arg:-''}"
+	done
+}
+
+INPUTS=$(requote "$@")	#JJK: Save input parameter line...
+
 TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display:,printer:,parent: -n $(basename $0) -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
@@ -55,10 +70,34 @@ export DISPLAY
 # if --printer is set, the dialog type is overridden
 [ -n "$DIALOG_PRINTER" ] && DIALOG_TYPE="printer"
 
+# FIXME: This should be COMMAND_XDIALOG, ...
 if [ -x /usr/bin/Xdialog ] 
 then
 	dialog_interface="xdialog"
 	DIALOG=/usr/bin/Xdialog # just in case that we have no good path
+elif [ -x /usr/bin/dialog ]
+then
+	#JJK: Added 'dialog_interface=dialog' option because Xdialog not standard
+	#JJK: on some distros such as Fedora and xmessage won't handle long
+	#JJK: lists of ppd files while the combination of 'dialog' and 'xterm'
+	#JJK: should be present on most setups.
+
+	dialog_interface="dialog"
+	DIALOG=/usr/bin/dialog
+	if [ -z "$NXCLIENT_FIRST_TIME" ]
+	then
+		# Run only once in case of subdialogs. Capture result in tempfile
+		TMPFILE=$(mktemp /tmp/nxclient.XXXXX)
+		export NXCLIENT_FIRST_TIME=1
+
+		xterm -geometry 120x24+100+100 +sb -title "NXclient" -e \
+		       /bin/bash -c "$DIALOG --infobox 'Please wait...' 3 25; $0 $INPUTS | tee $TMPFILE" || exit 1
+
+		#Need to recover the last line output and remove non-printing chars
+		tail -1 $TMPFILE | egrep -v "^["
+		rm -f $TMPFILE
+		exit 0
+	fi
 else
 	dialog_interface="xmessage"
 	xmessage=$(which xmessage 2>/dev/null)
@@ -257,6 +296,69 @@ xdialog_printer_configure_driver()
 	$DIALOG --stdout --title "$DIALOG_CAPTION" --radiolist "$DIALOG_MESSAGE" 0 0 6 "${XDIALOG_LIST[@]}"
 }
 
+#JJK: dialog interface
+# These are analogous to the Xdialog functions with a few subtle
+# syntax differences
+#
+
+dialog_ok()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+	return 0 # Give cancel on close ...
+}
+
+dialog_yesno()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --yesno "$DIALOG_MESSAGE" 0 0
+	RC=$?
+	[ $RC -eq 0 ] && return 2
+	[ $RC -eq 1 ] && return 0
+}
+
+dialog_yesnosuspend()
+{
+	$DIALOG --title "$DIALOG_CAPTION"  --yes-label "Suspend" --no-label "Terminate" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 8 60
+	RC=$?
+	[ $RC -eq 0 ] && return 3
+	[ $RC -eq 1 ] && return 2
+}
+
+dialog_panic()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --defaultno --yes-label "Terminate" --no-label "Cancel" --yesno "$DIALOG_MESSAGE" 0 0
+	RC=$?
+	[ $RC -eq 0 ] && return 2
+	[ $RC -eq 1 ] && return 0
+}
+
+dialog_quit()
+{
+	$DIALOG --ok-label "Quit" --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+	return 0 # Give cancel on close ...
+}
+
+dialog_printer_ask()
+{
+	$DIALOG --cr-wrap --title "$DIALOG_CAPTION" --yes-label "Ok" --no-label "Configure" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 10 70
+	RC=$?
+	echo $RC
+	[ $RC -eq 255 ] && return 2
+	return $RC
+}
+
+dialog_printer_configure_vendor()
+{
+	IFS='|' VENDOR_LIST=( $(utility_printer getvendlist | sed 's/|/||/g') )
+	$DIALOG --stdout --title "$DIALOG_CAPTION" --menu "$DIALOG_MESSAGE" 0 40 15 "${VENDOR_LIST[@]}"
+}
+
+# dialog_printer_configure_driver vendor old_driver
+dialog_printer_configure_driver()
+{
+	IFS='|' XDIALOG_LIST=( $(utility_printer getextdrvlist "$1" | tr '\n' '|') )
+	$DIALOG --stdout --title "$DIALOG_CAPTION" --menu "$DIALOG_MESSAGE" 0 110 15 "${XDIALOG_LIST[@]}"
+}
+
 
 #
 # helper functions
@@ -299,7 +401,7 @@ helper_dialog_printer()
 	# echo the choosen <ppdfile> to stdout
 	[ -n "$DRIVER" ] && echo "$DRIVER"
 	[ -z "$DRIVER" ] && echo "cancel: aborted" && exit 2
-			
+
 	exit 0
 }
 
