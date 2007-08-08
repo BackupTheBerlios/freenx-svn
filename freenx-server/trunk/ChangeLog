@@ -9,6 +9,8 @@ xx.10.2007 FreeNX 0.7.1
 	  not have Xdialog and since xmessage is very limiting. This new option 
 	  will work on any machine that has dialog and xterm.
 	  (puterguy@bat.berlios.de)
+	* Fixed the APPLICATION_LIBRARY_PRELOAD to be just a warning and fixed 
+	  the default path.
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
