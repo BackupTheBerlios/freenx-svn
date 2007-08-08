@@ -93,8 +93,8 @@ then
 		xterm -geometry 120x24+100+100 +sb -title "NXclient" -e \
 		       /bin/bash -c "$DIALOG --infobox 'Please wait...' 3 25; $0 $INPUTS | tee $TMPFILE" || exit 1
 
-		#Need to recover the last line output and remove non-printing chars
-		tail -1 $TMPFILE | egrep -v "^["
+		#Need to recover the last line output (and not remove non-printing chars, because --stdout is used)
+		tail -1 $TMPFILE 
 		rm -f $TMPFILE
 		exit 0
 	fi
@@ -303,13 +303,13 @@ xdialog_printer_configure_driver()
 
 dialog_ok()
 {
-	$DIALOG --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+	$DIALOG --stdout --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
 	return 0 # Give cancel on close ...
 }
 
 dialog_yesno()
 {
-	$DIALOG --title "$DIALOG_CAPTION" --yesno "$DIALOG_MESSAGE" 0 0
+	$DIALOG --stdout --title "$DIALOG_CAPTION" --yesno "$DIALOG_MESSAGE" 0 0
 	RC=$?
 	[ $RC -eq 0 ] && return 2
 	[ $RC -eq 1 ] && return 0
@@ -317,7 +317,7 @@ dialog_yesno()
 
 dialog_yesnosuspend()
 {
-	$DIALOG --title "$DIALOG_CAPTION"  --yes-label "Suspend" --no-label "Terminate" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 8 60
+	$DIALOG --stdout --title "$DIALOG_CAPTION"  --yes-label "Suspend" --no-label "Terminate" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 8 60
 	RC=$?
 	[ $RC -eq 0 ] && return 3
 	[ $RC -eq 1 ] && return 2
@@ -325,7 +325,7 @@ dialog_yesnosuspend()
 
 dialog_panic()
 {
-	$DIALOG --title "$DIALOG_CAPTION" --defaultno --yes-label "Terminate" --no-label "Cancel" --yesno "$DIALOG_MESSAGE" 0 0
+	$DIALOG --stdout --title "$DIALOG_CAPTION" --defaultno --yes-label "Terminate" --no-label "Cancel" --yesno "$DIALOG_MESSAGE" 0 0
 	RC=$?
 	[ $RC -eq 0 ] && return 2
 	[ $RC -eq 1 ] && return 0
@@ -333,13 +333,13 @@ dialog_panic()
 
 dialog_quit()
 {
-	$DIALOG --ok-label "Quit" --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+	$DIALOG --stdout --ok-label "Quit" --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
 	return 0 # Give cancel on close ...
 }
 
 dialog_printer_ask()
 {
-	$DIALOG --cr-wrap --title "$DIALOG_CAPTION" --yes-label "Ok" --no-label "Configure" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 10 70
+	$DIALOG --stdout --cr-wrap --title "$DIALOG_CAPTION" --yes-label "Ok" --no-label "Configure" --yesno "$DIALOG_MESSAGE\n\nPress 'Esc' to cancel." 10 70
 	RC=$?
 	echo $RC
 	[ $RC -eq 255 ] && return 2
