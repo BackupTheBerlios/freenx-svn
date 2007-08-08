@@ -11,6 +11,8 @@ xx.10.2007 FreeNX 0.7.1
 	  (puterguy@bat.berlios.de)
 	* Fixed the APPLICATION_LIBRARY_PRELOAD to be just a warning and fixed 
 	  the default path.
+	* Added drivers.cache.all that is reloaded just every 60 minutes.
+	  (puterguy@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

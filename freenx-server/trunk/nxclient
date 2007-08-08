@@ -138,7 +138,7 @@ utility_printer()
 	UTILITY_NXPRINT="nxprint"
 	[ -n "$PATH_BIN" ] && UTILITY_NXPRINT="$PATH_BIN/nxprint"
 	# Export configuration vars for nxprint
-	export ENABLE_FOOMATIC COMMAND_FOOMATIC
+	export ENABLE_FOOMATIC COMMAND_FOOMATIC UTILITY_DRIVERS_CACHE
 	case "$1" in 
 		get)
 			grep "driver|$2|" "$UTILITY_DRIVERS_CACHE" 2>/dev/null
