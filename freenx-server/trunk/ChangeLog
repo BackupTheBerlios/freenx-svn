@@ -13,6 +13,9 @@ xx.10.2007 FreeNX 0.7.1
 	  the default path.
 	* Added drivers.cache.all that is reloaded just every 60 minutes.
 	  (puterguy@bat.berlios.de)
+	* Fixed missing services stop that lead to redundant mounts and still
+	  running cupsd processes.
+	  (puterguy@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

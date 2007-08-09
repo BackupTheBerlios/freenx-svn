@@ -132,6 +132,10 @@ node_terminate_session()
 	NODE_TAIL_PID=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/pids/tail" 2>/dev/null)
 	[ -n "$NODE_TAIL_PID" ] && kill $NODE_TAIL_PID 2>/dev/null
 
+	# JJK: Kill running services
+	# FF: Seems this is needed also here ...
+	node_stop_services
+
 	# Remove display information
 	
 	NODE_DISPLAY=$(echo $1 | rev | cut -d"-" -f2 | rev)
