@@ -834,6 +834,17 @@ node_start_monitor_1_5_0()
 		fi
 
 		#
+		# Catch NXAGENT SMB Port (sometimes the port differs from what we got from nxserver)
+		#
+
+		if stringinstring "Info: Listening for SMB connections on port" "$line"
+		then
+			SMBMOUNT_PORT=$(echo $line | cut -d"'" -f2)
+			echo "$SMBMOUNT_PORT" >"$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mport"
+		fi
+
+
+		#
 		# Session suspend
 		#
 
