@@ -18,6 +18,9 @@ xx.10.2007 FreeNX 0.7.1
 	  (puterguy@bat.berlios.de)
 	* Added support for mount.cifs additionally to the deprecated
 	  smbmount. (fabianx@bat.berlios.de, puterguy@bat.berlios.de)
+	* Added "host" output to --list to see which user is connected to
+	  which server in case of loadbalancing.
+	  (fabianx@bat.berlios.de, Bastian Kames <kames@ibg-monforts.de>)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

@@ -273,15 +273,15 @@ session_list_user()
 {
 	echo "NX> 127 Sessions list of user '$1'"
 	echo
-	echo "Display Username        Remote IP       Session ID"
-	echo "------- --------------- --------------- --------------------------------"
+	echo "Server     Display Username        Remote IP       Session ID"
+	echo "------ ------- --------------- --------------- --------------------------------"
 	for i in $NX_SESS_DIR/running/*
 	do
 		[ -f $i ] || break
 		if egrep -q "^userName=$1$" $i
 		then
 			CMDLINE=$(session_get_cmdline $i)
-			echo -e "$(getparam display)\t$(getparam userName)\t$(getparam foreignAddress)\t$(getparam sessionId)"
+			echo -e "$(getparam host)\t$(getparam display)\t$(getparam userName)\t$(getparam foreignAddress)\t$(getparam sessionId)"
 		fi
 	done
 }
@@ -324,13 +324,13 @@ session_list_all()
 {
 	echo "NX> 127 Sessions list:"
 	echo
-	echo "Display Username        Remote IP       Session ID"
-	echo "------- --------------- --------------- --------------------------------"
+	echo "Server     Display Username        Remote IP       Session ID"
+	echo "------ ------- --------------- --------------- --------------------------------"
 	for i in $NX_SESS_DIR/running/*
 	do
 		[ -f $i ] || break
 		CMDLINE=$(session_get_cmdline $i)
-		echo -e "$(getparam display)\t$(getparam userName)\t$(getparam foreignAddress)\t$(getparam sessionId)"
+		echo -e "$(getparam host)\t$(getparam display)\t$(getparam userName)\t$(getparam foreignAddress)\t$(getparam sessionId)"
 	done
 }
 
