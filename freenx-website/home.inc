@@ -13,6 +13,56 @@
 	<h3>
 		<a
 	href="http://mail.kde.org/pipermail/freenx-knx/2007-January/004535.html">FreeNX
+	0.7.0 Released</a> 
+        - Saturday, 07/07/07 - 
+	[<a title="Download"
+	href="http://prdownload.berlios.de/freenx/freenx-0.7.0.tar.gz">Download</a>]
+	</h3>
+	<pre>
+07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
+        * Fixed the printing support for CUPS 1.2.
+          Older versions of CUPS are no longer supported.
+          * Note: You must do as root:
+
+                  cp /usr/lib/cups/backend/ipp /usr/lib/cups/backend/nxipp
+                  chmod 755 /usr/lib/cups/backend/nxipp
+
+                  Or alternatively re-run nxsetup.
+
+        * Added foomatic support.
+          * Note: You might need to do: ln -s /usr/bin/foomatic-ppdfile
+                  /usr/lib/cups/driver/
+        * Added setting of CUPS_SERVER environment var.
+        * Added automatic downloading of PPDs, if the client supports it.
+        * Added configuration vars to tweak the new behaviour.
+        * Added cups seamless support with no "use this driver?" dialogs at all.
+          * Note: You need nxcupsd-wrapper on the client side for CUPS 1.2
+                  clients.
+
+                  Get it from nxutils repository.
+
+        * Fixed Support for "Running" sessions - again.
+        * Made the NXAgent exited with exit code 1 message more verbose.
+        * Added support for nxipp to nxnode and nxsetup.
+        * Added nxcups-gethost script for automatic usage in KDE.
+        * Fixed RDP/VNC sessions. No application should be started for that type.
+          (Patch by Bernard Cafarelli <voyageur@operamail.com>)
+        * Added backingstore fix for older clients from Gentoo.
+          (http://bugs.gentoo.org/show_bug.cgi?id=149298)
+        * Fixed VNC sessions.
+        * Fixed fullscreen sessions.
+          (Patch by Gentoo Bugtracker)
+        * Fixed --broadcast.
+        * Added "passwd -u nx" to nxsetup to fix slackware.
+        * Fixed respecting of enconding settings in case of rootless mode.
+        * Fixed smb mounting in case nxclient sends the wrong port.
+          (Patch by Jan Lockenvitz <jan.lockenvitz.ext@siemens.com>)
+        * Fixed loadbalancing - was still using an undocumented variable.
+	</pre>
+
+	<h3>
+		<a
+	href="http://mail.kde.org/pipermail/freenx-knx/2007-January/004535.html">FreeNX
 	0.6.0 Released</a> 
         - Tuesday, January 23, 2007 - 	
 	[<a title="Download"
