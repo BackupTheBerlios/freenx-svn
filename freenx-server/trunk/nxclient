@@ -13,12 +13,6 @@
 #
 # ========================================================================
 
-# First check if the commercial nxclient is available and use it
-# but check that it isn't this script to prevent a loop!
-NXCLIENT="/usr/NX/bin/nxclient"
-[ -x "$NXCLIENT" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
-	&& exec ${NXCLIENT} "$@"
-
 #JJK: borrowed from Aron Griffis
 
 function requote 
@@ -69,6 +63,18 @@ export DISPLAY
 
 # if --printer is set, the dialog type is overridden
 [ -n "$DIALOG_PRINTER" ] && DIALOG_TYPE="printer"
+
+# First check if the commercial nxclient is available and use it
+# but check that it isn't this script to prevent a loop!
+#
+# Also check that not --printer was used, because the commercial
+# client does not like large databases like used when ENABLE_FOOMATIC=1.
+#
+# This seems to be because the used sorting algorithm scales in O(n^2).
+
+NXCLIENT="/usr/NX/bin/nxclient"
+[ -x "$NXCLIENT" -a "$DIALOG_TYPE" != "printer" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
+	&& exec ${NXCLIENT} "$@"
 
 # FIXME: This should be COMMAND_XDIALOG, ...
 if [ -x /usr/bin/Xdialog ] 
