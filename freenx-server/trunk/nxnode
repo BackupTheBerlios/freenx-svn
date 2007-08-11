@@ -1011,6 +1011,48 @@ startsession()
 	# Rootless fix from 2x nxserver 1.5.0
 	realtype=$type
 	[ "$type" = "unix-application" -o "$type" = "unix-default" ] && realtype="unix-desktop"
+
+	# NX 2.1.0 file-sharing port options
+	client=$(getparam client)
+
+	smbport=""
+
+	if [ "$samba" = "1" ]
+	then
+		# We know from protocol traces that client=linux,winnt,macosx are valid values.
+		# I hope with smbclientproto=smb on default and smbclientproto=cifs on all valid
+		# values we get support for all those systems.
+
+		smbproto="$SAMBA_MOUNT_SHARE_PROTOCOL"
+
+		if [ "$smbproto" = "both" ]
+		then
+			smbproto="smbfs"
+
+			[ "$client" = "linux" ] && smbproto="cifs"
+			[ "$client" = "winnt" ] && smbproto="cifs"
+			[ "$client" = "macosx" ] && smbproto="cifs"
+
+			# FIXME: This is a rather wild guess
+			[ "$client" = "win9x" ] && smbproto="smbfs"
+		fi
+
+		if [ "$smbproto" = "cifs" ]
+		then
+			smbport=445
+			COMMAND_SMBMOUNT=$COMMAND_SMBMOUNT_CIFS
+			COMMAND_SMBUMOUNT=$COMMAND_SMBUMOUNT_CIFS
+		elif [ "$smbproto" = "none" ] # none
+		then
+			# we set this to true so that the 
+			# SMB mount does not give an error message.
+
+			COMMAND_SMBMOUNT=/bin/true
+			COMMAND_SMBUMOUNT=/bin/true
+		else # smbfs
+			smbport=139
+		fi
+	fi
 	
 	# FreeNX specific variables
 	clientproto=$(getparam clientproto)
@@ -1147,6 +1189,9 @@ NX> 706 Agent cookie: $cookie
 NX> 704 Session cache: $type
 NX> 707 SSL tunneling: $ssl_tunnel
 EOF
+
+# File-sharing port options
+[ "$samba" = "1" -a -n "$smbport" ] && echo "NX> 709 File-sharing port: $smbport"
 
 # collection ...
 

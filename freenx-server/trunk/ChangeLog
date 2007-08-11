@@ -10,12 +10,14 @@ xx.10.2007 FreeNX 0.7.1
 	  will work on any machine that has dialog and xterm.
 	  (puterguy@bat.berlios.de)
 	* Fixed the APPLICATION_LIBRARY_PRELOAD to be just a warning and fixed 
-	  the default path.
+	  the default path. (fabianx@bat.berlios.de)
 	* Added drivers.cache.all that is reloaded just every 60 minutes.
 	  (puterguy@bat.berlios.de)
 	* Fixed missing services stop that lead to redundant mounts and still
 	  running cupsd processes.
 	  (puterguy@bat.berlios.de)
+	* Added support for mount.cifs additionally to the deprecated
+	  smbmount. (fabianx@bat.berlios.de, puterguy@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

@@ -157,6 +157,8 @@ CUPS_IPP_BACKEND="$CUPS_BACKEND/nxipp"
 CUPS_DEFAULT_SOCK="/var/run/cups/cups.sock"
 CUPS_ETC="/etc/cups/"
 
+SAMBA_MOUNT_SHARE_PROTOCOL="both"
+
 # Path directives
 
 USER_FAKE_HOME="" #Calculated
@@ -173,6 +175,8 @@ COMMAND_XTERM=xterm
 COMMAND_XAUTH=/usr/X11R6/bin/xauth
 COMMAND_SMBMOUNT=smbmount
 COMMAND_SMBUMOUNT=smbumount
+COMMAND_SMBMOUNT_CIFS=/sbin/mount.cifs
+COMMAND_SMBUMOUNT_CIFS=/sbin/umount.cifs
 COMMAND_NETCAT=netcat
 COMMAND_SSH=ssh
 COMMAND_SSH_KEYGEN=ssh-keygen
