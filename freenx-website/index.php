@@ -22,6 +22,9 @@
 					<h2>
 						FreeNX
 					</h2>
+					<a href="http://openfacts.berlios.de/index-en.phtml?title=FreeNX_FAQ">
+						Frequently Asked Questions (FAQ)
+					</a>
 					<a href="info.php">
 						Information
 					</a>

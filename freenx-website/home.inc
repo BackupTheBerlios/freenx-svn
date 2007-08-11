@@ -12,7 +12,7 @@
 	</h2>
 	<h3>
 		<a
-	href="http://mail.kde.org/pipermail/freenx-knx/2007-January/004535.html">FreeNX
+	href="http://mail.kde.org/pipermail/freenx-knx/2007-July/005473.html">FreeNX
 	0.7.0 Released</a> 
         - Saturday, 07/07/07 - 
 	[<a title="Download"
