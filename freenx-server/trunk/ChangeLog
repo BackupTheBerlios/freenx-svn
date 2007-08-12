@@ -23,6 +23,8 @@ xx.10.2007 FreeNX 0.7.1
 	  (fabianx@bat.berlios.de, Bastian Kames <kames@ibg-monforts.de>)
 	* Fixed nxclient -printer to not use commercial client, because its too 
 	  slow in case of huge databases like foomatic. (fabianx@bat.berlios.de)
+	* Removed bad -noautokill option from the nxclient dialog spawning.
+	  (wayneb@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
