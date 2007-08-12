@@ -31,6 +31,15 @@ xx.10.2007 FreeNX 0.7.1
 	  * New configuration key: ENABLE_MIRROR_VIA_VNC=1
 	  * New configuration key: ENABLE_DESKTOP_SHARING=1
 	  (fabianx@bat.berlios.de)
+	* Fixed some portability issues.
+	  * Fixed nxloadconfig in case that COMMAND_X is not only one word,
+	    like "openssl md5".
+	  * Added usage of "openssl md5" instead of "md5sum" by default.
+	  * Changed perl to COMMAND_PERL.
+	  * Removed rev and replaced the code with efficient awk code.
+	  * Added an outcommented way to also use "POSIX find" for history
+	    cleaning.
+	  (Peter O'Gorman <peter@pogma.com>)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

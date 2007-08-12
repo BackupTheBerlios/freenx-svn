@@ -183,8 +183,8 @@ COMMAND_NETCAT=netcat
 COMMAND_SSH=ssh
 COMMAND_SSH_KEYGEN=ssh-keygen
 COMMAND_CUPSD=/usr/sbin/cupsd
-COMMAND_MD5SUM=md5sum
-
+COMMAND_MD5SUM=openssl md5
+COMMAND_PERL=perl
 
 # Misc directives
 
@@ -237,12 +237,17 @@ case "$OS" in
                        done
                        return 1
                }
-
-	       function rev() {
-		       perl -lpe'$_ = reverse'
-	       }
        ;;
 esac
+
+#
+# Utility functions
+#
+
+function mywhich()
+{
+	which $(echo "$*" | cut -d" " -f1)
+}
 
 #########################################################################
 # Retested values
@@ -250,8 +255,8 @@ esac
 
 if [ "$NXCONFIG_RETEST" = "1" ]
 then
-	{ ! which "$COMMAND_XAUTH" && which xauth; } >/dev/null 2>&1 && COMMAND_XAUTH=$(which xauth)
-	{ ! which "$COMMAND_NETCAT" && which nc; } >/dev/null 2>&1 && COMMAND_NETCAT=$(which nc)
+	{ ! mywhich "$COMMAND_XAUTH" && which xauth; } >/dev/null 2>&1 && COMMAND_XAUTH=$(which xauth)
+	{ ! mywhich "$COMMAND_NETCAT" && which nc; } >/dev/null 2>&1 && COMMAND_NETCAT=$(which nc)
 fi
 
 #########################################################################
@@ -431,7 +436,7 @@ then
 	
 	[ -z $(echo "$ENABLE_NOMACHINE_FORWARD_PORT" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_NOMACHINE_FORWARD_PORT=$ENABLE_NOMACHINE_FORWARD_PORT\""
-	[ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" ] && ! which "$NOMACHINE_SERVER" >/dev/null 2>&1 && \
+	[ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" ] && ! mywhich "$NOMACHINE_SERVER" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_SERVER=$NOMACHINE_SERVER\""
 	[ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a -z $(echo "$NOMACHINE_FORWARD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_FORWARD_PORT=$NOMACHINE_FORWARD_PORT\""
@@ -440,13 +445,13 @@ then
 	
 	[ -z $(echo "$ENABLE_ESD_PRELOAD" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ESD_PRELOAD=$ENABLE_ESD_PRELOAD\""
-	[ "$ENABLE_ESD_PRELOAD" = "1" ] && ! which "$ESD_BIN_PRELOAD" >/dev/null 2>&1 && \
+	[ "$ENABLE_ESD_PRELOAD" = "1" ] && ! mywhich "$ESD_BIN_PRELOAD" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"ESD_BIN_PRELOAD=$ESD_BIN_PRELOAD\"" \
 					  && echo "         No esd preload will be performed."
 	
 	[ -z $(echo "$ENABLE_ARTSD_PRELOAD" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ARTSD_PRELOAD=$ENABLE_ARTSD_PRELOAD\""
-	[ "$ARTSD_BIN_PRELOAD" = "1" ] && ! which "$ARTSD_BIN_PRELOAD" >/dev/null 2>&1 && \
+	[ "$ARTSD_BIN_PRELOAD" = "1" ] && ! mywhich "$ARTSD_BIN_PRELOAD" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"ARTSD_BIN_PRELOAD=$ARTSD_BIN_PRELOAD\"" \
 					  && echo "         No arts preload will be performed."
 	
@@ -456,7 +461,7 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"KDE_PRINTRC=$KDE_PRINTRC\""
 
 
-	[ "$ENABLE_FOOMATIC" = "1" ] && ! which "$COMMAND_FOOMATIC" >/dev/null 2>&1 && \
+	[ "$ENABLE_FOOMATIC" = "1" ] && ! mywhich "$COMMAND_FOOMATIC" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_FOOMATIC=$COMMAND_FOOMATIC\"" \
 					  && echo "         Users will not be able to use foomatic."
 	[ ! -x "$CUPS_IPP_BACKEND" ] && \
@@ -476,51 +481,51 @@ then
 	[ -z $(echo "$SET_LD_LIBRARY_PATH" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SET_LD_LIBRARY_PATH=$SET_LD_LIBRARY_PATH\""
 	
-	[ "$DEFAULT_X_WM" != "" ] && ! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
+	[ "$DEFAULT_X_WM" != "" ] && ! mywhich "$DEFAULT_X_WM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_WM=$DEFAULT_X_WM\""
 	[ "$DEFAULT_X_WM" != "" -a  -z $(echo "$KILL_DEFAULT_X_WM" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"KILL_DEFAULT_X_WM=$KILL_DEFAULT_X_WM\""
 	[ -z "$USER_X_STARTUP_SCRIPT" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"USER_X_STARTUP_SCRIPT=$USER_X_STARTUP_SCRIPT\""
-	! which "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
+	! mywhich "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"DEFAULT_X_SESSION=$DEFAULT_X_SESSION\"" \
 					  && echo "         Users might not be able to request a default X session."
-	! which "$COMMAND_START_KDE" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_START_KDE" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_KDE=$COMMAND_START_KDE\"" \
 					  && echo "         Users will not be able to request a KDE session."
-	! which "$COMMAND_START_GNOME" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_START_GNOME" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_GNOME=$COMMAND_START_GNOME\"" \
 					  && echo "         Users will not be able to request a Gnome session."
-	! which "$COMMAND_START_CDE" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_START_CDE" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_CDE=$COMMAND_START_CDE\"" \
 					  && echo "         Users will not be able to request a CDE session."
-	! which "$COMMAND_XTERM" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_XTERM" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_XTERM=$COMMAND_XTERM\"" \
 					  && echo "         Users will not be able to request an xterm session."
-	! which "$COMMAND_XAUTH" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_XAUTH" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XAUTH=$COMMAND_XAUTH\""
-	! which "$COMMAND_SMBMOUNT" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_SMBMOUNT" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SMBMOUNT=$COMMAND_SMBMOUNT\". You'll not be able to use SAMBA. "
-	! which "$COMMAND_SMBUMOUNT" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_SMBUMOUNT" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SMBUMOUNT=$COMMAND_SMBUMOUNT\". You'll not be able to use SAMBA."
-	! which "$COMMAND_NETCAT" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_NETCAT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_NETCAT=$COMMAND_NETCAT\""
-	! which "$COMMAND_SSH" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_SSH" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH=$COMMAND_SSH\""
-	! which "$COMMAND_SSH_KEYGEN" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_SSH_KEYGEN" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH_KEYGEN=$COMMAND_SSH_KEYGEN\""
-	! which "$COMMAND_CUPSD" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_CUPSD" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_CUPSD=$COMMAND_CUPSD\"" \
 					  && echo "         Users will not be able to enable printing."
 	[ -z "$(strings $COMMAND_CUPSD | egrep 'CUPS\/1.2')" ] && \
 		WARNING="yes" && echo "Warning: Invalid cupsd version of \"$COMMAND_CUPSD\". Need version 1.2." \
 					  && echo "         Users will not be able to enable printing."
-	! which "$COMMAND_MD5SUM" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_MD5SUM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_MD5SUM=$COMMAND_MD5SUM\""
 
 	# Check for expect
 	COMMAND_EXPECT=$(head -n1 $PATH_BIN/nxnode-login | cut -d'!' -f2)
-	! which "$COMMAND_EXPECT" >/dev/null 2>&1 && \
+	! mywhich "$COMMAND_EXPECT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: expect necessary for $PATH_BIN/nxnode-login could not be found in '$COMMAND_EXPECT'. Please install it or change nxnode-login accordingly."
 
 	# Misc directives
@@ -534,7 +539,7 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"EXPORT_USERIP=$EXPORT_USERIP\""
 	[ -z $(echo "$EXPORT_SESSIONID" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"EXPORT_SESSIONID=$EXPORT_SESSIONID\""
-	[ -n "$NODE_AUTOSTART" ] && ! which "$NODE_AUTOSTART" >/dev/null 2>&1 && \
+	[ -n "$NODE_AUTOSTART" ] && ! mywhich "$NODE_AUTOSTART" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"NODE_AUTOSTART=$NODE_AUTOSTART\"" \
 					  && echo "         No autostart will be performed."
 
@@ -546,7 +551,7 @@ then
 		
 	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""
-	[ "$ENABLE_USESSION" = "1" ] && ! which "$COMMAND_SESSREG" >/dev/null 2>&1 && \
+	[ "$ENABLE_USESSION" = "1" ] && ! mywhich "$COMMAND_SESSREG" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SESSREG=$COMMAND_SESSREG\"" \
 					  && echo "         Logged in users will not be registered with sessreg."
 	
