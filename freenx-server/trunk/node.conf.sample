@@ -120,6 +120,21 @@
 # Especially useful if ENABLE_PERSISTENT_SESSION="all"
 #DISABLE_PERSISTENT_SESSION=""
 
+# This enables the mirroring of running sessions via VNC feature.
+# 
+# Session is marked as resumable and type is vnc-mirrored.
+# 
+#ENABLE_MIRROR_VIA_VNC=1
+
+# This enables the sharing of :0 via VNC feature.
+# 
+# Session is marked as resumable and type is vnc-local.
+# 
+# Note: You need to have the rights to access the display
+#       else it does not work.
+#
+#ENABLE_DESKTOP_SHARING=1
+
 
 #########################################################################
 # Logging directives

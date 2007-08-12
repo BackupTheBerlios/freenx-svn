@@ -253,20 +253,43 @@ session_list_user_suspended()
 			then
 				available="Yes"
 			fi
-			printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s\n" "$(getparam display)" "$(getparam type)" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName)" >> $TMPFILE
+			
+			# We automatically offer VNC mirrored sessions for "remote" support
+			if [ "$4" = "vnc" -a "$ENABLE_MIRROR_VIA_VNC" = "1" ] && stringinstring "unix-" "$(getparam type)"
+			then
+				printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s\n" "$(getparam display)" "vnc-mirrored" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName) (Mirrored)" >> $TMPFILE
+			else
+				# only unix-* sessions can be resumed, but other session types can still be terminated
+				stringinstring "unix-" "$4" || available="N/A"
+				printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s\n" "$(getparam display)" "$(getparam type)" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName)" >> $TMPFILE
+			fi
 		fi
 		egrep -q "^userName=$1$" $i && let SESSION_COUNT_USER=$SESSION_COUNT_USER+1
 	done
+	
+	if [ "$ENABLE_DESKTOP_SHARING" = "1" ]
+	then
+		export DESKTOP_SHARING_IDS=""
+		for i in $(LC_ALL=C netstat -ln --protocol=unix | egrep 'X11-unix/X[0-9]$' | sed 's/.*X\(.*\)/\1/g')
+		do
+			uniqueid=$(echo $[$RANDOM*$RANDOM] | $COMMAND_MD5SUM | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
+			DESKTOP_SHARING_IDS="$DESKTOP_SHARING_IDS $uniqueid=$i"
+			printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s\n" "$i" "vnc-local" "$uniqueid" "--------" "$udepth" "$(echo $3 | cut -d'x' -f1,2)" "Running" "X$i (Local)" >> $TMPFILE
+		done
+	fi
+	
 	echo "" >> $TMPFILE
 	echo "" >> $TMPFILE
-	cat $TMPFILE
-	rm -f $TMPFILE
+	
 	if [ "$SESSION_COUNT" -ge "$SESSION_LIMIT" -o "$SESSION_COUNT_USER" -ge "$SESSION_USER_LIMIT" ]
 	then
-		echo "NX> 147 Server capacity: reached for user: $1"
+		echo "NX> 147 Server capacity: reached for user: $1" >> $TMPFILE
 	else
-		echo "NX> 148 Server capacity: not reached for user: $1"
+		echo "NX> 148 Server capacity: not reached for user: $1" >> $TMPFILE
 	fi
+	
+	cat $TMPFILE | log_tee
+	rm -f $TMPFILE
 }
 
 session_list_user()
@@ -1085,6 +1108,37 @@ server_startrestore_session()
 	PARAMS="$PARAMS&clientproto=$PROTO"
 	CMDLINE=$PARAMS
 	echo_x
+
+	# special mirrored type
+	[ "$ACTION" != "start" -a "$(getparam type)" = "vnc" ] && ACTION="mirror"
+
+	if [ "$ACTION" = "mirror" ]
+	then
+		ACTION="start"
+		uniqueid=$(getparam restore)
+		[ -z "$uniqueid" ] && uniqueid=$(getparam id) # 1.4.0-5 compatibility
+		CMDLINE=$(session_get "$uniqueid" 2>/dev/null)
+
+		mirrordisplay=$(getparam display)
+		mirrorhost=$(getparam host)
+
+		if [ -z "$mirrordisplay"  ]
+		then
+			# check for DESKTOP_SHARING_IDS
+			mirrordisplay=$(echo $DESKTOP_SHARING_IDS | tr ' ' '\n' | egrep "^$uniqueid=" | cut -d'=' -f2)
+			mirrorhost="127.0.0.1"
+		fi
+
+		if [ -z "$mirrordisplay" ]
+		then
+			echo_x "NX> 596 Could not find mirrored session $uniqueid. Session failed."
+			echo_x "NX> 596 Sharing: $DESKTOP_SHARING_IDS"
+			return 1
+		fi
+
+		PARAMS="$PARAMS&mirrordisplay=$mirrordisplay&mirrorhost=$mirrorhost"
+		CMDLINE=$PARAMS
+	fi
 	
 	# If we can't get the userip and SSHD_CHECK_IP is set to 1
 	# we bail out.
@@ -1124,7 +1178,7 @@ server_startrestore_session()
 	# as only $SSH_CLIENT or $SSH2_CLIENT will be set, this should work
 	USERIP=$(echo $SSH_CLIENT $SSH2_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
 	[ -z "$USERIP" ] && USERIP="*"
-	if [ "$ACTION" = "start" ]
+	if [ "$ACTION" = "start" -o "$ACTION" = "mirror" ]
 	then
 		server_check_session_count || return 1
 		
@@ -1272,16 +1326,16 @@ do
 
 			if [ "$status" = "Suspended" -a -n "$(getparam screeninfo)" ]
 			then
-				session_list_user_suspended "$USER" "Suspended" "$(getparam screeninfo)" "$(getparam type)" | log_tee
+				session_list_user_suspended "$USER" "Suspended" "$(getparam screeninfo)" "$(getparam type)"
 			elif [ "$status" = "Suspended,Running" -o "$status" = "Suspended" ] # since 1.4.0-5
 			then
 				# disabled due to problems with 1.4.0-5 client
 				#session_list_user_suspended "$USER" 'Suspended$|^status=Running$' "$(getparam geometry)" "$(getparam type)" | log_tee
-				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)" | log_tee
+				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)"
 			elif [ "$status" = "suspended,running" -o "$status" = "suspended" ] # since 1.5.0
 			then
 				status=$(echo $status | sed 's/,/$|^status=/g; s/suspended/Suspended/g; s/running/Running/g')
-				session_list_user_suspended "$USER" "$status" "$(getparam geometry)" "$(getparam type)" | log_tee
+				session_list_user_suspended "$USER" "$status" "$(getparam geometry)" "$(getparam type)"
 			else
 				session_list_user "$USER" | log_tee
 			fi
@@ -1307,6 +1361,10 @@ do
 		restoresession*)
 			server_startrestore_session "resume"
 		;;
+		mirrorsession*)
+			server_startrestore_session "mirror"
+		;;
+
 		passwd)
 			echo_x "NX> 113 Changing password of user '$USER'"
 			echo_x -n "NX> 102 Current password:"
