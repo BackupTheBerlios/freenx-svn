@@ -40,6 +40,9 @@ xx.10.2007 FreeNX 0.7.1
 	  * Added an outcommented way to also use "POSIX find" for history
 	    cleaning.
 	  (Peter O'Gorman <peter@pogma.com>)
+	* Fix ownership of $SSH_AUTHORIZED_KEYS in nxkeygen, just in case
+	  it is run without nxsetup.
+	  (fabianx@bat.berlios.de, thx to sambiase on #nx)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

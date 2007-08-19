@@ -56,6 +56,10 @@ main ()
 	echo -n "no-port-forwarding,no-agent-forwarding,command=\"$PATH_BIN/nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 	cat ${NX_SERVER_KEY} >> $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 
+	# Fix ownership of $SSH_AUTHORIZED_KEYS, just in case nxkeygen is run without nxsetup.
+
+	chown nx:root $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
+
 	# now tell the user what to do
 
 	echo "Unique key generated; your users must install"
