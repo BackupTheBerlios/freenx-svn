@@ -1,0 +1,34 @@
+
+  nxcl: A library for building NX clients.
+
+  Seb James. July-September 2007. seb@esfnet.co.uk
+
+Based on nxclientlib by George Wright, but with all dependencies on QT
+removed and the QT build system replaced with GNU autotools.
+
+doxygen is required if you want to build source documentation.
+
+The library code is in nxcl-release/lib/. 
+
+A binary, called nxcl - the "nxcl dbus daemon" is built in
+nxcl-release/nxcl/. nxcl links to libnxcl and can negotiate an nx
+connection.
+
+nxcl-release/test/ contains some test programs. notQtTest tests some
+of the features of the notQt classes in nxcl-release/lib/. libtest
+is a simple command line NX client linking straight to the libnxcl
+library. nxcmd is a second command line NX client, but it launches
+nxcl, then sends session data there and allows nxcl to negotiate the
+NX connection. This could be extended into quite a complete command
+line NX client.
+
+A GTK+ NX client called nxlaunch is distributed separately. Nxlaunch
+uses the nxcl daemon, though it would be quite possible to write a GTK
+client which links directly to the nxcl library. 
+
+You should study nxcmd.cpp and nxlaunch if you are interested in
+writing an NX client using a different widget system (say Windows, QT,
+Tk, etc) which uses the Nxcl dbus daemon.
+
+Look at nxcl.cpp/h if you want to write an NX client which links
+directly to libnxcl.
