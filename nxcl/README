@@ -3,8 +3,8 @@
 
   Seb James. July-September 2007. seb@esfnet.co.uk
 
-Based on nxclientlib by George Wright, but with all dependencies on QT
-removed and the QT build system replaced with GNU autotools.
+Based on nxclientlib by George Wright, but with all dependencies on Qt
+removed and the Qt build system replaced with GNU autotools.
 
 doxygen is required if you want to build source documentation.
 
@@ -27,7 +27,7 @@ uses the nxcl daemon, though it would be quite possible to write a GTK
 client which links directly to the nxcl library. 
 
 You should study nxcmd.cpp and nxlaunch if you are interested in
-writing an NX client using a different widget system (say Windows, QT,
+writing an NX client using a different widget system (say Windows, Qt,
 Tk, etc) which uses the Nxcl dbus daemon.
 
 Look at nxcl.cpp/h if you want to write an NX client which links
