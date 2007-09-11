@@ -1,6 +1,22 @@
-/*
- * nxcmd: A simple command line test for the NXCL dbus daemon.
- *
+/***************************************************************************
+         nxcmd: A simple command line test for the NXCL dbus daemon.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+/*!
  * See ../nxcl/main.cpp for general notes on the nxcl program.
  *
  * This program will fork a process and run nxcl, then it will send
@@ -10,12 +26,6 @@
  * This is a very hacked together program, part C, part C++, but it
  * serves its purpose of demonstrating the techniques you'll need to
  * write a simple client to nxcl.
- *
- * (C) 2007 Embedded Software Foundry Ltd. (U.K.)
- * Author: Sebastian James
- * Email:  seb@esfnet.co.uk
- *
- * Released under the terms of the GNU GPL version 2.
  */
 
 #include <iostream>
@@ -39,6 +49,12 @@ extern "C" {
 #include "../lib/nxdata.h"
 
 using namespace std;
+
+// Default NoMachine certificate for FALLBACK. Don't do it this way in
+// your code. Instead, ship a default key in a file and reference
+// that.
+string cert("-----BEGIN DSA PRIVATE KEY-----\nMIIBuwIBAAKBgQCXv9AzQXjxvXWC1qu3CdEqskX9YomTfyG865gb4D02ZwWuRU/9\nC3I9/bEWLdaWgJYXIcFJsMCIkmWjjeSZyTmeoypI1iLifTHUxn3b7WNWi8AzKcVF\naBsBGiljsop9NiD1mEpA0G+nHHrhvTXz7pUvYrsrXcdMyM6rxqn77nbbnwIVALCi\nxFdHZADw5KAVZI7r6QatEkqLAoGBAI4L1TQGFkq5xQ/nIIciW8setAAIyrcWdK/z\n5/ZPeELdq70KDJxoLf81NL/8uIc4PoNyTRJjtT3R4f8Az1TsZWeh2+ReCEJxDWgG\nfbk2YhRqoQTtXPFsI4qvzBWct42WonWqyyb1bPBHk+JmXFscJu5yFQ+JUVNsENpY\n+Gkz3HqTAoGANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfa\nQU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3\nmbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8CFDIm1xRf\n8xAPsSKs6yZ6j1FNklfu\n-----END DSA PRIVATE KEY-----");
+
 
 // Used in receiveSession as the return value
 #define REPLY_REQUIRED  1
@@ -214,6 +230,7 @@ main (int argc, char **argv)
 	cfg.agentPass = "";
 	cfg.cups = 0;
 	cfg.encryption = true;
+	cfg.key = cert;
 	cfg.fullscreen = false; // If true, ignore cfg.geometry. 	
 	
 	cout << "NXCMD> Sending settings\n";

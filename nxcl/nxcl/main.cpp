@@ -1,23 +1,33 @@
-/*
- * nxcld: The NXCL dbus daemon.
+/***************************************************************************
+                        nxcl: The NXCL dbus daemon.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+/*!
+ * This program should be launched by a client - that might be
+ * nxlaunch (already written) or (not yet written) qtnxc, fltknxc,
+ * tknxc, emacsnxc.... etc etc you get the picture.
  *
- * This program should be launched by a client - that might be gnxc,
- * qtnxc, fltknxc, tknxc, emacsnxc.... etc etc you get the picture.
- *
- * This graphical launcher program is the place where the user can
+ * The graphical launcher program is the place where the user can
  * select the connection type, and enter his username and password. It
- * launches nxcld via a dbus call (or some other way?), then transmits
- * the settings to nxcld via dbus. nxcld then negotiates the NX
- * connection - launching nxssh and nxproxy. nxcld will send back a
- * list of sessions to the launching NX client (if there are
- * multiple available sessions) and a signal to say if the connection
- * has been launched or if an error occurred.
- *
- * (C) 2007 Embedded Software Foundry Ltd. (U.K.)
- * Author: Sebastian James
- * Email:  seb@esfnet.co.uk
- *
- * Released under the terms of the GNU GPL version 2.
+ * launches nxcl, then transmits the settings to nxcl via dbus. nxcl
+ * then negotiates the NX connection - launching nxssh and
+ * nxproxy. nxcl will send back a list of sessions to the launching
+ * NX client (if there are multiple available sessions) and a signal
+ * to say if the connection has been launched or if an error occurred.
  */
 
 #include "../config.h"

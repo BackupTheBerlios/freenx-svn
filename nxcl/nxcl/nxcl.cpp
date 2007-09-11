@@ -1,19 +1,23 @@
-/*
- * nxcl: The NXCL dbus daemon.
- *
- * See main.cpp for general notes.
- *
- * This file contains the implementation of the Nxcl class used by
- * the nxcl program.
- *
- * (C) 2007 Embedded Software Foundry Ltd. (U.K.)
- * Author: Sebastian James
- * Email:  seb@esfnet.co.uk
- *
- * Released under the terms of the GNU GPL version 2.
- */
+/***************************************************************************
+                        nxcl: The NXCL dbus daemon.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 #include "../config.h"
+#include "nxclientlib_i18n.h"
 #include "nxclientlib.h"
 #include <fstream>
 
@@ -444,17 +448,13 @@ Nxcl::startTheNXConnection (void)
 
 	/* If we have session info, start up the connection */
 	if (this->sessionData.key.size() == 0) { // Shouldn't need this->sessionData.encryption here.
-		this->nxclientlib.invokeNXSSH("default",
-					      this->nxserver,
-					      this->sessionData.encryption, 
-					      "", this->nxport);
+		this->callbacks.write (_("No key supplied! Please fix your client to send a key via dbus!"));
 	} else {
 		this->nxclientlib.invokeNXSSH("supplied",
 					      this->nxserver,
 					      this->sessionData.encryption,
 					      this->sessionData.key, this->nxport);
-	} // Is there another case here, other than "default" or "supplied"?
-
+	}
 }
 
 void
@@ -498,7 +498,7 @@ Nxcl::sendResumeList (list<NXResumeData>& resumable)
 						   this->dbusSendInterface.c_str(),
 						   "AvailableSession");
 
-		// We have to create a const char* pointer or each
+		// We have to create a const char* pointer for each
 		// string variable in the NXResumeSessions struct.
 		const char* sessionType = (*it).sessionType.c_str();
 		const char* sessionID = (*it).sessionID.c_str();

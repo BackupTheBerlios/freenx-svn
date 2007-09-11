@@ -1,12 +1,21 @@
-/*!
- * A set of QT like functionality, especially related to the starting
- * of processes.
- *
- * Author: Sebastian James <seb@esfnet.co.uk>
- * This code is copyright (C) Embedded Software Foundry Ltd. 2007
- *
- * It is released under the terms of the GNU GPL version 2.
- */
+/***************************************************************************
+        notQt.cpp: A set of Qt like functionality, especially related
+                       to the starting of processes.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 #include <iostream>
 #include <sstream>
@@ -317,6 +326,7 @@ notQTemporaryFile::notQTemporaryFile ()
 // Destructor
 notQTemporaryFile::~notQTemporaryFile ()
 {
+	this->close();
 }
 
 void
@@ -331,13 +341,15 @@ notQTemporaryFile::open (void)
 void
 notQTemporaryFile::write (string input)
 {
-	f << input;
+	this->f << input;
 }
 
 void
 notQTemporaryFile::close (void)
 {
-	this->f.close();
+	if (this->f.is_open()) {
+		this->f.close();
+	}
 }
 
 // getter for fileName
@@ -347,6 +359,12 @@ notQTemporaryFile::fileName (void)
 	return this->theFileName;
 }
 
+void
+notQTemporaryFile::remove (void)
+{
+	this->close();
+	unlink (this->theFileName.c_str());
+}
 //@}
 
 

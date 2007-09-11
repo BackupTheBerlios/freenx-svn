@@ -3,7 +3,7 @@
                                 nxclientlib.h
                              -------------------
     begin                : Sat 22nd July 2006
-    remove QT dependency : Started June 2007
+    remove Qt dependency : Started June 2007
     modifications        : June-July 2007
     copyright            : (C) 2006 by George Wright
     modifications        : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
@@ -149,29 +149,35 @@ namespace nxcl {
 		/*!
 		 * Set up data and then call this->nxsshProcess.start().
 		 * 
-		 * \arg publicKey is the path to the ssh public key
-		 * file to authenticate with.  Pass "default" to use
-		 * the default NoMachine key.
+		 * \param publicKey is the path to the ssh public key
+		 * file to authenticate with.  Pass "supplied" to use
+		 * a new key, which you should then supply as the
+		 * parameter key.
 		 *
-		 * \arg serverHost is the hostname of the NX server to
+		 * \param serverHost is the hostname of the NX server to
 		 * connect to
 		 *
-		 * \arg encryption is whether to use an encrypted NX
+		 * \param encryption is whether to use an encrypted NX
 		 * session
+		 *
+		 * \param key ssh key to use for authentication of the
+		 * nx user if publicKey is "supplied".
+		 *
+		 * \param port TCP port to use for the ssh connection.
 		 */
-		void invokeNXSSH (string publicKey = "default", string serverHost = "",
+		void invokeNXSSH (string publicKey = "supplied", string serverHost = "",
 				  bool encryption = true, string key = "", int port = 22);
 
 		/*!
 		 * Overloaded to give callback data on write.
 		 * 
-		 * Writes \arg data to this->nxsshProcess stdin and also
+		 * Writes data to this->nxsshProcess stdin and also
 		 * out to the user via stdoutCallback
 		 */
 		void write (string data);
 
 		/*!
-		 * Passes \arg auth to this->session.setContinue()
+		 * Passes auth to this->session.setContinue()
 		 */
 		void allowSSHConnect (bool auth);
 
@@ -264,11 +270,6 @@ namespace nxcl {
 		//@}
 
 	private:
-		/*!
-		 * true if we're using the hardcoded SSL key (the
-		 * default NoMachine one). To be removed.
-		 */
-		bool usingHardcodedKey;
 		/*!
 		 * Set true when the program is ready to end, e.g if
 		 * authentication failed, nxssh failed to start amoung

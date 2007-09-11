@@ -1,3 +1,27 @@
+/***************************************************************************
+         libtest: A VERY simple command line test for the NXCL library
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+/*
+ * NB NB! This probably doesn't work. It shouldn't be hard to fix
+ * though. It will be broken because I changed the signal handler
+ * scheme. Seb.
+ */
+
 #include "nxclientlib.h"
 #include <fstream>
 

@@ -38,9 +38,6 @@ extern "C" {
 using namespace std;
 using namespace nxcl;
 
-// Default NoMachine certificate for FALLBACK
-string cert("-----BEGIN DSA PRIVATE KEY-----\nMIIBuwIBAAKBgQCXv9AzQXjxvXWC1qu3CdEqskX9YomTfyG865gb4D02ZwWuRU/9\nC3I9/bEWLdaWgJYXIcFJsMCIkmWjjeSZyTmeoypI1iLifTHUxn3b7WNWi8AzKcVF\naBsBGiljsop9NiD1mEpA0G+nHHrhvTXz7pUvYrsrXcdMyM6rxqn77nbbnwIVALCi\nxFdHZADw5KAVZI7r6QatEkqLAoGBAI4L1TQGFkq5xQ/nIIciW8setAAIyrcWdK/z\n5/ZPeELdq70KDJxoLf81NL/8uIc4PoNyTRJjtT3R4f8Az1TsZWeh2+ReCEJxDWgG\nfbk2YhRqoQTtXPFsI4qvzBWct42WonWqyyb1bPBHk+JmXFscJu5yFQ+JUVNsENpY\n+Gkz3HqTAoGANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfa\nQU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3\nmbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8CFDIm1xRf\n8xAPsSKs6yZ6j1FNklfu\n-----END DSA PRIVATE KEY-----");
-
 /*!
  * Implementation of the NXClientLibCallbacks class
  */
@@ -167,7 +164,7 @@ NXClientLib::~NXClientLib()
 	nxsshProcess.terminate();
 }
 
-void NXClientLib::invokeNXSSH(string publicKey, string serverHost, bool encryption, string key, int port)
+void NXClientLib::invokeNXSSH (string publicKey, string serverHost, bool encryption, string key, int port)
 {
 	list<string> arguments;
 	stringstream argtmp;
@@ -180,48 +177,38 @@ void NXClientLib::invokeNXSSH(string publicKey, string serverHost, bool encrypti
 
 	// Start to build the arguments for the nxssh command.
 	// notQProcess requires that argv[0] contains the program name
+	// FIXME: Here, I place the PACKAGE_BIN_DIR path in front of
+	// nxssh, but nxssh may be installed in a different prefix...
 	arguments.push_back (PACKAGE_BIN_DIR"/nxssh");
 	
-	if (publicKey == "default") {
-		usingHardcodedKey = true;
-	}
-
 	argtmp << "-nx";
 	arguments.push_back (argtmp.str());
 
 	argtmp.str("");
 	argtmp << "-p" << port;
-	arguments.push_back(argtmp.str());
+	arguments.push_back (argtmp.str());
 
-	if (publicKey == "default" || publicKey == "supplied") {
-		if (publicKey == "default") {
-			this->externalCallbacks->stderrSignal (_("WARNING: Using hardcoded NoMachine public key for "
-					"outer/first stage SSH encryption."));
-		}
+	if (publicKey == "supplied") {
 		
-		keyFile = new notQTemporaryFile;
-		keyFile->open();
+		this->keyFile = new notQTemporaryFile;
+		this->keyFile->open();
 		
 		argtmp.str("");
-		argtmp << "-i" << keyFile->fileName();
+		argtmp << "-i" << this->keyFile->fileName();
 		arguments.push_back (argtmp.str());
 
-		if (publicKey == "default") {
-			keyFile->write(cert);
-		} else {
-			keyFile->write(key);
-		}
-			
-		keyFile->close();
+		this->keyFile->write (key);			
+		this->keyFile->close();
+
 	} else {
 		argtmp.str("");
 		argtmp << "-i" << publicKey;
-		arguments.push_back(argtmp.str());
+		arguments.push_back (argtmp.str());
 	}
 	
 	argtmp.str("");
 	argtmp << "nx@" << serverHost;
-	arguments.push_back(argtmp.str());
+	arguments.push_back (argtmp.str());
 
 	// These options copied from the way Nomachine's client
 	// specifies the nxssh command - they make good sense.
@@ -440,9 +427,11 @@ void NXClientLib::write (string data)
 
 void NXClientLib::doneAuth()
 {
-	// FIXME: Don't think this is correctly removing the keyfile data.
-	if (usingHardcodedKey)
-		delete keyFile;
+	if (this->keyFile != NULL) {
+		this->keyFile->remove();
+		delete this->keyFile;
+	}
+	return;
 }
 
 void NXClientLib::allowSSHConnect (bool auth)

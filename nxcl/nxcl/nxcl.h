@@ -1,17 +1,27 @@
 /* -*-c++-*- */
-/*
- * nxcl: The NXCL dbus daemon.
+/***************************************************************************
+                        nxcl: The NXCL dbus daemon.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+/*!
+ * \file nxcl.h This file contains the definition of the Nxcl class
+ * used by the nxcl program.
  *
  * See main.cpp for general notes.
- *
- * This file contains the definition of the Nxcl class used by the
- * nxcl program.
- *
- * (C) 2007 Embedded Software Foundry Ltd. (U.K.)
- * Author: Sebastian James
- * Email:  seb@esfnet.co.uk
- *
- * Released under the terms of the GNU GPL version 2.
  */
 
 #ifndef _NXCL_H_

@@ -1,13 +1,28 @@
 /* -*-c++-*- */
-/*
- * Simple re-implementations of some QT-like functionality.  In
- * particular, there's a QProcess-like (though much simplified) class,
- * a QTemporaryFile like class and a couple of the methods that you
- * get with QString.
- *
- * (C) 2007 Sebastian James, Embedded Software Foundry Ltd (U.K.).
- *
- * Released under the terms of the GNU General Public Licence Version 2. 
+/***************************************************************************
+           notQt.h: A set of Qt like functionality, especially related
+                       to the starting of processes.
+                             -------------------
+    begin                : June 2007
+    copyright            : (C) 2007 Embedded Software Foundry Ltd. (U.K.)
+                         :     Author: Sebastian James
+    email                : seb@esfnet.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+/*!
+ * \file notQt.h Simple re-implementations of some Qt-like
+ * functionality.  In particular, there's a QProcess-like (though much
+ * simplified) class, a QTemporaryFile like class and a couple of the
+ * methods that you get with QString.
  */
 
 #ifndef _NOTQT_H_
@@ -67,7 +82,7 @@ namespace nxcl {
 	};
 
 	/*!
-	 * notQProcess is a simple replacement for the QT class QProcess.
+	 * notQProcess is a simple replacement for the Qt class QProcess.
 	 */
 	class notQProcess
 	{
@@ -170,7 +185,7 @@ namespace nxcl {
 	};
 
 	/*!
-	 * A simple replacement for the QT Class QTemporaryFile.
+	 * A simple replacement for the Qt Class QTemporaryFile.
 	 */
 	class notQTemporaryFile
 	{
@@ -195,6 +210,10 @@ namespace nxcl {
 		 * A getter for the file name of the temporary file
 		 */
 		string fileName (void);
+		/*!
+		 * Remove the temporary file
+		 */
+		void remove (void);
 
 	private:
 		/*!
@@ -216,7 +235,7 @@ namespace nxcl {
 		notQtUtilities();
 		~notQtUtilities();
 
-		/*! The same (more or less) as QT QString::simplified */
+		/*! The same (more or less) as Qt QString::simplified */
 		static string simplify (string& input);
 		/*!
 		 * Split a string 'line' based on token, placing the portions in the vector rtn
