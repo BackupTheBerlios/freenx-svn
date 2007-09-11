@@ -179,7 +179,6 @@ Nxcl::setupDbus (void)
 	if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) { 
 		/* What to do if someone else is running? Try another name? Exit? */
 		this->callbacks.write ("There appears to be another nxcl running, won't compete. Exiting.");
-		cout << "(DEBUG) ret == " << ret << endl;
 		exit(1);
 	}
 	// Done getting connection to session bus
@@ -221,7 +220,7 @@ Nxcl::receiveSettings (void)
 	stringstream ss;
 	int count = 0;
 
-	this->callbacks.write ("receiveSettings called");
+	this->callbacks.debug ("receiveSettings called");
 
 	// loop listening for signals being emitted
 	while (settings_transferred == false) {
@@ -244,7 +243,7 @@ Nxcl::receiveSettings (void)
 
 		// check if the message is a signal from the
 		// correct interface and with the correct name
-		this->callbacks.write ("call dbus_message_is_signal()");
+		this->callbacks.debug ("call dbus_message_is_signal()");
 		if (dbus_message_is_signal (message, this->dbusMatchInterface.c_str(), "sessionConfig")) {
 
 			if (!dbus_message_iter_init(message, &args)) {
@@ -366,7 +365,7 @@ Nxcl::receiveSettings (void)
 			}
 			settings_transferred = true;			
 		} else {
-			this->callbacks.write ("this message is not a signal");
+			this->callbacks.debug ("this message is not a signal");
 		}
 
 		// Anything else required for cleanup?
@@ -376,7 +375,7 @@ Nxcl::receiveSettings (void)
 		dbus_message_unref (message);
 
 	} // while()
-	this->callbacks.write ("Got the session settings over the dbus\n");
+	this->callbacks.debug ("Got the session settings over the dbus\n");
 
 	if (this->nxserver.size() == 0 || this->nxuser.size() == 0) {
 		// We need at least these to be able to connect. Leave
@@ -474,7 +473,7 @@ Nxcl::haveResumableSessions (list<NXResumeData> resumable)
 void
 Nxcl::noResumableSessions (void)
 {
-	this->callbacks.write ("noResumableSessions Called");
+	this->callbacks.debug ("noResumableSessions Called");
 	DBusMessage *msg = dbus_message_new_signal ("/org/freenx/nxcl/dbus/AvailableSession",
 						    this->dbusSendInterface.c_str(),
 						    "Connecting");
@@ -554,7 +553,7 @@ Nxcl::receiveStartInstruction (void)
 	bool instruction_received = false;
 	stringstream ss;
 
-	this->callbacks.write ("receiveStartInstruction() called");
+	this->callbacks.debug ("receiveStartInstruction() called");
 
 	// loop listening for signals being emitted
 	while (instruction_received == false) {
@@ -579,9 +578,6 @@ Nxcl::receiveStartInstruction (void)
 				cerr << "Argument is not int32!\n";
 			else {
 				dbus_message_iter_get_basic(&args, &parameter);
-				//ss.str("");
-				//ss << parameter;
-				//this->callbacks.write ("Choice: " + ss.str());
 				instruction_received = true;
 				if (parameter < 0) {
 					// No action, start a new connection
@@ -600,7 +596,7 @@ Nxcl::receiveStartInstruction (void)
 				dbus_message_iter_get_basic(&args, &parameter);
 				ss.str("");
 				ss << parameter;
-				this->callbacks.write ("Terminating: " + ss.str());
+				this->callbacks.debug ("Terminating: " + ss.str());
 				instruction_received = true;
 				if (parameter < 0) {
 					// No action, start a new connection

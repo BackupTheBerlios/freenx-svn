@@ -53,7 +53,7 @@ static int sendSettings (DBusConnection *bus, nxcl::NXConfigData& cfg);
 /*!
  * Listen to the dbus, waiting for a signal to say either that
  * connection is in progress, or giving us a list of possible sessions
- * we could connect to. Return true if nxcld requires a reply such
+ * we could connect to. Return true if nxcl requires a reply such
  * as "please resume session 1".
  */
 static int receiveSession (DBusConnection* conn);
@@ -115,11 +115,11 @@ main (int argc, char **argv)
 		dbusSendInterface = ss.str();
 
 		ss.str("");
-		ss << base << "nxcld" << i;
+		ss << base << "nxcl" << i;
 		dbusRecvInterface = ss.str();
 
 		ss.str("");
-		ss << "type='signal',interface='org.freenx.nxcl.nxcld" << i << "'";
+		ss << "type='signal',interface='org.freenx.nxcl.nxcl" << i << "'";
 		dbusMatchString = ss.str();
 
 
@@ -145,7 +145,7 @@ main (int argc, char **argv)
 	stringstream arg;
 	arg << i;		
 
-	/* fork and exec the nxcld */
+	/* fork and exec the nxcl */
 	pid = fork();
 	switch (pid) {
 	case -1:
@@ -155,7 +155,7 @@ main (int argc, char **argv)
 		// This is the CHILD process
 		// Allocate memory for the program arguments
 		// 1+ to allow space for NULL terminating pointer
-		execl (PACKAGE_BIN_DIR"/nxcld", "nxcld", arg.str().c_str(), static_cast<char*>(NULL));
+		execl (PACKAGE_BIN_DIR"/nxcl", "nxcl", arg.str().c_str(), static_cast<char*>(NULL));
 		// If process returns, error occurred
 		theError = errno; 
 		// This'll get picked up by parseResponse
@@ -165,13 +165,13 @@ main (int argc, char **argv)
 
 	default:
 		// This is the PARENT process
-		cout << "NXCMD> forked the nxcld process; continuing.\n";
+		cout << "NXCMD> forked the nxcl process; continuing.\n";
 		break;
 	}
 
 
 	/* Prepare interface - add a rule for which messages we want
-	   to see - those that are sent to us from the nxcld
+	   to see - those that are sent to us from the nxcl
 	   connection. */
 	dbus_bus_add_match(conn, dbusMatchString.c_str(), &error);
 	dbus_connection_flush (conn);
@@ -182,7 +182,7 @@ main (int argc, char **argv)
 		cout << "NXCMD> Added match '" << dbusMatchString << "'\n";
 	}
 
-	// Crude 2 second wait to let nxcld get going before we send
+	// Crude 2 second wait to let nxcl get going before we send
 	// the settings. This _must_ be more sophisticated in your
 	// application ;)
 	sleep (2);
@@ -196,7 +196,7 @@ main (int argc, char **argv)
 	cfg.serverPort = 22;
 	cfg.sessionUser = argv[2];
 	cfg.sessionPass = argv[3];
-	cfg.sessionName = "nxcldtest";
+	cfg.sessionName = "nxcmd";
 	cfg.sessionType = argv[4];
 	cfg.cache = 8;
 	cfg.images = 32;
@@ -268,7 +268,7 @@ main (int argc, char **argv)
 		}
 	}
 
-	// wait and block for nxcld process to end before exiting.
+	// wait and block for nxcl process to end before exiting.
 	int status = 0;
 	wait (&status);
 
