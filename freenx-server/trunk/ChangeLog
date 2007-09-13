@@ -43,6 +43,9 @@ xx.10.2007 FreeNX 0.7.1
 	* Fix ownership of $SSH_AUTHORIZED_KEYS in nxkeygen, just in case
 	  it is run without nxsetup.
 	  (fabianx@bat.berlios.de, thx to sambiase on #nx)
+	* Fixed diverse occurences of $sess_id in nxnode, when hostname
+	  contains whitespace.
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
