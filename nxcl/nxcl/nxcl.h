@@ -51,6 +51,9 @@ namespace nxcl
 		virtual void haveResumableSessions (list<NXResumeData> resumeData) {}
 		virtual void noResumableSessions (void) {}
 		virtual void serverCapacityReached (void) {}
+		virtual void sendDbusInfoMsg (string&) {}
+		virtual void sendDbusInfoMsg (int, string&) {}
+		virtual void sendDbusErrorMsg (string&) {}
 	};
 
 	class NxclCallbacks : public NXClientLibExternalCallbacks
@@ -61,10 +64,29 @@ namespace nxcl
 
 		/*!
 		 * Send a message to the user. Here, this is
-		 * implemented as a message to stdout. It could be
-		 * (any may yet be) send on the dbus interface
+		 * implemented as a message sent on the dbus interface
+		 *
+		 * \param msg The message string to be sent
 		 */
 		void write (string msg);
+		/*!
+		 * Send a message to the user with a message
+		 * number. Here, this is implemented as a message sent
+		 * on the dbus interface
+		 * 
+		 * \param num A message number.This is for
+		 * transferring the NoMachine NX message number
+		 * accompanying the message. This number can be used
+		 * by the frontend client to determine the progress of
+		 * the session connection.
+		 *
+		 * \param msg The message string to be sent
+		 */
+		void write (int num, string msg);
+		/*!
+		 * Write an error message to stderr.
+		 */
+		void error (string msg);
 		/*!
 		 * Send a debugging message out. Here that's
 		 * implemented as a message on stdout.
@@ -207,6 +229,23 @@ namespace nxcl
 		 * Called by \see NxclCallbacks::serverCapacitySignal
 		 */
 		void serverCapacityReached (void);
+		/*!
+		 * Send an informational status message - these are so
+		 * that the frontend client can show the user some
+		 * progress information in the UI.
+		 */
+		void sendDbusInfoMsg (string& info);
+		/*!
+		 * Send an informational status message - these are so
+		 * that the frontend client can show the user some
+		 * progress information in the UI. This one includes
+		 * the NX message number.
+		 */
+		void sendDbusInfoMsg (int num, string& info);
+		/*!
+		 * Send an error message via dbus.
+		 */
+		void sendDbusErrorMsg (string& errorMsg);
 		//@}
 
 		/*!

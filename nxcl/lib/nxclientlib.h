@@ -53,6 +53,8 @@ namespace nxcl {
 		NXClientLibExternalCallbacks () {}
 		virtual ~NXClientLibExternalCallbacks () {}
 		virtual void write (string msg) {}
+		virtual void write (int num, string msg) {}
+		virtual void error (string msg) {}
 		virtual void debug (string msg) {}
 		virtual void stdoutSignal (string msg) {}
 		virtual void stderrSignal (string msg) {}

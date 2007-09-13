@@ -53,13 +53,13 @@ NXClientLibCallbacks::~NXClientLibCallbacks()
 void
 NXClientLibCallbacks::startedSignal (string name)
 {
-	this->parent->externalCallbacks->write(name + _(" process started"));
+	this->parent->externalCallbacks->write (name + _(" process started"));
 }
 
 void
 NXClientLibCallbacks::processFinishedSignal (string name)
 {
-	this->parent->externalCallbacks->write(name + _(" process exited"));
+	this->parent->externalCallbacks->write (name + _(" process exited"));
 	parent->setIsFinished (true);
 }
 
@@ -88,7 +88,7 @@ NXClientLibCallbacks::errorSignal (int error)
 		break;
 	}
 		
-	this->parent->externalCallbacks->write (message);
+	this->parent->externalCallbacks->error (message);
 }
 
 void 
@@ -289,14 +289,14 @@ void NXClientLib::processParseStdout()
 		int pid = response - 100000;
 		if (this->nxsshProcess.getPid() == pid) {
 			this->nxsshProcess.setError(NOTQPROCCRASHED);
-			this->externalCallbacks->write (_("nxsshProcess crashed or exited"));
+			this->externalCallbacks->error (_("nxsshProcess crashed or exited"));
 			this->isFinished = true;
 		} else if (this->nxproxyProcess.getPid() == pid) {
 			this->nxproxyProcess.setError(NOTQPROCCRASHED);
-			this->externalCallbacks->write (_("nxproxyProcess crashed or exited"));
+			this->externalCallbacks->error (_("nxproxyProcess crashed or exited"));
 			this->isFinished = true;
 		} else {
-			this->externalCallbacks->write (_("Warning: Don't know what crashed (in processParseStdout())"));
+			this->externalCallbacks->error (_("Warning: Don't know what crashed (in processParseStdout())"));
 		}
 		return;
 	}
@@ -338,7 +338,7 @@ void NXClientLib::processParseStdout()
 			stringstream ss;
 			ss << "127.0.0.1:" << proxyData.port << " cookie: " << proxyData.cookie << "\n";
 			switchCommand += ss.str();
-			this->write(switchCommand);
+			this->write (switchCommand);
 		} else if ((*msgiter).find("NX> 287 Redirected I/O to channel descriptors") != string::npos) {
 			dbgln ("287 message found on stdout");
 			this->externalCallbacks->write(_("The session has been started successfully"));
@@ -398,7 +398,7 @@ void NXClientLib::processParseStderr()
 			this->isFinished = true;
 
 		} else if ((*msgiter).find("NX> 280 Ignoring EOF on the monitored channel") != string::npos) {
-			this->externalCallbacks->write(_("Unknown problem..."));
+			this->externalCallbacks->write(_("Got \"NX> 280 Ignoring EOF on the monitored channel\" from nxssh..."));
 			this->isFinished = true;
 
 		} else if ((*msgiter).find("Host key verification failed") != string::npos) {
@@ -501,7 +501,7 @@ void NXClientLib::invokeProxy()
 {
 	dbgln ("invokeProxy called");
 
-	this->externalCallbacks->write(_("Starting NX session"));
+	this->externalCallbacks->write(100, _("Starting NX session"));
 	
 	int e;
 	char * home;
@@ -517,7 +517,7 @@ void NXClientLib::invokeProxy()
 				   // existing, though if there is a
 				   // _file_ called $HOME/.nx, we'll
 				   // get errors later.
-			this->externalCallbacks->write (_("Problem creating .nx directory"));
+			this->externalCallbacks->error (_("Problem creating .nx directory"));
 		}
 	}
 	// Now the per session directory
@@ -525,7 +525,7 @@ void NXClientLib::invokeProxy()
 	if (mkdir (nxdir.c_str(), 0770)) {
 		e = errno;
 		if (e != EEXIST) { // We don't mind .nx already
-			this->externalCallbacks->write (_("Problem creating Session directory"));
+			this->externalCallbacks->error (_("Problem creating Session directory"));
 		}
 	}
 

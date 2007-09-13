@@ -48,13 +48,25 @@ NxclCallbacks::~NxclCallbacks ()
 void
 NxclCallbacks::write (string msg)
 {
-	cout << "NXCL> " << msg << endl;
+//	cout << "NXCL> " << msg << endl;
+	this->parent->sendDbusInfoMsg (msg);
+}
+void
+NxclCallbacks::write (int num, string msg)
+{
+	this->parent->sendDbusInfoMsg (num, msg);
+}
+void
+NxclCallbacks::error (string msg)
+{
+	cerr << "NXCL_ERROR> " << msg << endl;
+	this->parent->sendDbusErrorMsg (msg);
 }
 void
 NxclCallbacks::debug (string msg)
 {
 #if DEBUG==1
-	cout << "NXCL> " << msg << endl;
+	cout << "NXCL_DBG> " << msg << endl;
 #endif
 }
 void
@@ -182,7 +194,7 @@ Nxcl::setupDbus (void)
 	}
 	if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) { 
 		/* What to do if someone else is running? Try another name? Exit? */
-		this->callbacks.write ("There appears to be another nxcl running, won't compete. Exiting.");
+		this->callbacks.error ("There appears to be another nxcl running, won't compete. Exiting.");
 		exit(1);
 	}
 	// Done getting connection to session bus
@@ -230,8 +242,7 @@ Nxcl::receiveSettings (void)
 	while (settings_transferred == false) {
 
 		if (dbus_error_is_set(&error)) { 
-			this->callbacks.write ("receiveSettings(): Got a dbus error");
-			dbus_error_free(&error); 
+			this->callbacks.error ("receiveSettings(): Got a dbus error");
 		}
 
 		// non blocking read of the next available message
@@ -240,7 +251,7 @@ Nxcl::receiveSettings (void)
 
 		// loop again if we haven't read a message
 		if (NULL == message) { 
-			//this->callbacks.write ("receiveSettings(): No message yet, sleep a second.");
+			//this->callbacks.debug ("receiveSettings(): No message yet, sleep a second.");
 			sleep(1);
 			continue;
 		}
@@ -319,7 +330,7 @@ Nxcl::receiveSettings (void)
 						this->sessionData.customCommand = ss.str();
 						break;
 					default:
-						this->callbacks.write ("ERROR: parameter type does not match its position in the message.");
+						this->callbacks.error ("ERROR: parameter type does not match its position in the message.");
 						break;
 					}
 					count++;
@@ -358,13 +369,13 @@ Nxcl::receiveSettings (void)
 						this->sessionData.fullscreen = (iparam>0) ? true : false;
 						break;
 					default:
-						this->callbacks.write ("ERROR: parameter type does not match its position in the message.");
+						this->callbacks.error ("ERROR: parameter type does not match its position in the message.");
 						break;
 					}
 					count++;
 
 				} else {
-					this->callbacks.write ("ERROR: parameter is not string or int.");
+					this->callbacks.error ("ERROR: parameter is not string or int.");
 				}
 			}
 			settings_transferred = true;			
@@ -448,7 +459,7 @@ Nxcl::startTheNXConnection (void)
 
 	/* If we have session info, start up the connection */
 	if (this->sessionData.key.size() == 0) { // Shouldn't need this->sessionData.encryption here.
-		this->callbacks.write (_("No key supplied! Please fix your client to send a key via dbus!"));
+		this->callbacks.error (_("No key supplied! Please fix your client to send a key via dbus!"));
 	} else {
 		this->nxclientlib.invokeNXSSH("supplied",
 					      this->nxserver,
@@ -539,6 +550,64 @@ Nxcl::serverCapacityReached (void)
 	DBusMessage *msg = dbus_message_new_signal ("/org/freenx/nxcl/dbus/AvailableSession",
 						    this->dbusSendInterface.c_str(),
 						    "ServerCapacityReached");
+	
+	dbus_connection_send (this->conn, msg, NULL);
+	dbus_message_unref (msg);
+}
+
+void
+Nxcl::sendDbusInfoMsg (string& info)
+{
+	DBusMessage *msg = dbus_message_new_signal ("/org/freenx/nxcl/dbus/SessionStatus",
+						    this->dbusSendInterface.c_str(),
+						    "InfoMessage");
+
+	/* Add info to msg*/
+	const char* infoptr = info.c_str();
+
+	// Bundle up the available session
+	dbus_message_append_args (msg,
+				  DBUS_TYPE_STRING, &infoptr,
+				  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (this->conn, msg, NULL);
+	dbus_message_unref (msg);
+}
+
+void
+Nxcl::sendDbusInfoMsg (int num, string& info)
+{
+	DBusMessage *msg = dbus_message_new_signal ("/org/freenx/nxcl/dbus/SessionStatus",
+						    this->dbusSendInterface.c_str(),
+						    "InfoMessage");
+
+	/* Add info to msg*/
+	const char* infoptr = info.c_str();
+
+	// Bundle up the available session
+	dbus_message_append_args (msg,
+				  DBUS_TYPE_STRING, &infoptr,
+				  DBUS_TYPE_INT32, &num,
+				  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (this->conn, msg, NULL);
+	dbus_message_unref (msg);
+}
+
+void
+Nxcl::sendDbusErrorMsg (string& errorMsg)
+{
+	DBusMessage *msg = dbus_message_new_signal ("/org/freenx/nxcl/dbus/SessionStatus",
+						    this->dbusSendInterface.c_str(),
+						    "ErrorMessage");
+
+	/* Add info to msg */
+	const char* errptr = errorMsg.c_str();
+
+	// Bundle up the available session
+	dbus_message_append_args (msg,
+				  DBUS_TYPE_STRING, &errptr,
+				  DBUS_TYPE_INVALID);
 
 	dbus_connection_send (this->conn, msg, NULL);
 	dbus_message_unref (msg);
@@ -614,7 +683,7 @@ Nxcl::receiveStartInstruction (void)
 void
 Nxcl::requestConfirmation (string msg)
 {
-	this->callbacks.write ("requestConfirmation(): This is a placeholder method "
+	this->callbacks.error ("WARNING: requestConfirmation(): This is a placeholder method "
 			       "to deal with sending back a yes "
 			       "or a no answer. For now, we just set "
 			       "this->nxclientlib.getSession().setContinue(true);");
