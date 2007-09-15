@@ -23,6 +23,21 @@
 
 #include <string>
 
+/*!
+ * Some definitions of numbers that we can send over to the frontend
+ * client to tell it how we're getting along with the connection...
+ */
+#define NXCL_PROCESS_STARTED        1000001
+#define NXCL_PROCESS_EXITED         1000002
+#define NXCL_AUTH_FAILED            1000003
+#define NXCL_AUTHENTICATING         1000004
+#define NXCL_LOGIN_FAILED           1000005
+#define NXCL_HOST_KEY_VERIFAILED    1000006
+#define NXCL_INVOKE_PROXY           1000007
+#define NXCL_STARTING               1000008
+#define NXCL_FINISHED               1000009
+#define NXCL_ALIVE                  1000010
+
 using namespace std;
 
 namespace nxcl {

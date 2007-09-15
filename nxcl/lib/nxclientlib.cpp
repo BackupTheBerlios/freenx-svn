@@ -18,8 +18,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "nxclientlib_i18n.h"
-
 #include "nxclientlib.h"
+#include "nxdata.h"
 
 #include <fstream>
 
@@ -53,13 +53,13 @@ NXClientLibCallbacks::~NXClientLibCallbacks()
 void
 NXClientLibCallbacks::startedSignal (string name)
 {
-	this->parent->externalCallbacks->write (name + _(" process started"));
+	this->parent->externalCallbacks->write (NXCL_PROCESS_STARTED, name + _(" process started"));
 }
 
 void
 NXClientLibCallbacks::processFinishedSignal (string name)
 {
-	this->parent->externalCallbacks->write (name + _(" process exited"));
+	this->parent->externalCallbacks->write (NXCL_PROCESS_EXITED, name + _(" process exited"));
 	parent->setIsFinished (true);
 }
 
@@ -139,10 +139,11 @@ NXClientLibCallbacks::sessionsSignal (list<NXResumeData> data)
 //@{
 NXClientLib::NXClientLib()
 {
-	isFinished = false;
-	readyForProxy = false;
-	proxyData.encrypted = false;
-	password = false;
+	this->isFinished = false;
+	this->readyForProxy = false;
+	this->sessionRunning = false;
+	this->proxyData.encrypted = false;
+	this->password = false;
 
 	dbgln ("In NXClientLib constructor");
 
@@ -161,7 +162,7 @@ NXClientLib::NXClientLib()
 NXClientLib::~NXClientLib()
 {
 	dbgln ("In NXClientLib destructor");
-	nxsshProcess.terminate();
+	this->nxsshProcess.terminate();
 }
 
 void NXClientLib::invokeNXSSH (string publicKey, string serverHost, bool encryption, string key, int port)
@@ -259,7 +260,7 @@ void NXClientLib::reset()
 
 void NXClientLib::loginFailed()
 {
-	this->externalCallbacks->write (_("Got \"Login Failed\""));
+	this->externalCallbacks->write (NXCL_LOGIN_FAILED, _("Got \"Login Failed\""));
 	this->isFinished = true;
 	this->nxsshProcess.terminate();
 }
@@ -303,8 +304,10 @@ void NXClientLib::processParseStdout()
 
 	// If message 204 is picked, that's authentication failed.
 	if (response == 204) {
-		this->externalCallbacks->write (_("Got \"Authentication Failed\" from nxssh.\n"
-						  "Please check the certificate for the first SSL authentication stage,\n"
+		this->externalCallbacks->write (NXCL_AUTH_FAILED,
+						_("Got \"Authentication Failed\" from nxssh.\n"
+						  "Please check the certificate for the first SSL "
+						  "authentication stage,\n"
 						  "in which the \"nx\" user is authenticated."));
 		this->isFinished = true;
 		return;
@@ -312,8 +315,6 @@ void NXClientLib::processParseStdout()
 
 	// 147 is server capacity reached
 	if (response == 147) {
-		this->externalCallbacks->write (_("Got \"Server Capacity Reached\" from nxssh.\n"));
-		dbgln ("Got \"Server Capacity Reached\" from nxssh.");
 		this->externalCallbacks->serverCapacitySignal();
 		this->isFinished = true;
 		return;
@@ -340,13 +341,13 @@ void NXClientLib::processParseStdout()
 			switchCommand += ss.str();
 			this->write (switchCommand);
 		} else if ((*msgiter).find("NX> 287 Redirected I/O to channel descriptors") != string::npos) {
-			dbgln ("287 message found on stdout");
-			this->externalCallbacks->write(_("The session has been started successfully"));
+			this->externalCallbacks->write(287, _("The session has been started successfully"));
+			this->sessionRunning = true;
 		}
 
 		if ((*msgiter).find("Password") != string::npos) {
-			this->externalCallbacks->write(_("Authenticating with NX server"));
-			password = true;
+			this->externalCallbacks->write(NXCL_AUTHENTICATING, _("Authenticating with NX server"));
+			this->password = true;
 		}
 
 		if (!readyForProxy) {
@@ -391,18 +392,18 @@ void NXClientLib::processParseStderr()
 			this->write(switchCommand);
 
 		} else if ((*msgiter).find("NX> 287 Redirected I/O to channel descriptors") != string::npos) {
-			this->externalCallbacks->write(_("The session has been started successfully"));
+			this->externalCallbacks->write(287, _("The session has been started successfully"));
 
 		} else if ((*msgiter).find("NX> 209 Remote host identification has changed") != string::npos) {
-			this->externalCallbacks->write(_("SSH Host Key Problem"));
+			this->externalCallbacks->write(209, _("SSH Host Key Problem"));
 			this->isFinished = true;
 
 		} else if ((*msgiter).find("NX> 280 Ignoring EOF on the monitored channel") != string::npos) {
-			this->externalCallbacks->write(_("Got \"NX> 280 Ignoring EOF on the monitored channel\" from nxssh..."));
+			this->externalCallbacks->write(280, _("Got \"NX> 280 Ignoring EOF on the monitored channel\" from nxssh..."));
 			this->isFinished = true;
 
 		} else if ((*msgiter).find("Host key verification failed") != string::npos) {
-			this->externalCallbacks->write(_("SSH host key verification failed"));
+			this->externalCallbacks->write(NXCL_HOST_KEY_VERIFAILED, _("SSH host key verification failed"));
 			this->isFinished = true;			
 		}
 	}
@@ -458,42 +459,40 @@ string NXClientLib::parseSSH (string message)
 	dbgln ("NXClientLib::parseSSH called for message '" + message + "'");
 
 	if ((pos = message.find("NX> 700 Session id: ")) != string::npos) {
+		this->externalCallbacks->write (700, _("Got a session ID"));
 		proxyData.id = message.substr(pos+20, message.length()-pos);
-		dbgln ("proxyData.id = " + proxyData.id);
 	} else if ((pos = message.find("NX> 705 Session display: ")) != string::npos) {
 		stringstream portss;
 		int portnum;
 		portss << message.substr(pos+25, message.length()-pos);
 		portss >> portnum;		
 		proxyData.display = portnum;
-		dbgln ("proxyData.display = " << proxyData.display);
 		proxyData.port = portnum + 4000;
-		dbgln ("proxyData.port = " << proxyData.port);
 	} else if ((pos = message.find("NX> 706 Agent cookie: ")) != string::npos) {
 		proxyData.cookie = message.substr(pos+22, message.length()-pos);
-		dbgln ("proxyData.cookie = " + proxyData.cookie);
+		this->externalCallbacks->write (706, _("Got an agent cookie"));
 	} else if ((pos = message.find("NX> 702 Proxy IP: ")) != string::npos) {
 		proxyData.proxyIP = message.substr(pos+18, message.length()-pos);
-		dbgln ("proxyData.proxyIP = " + proxyData.proxyIP);
+		this->externalCallbacks->write (702, _("Got a proxy IP"));
 	} else if (message.find("NX> 707 SSL tunneling: 1") != string::npos) {
-		dbgln ("Setting proxyData.encrypted to true");
+		this->externalCallbacks->write (702, _("All data will be SSL tunnelled"));
 		proxyData.encrypted = true;
 	} else if (message.find("NX> 147 Server capacity") != string::npos) {
-		this->externalCallbacks->write (_("Got \"Server Capacity Reached\" from nxssh."));
+		this->externalCallbacks->write (147, _("Got \"Server Capacity Reached\" from nxssh."));
 		this->externalCallbacks->serverCapacitySignal();
 		this->isFinished = true;
 	} else if (message.find ("NX> 204 Authentication failed.") != string::npos) {
-		this->externalCallbacks->write (_("NX SSH Authentication Failed, finishing"));
+		this->externalCallbacks->write (204, _("NX SSH Authentication Failed, finishing"));
 		this->isFinished = true;
 	}
 
 	if (message.find("NX> 710 Session status: running") != string::npos) {
+		this->externalCallbacks->write (710, _("Session status is \"running\""));
 		invokeProxy();
 		session.wipeSessions();
 		rMessage = "bye\n";
 	}
 
-	dbgln ("NXClientLib::parseSSH returning");
 	return rMessage;
 }
 
@@ -501,7 +500,7 @@ void NXClientLib::invokeProxy()
 {
 	dbgln ("invokeProxy called");
 
-	this->externalCallbacks->write(100, _("Starting NX session"));
+	this->externalCallbacks->write(NXCL_INVOKE_PROXY, _("Starting NX session"));
 	
 	int e;
 	char * home;

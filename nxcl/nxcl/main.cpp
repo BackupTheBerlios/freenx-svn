@@ -31,8 +31,10 @@
  */
 
 #include "../config.h"
+#include "nxclientlib_i18n.h"
 #include "nxclientlib.h"
 #include "nxcl.h"
+#include "nxdata.h"
 #include <fstream>
 
 /* This define is required for slightly older versions of dbus as
@@ -65,11 +67,11 @@ int main (int argc, char **argv)
 
 	debugLogFile.open("/tmp/nxcl.log", ios::out|ios::trunc);
 	if (!debugLogFile.is_open()) {
-		nxcl.callbacks.write ("Odd, couldn't open /tmp/nxcl.log");
+		nxcl.callbacks.error ("Odd, couldn't open /tmp/nxcl.log");
 	}
 
 	if (argc!=2) {
-		nxcl.callbacks.write ("This program is usually executed by another program. "
+		nxcl.callbacks.error ("This program is usually executed by another program. "
 				      "Trying to execute it alone is probably not the right "
 				      "thing to do, unless you are sure it is. Provide a single "
 				      "argument - the identifier for the dbus messages");
@@ -82,20 +84,29 @@ int main (int argc, char **argv)
 	ss >> id;
 	nxcl.setupDbus(id);
 
+	// Send a message to the frontend client to say we are up and running
+	nxcl.callbacks.write (NXCL_ALIVE, _("nxcl is up and running"));
+
 	if (-1 == (nxcl.receiveSettings())) {
 		cerr << "Failed to obtain server and user for the session." << endl;
 		return -1;
 	}
 
+	nxcl.callbacks.write (NXCL_STARTING, _("Connection is starting..."));
 	nxcl.startTheNXConnection();
 
 	NXClientLib* c = nxcl.getNXClientLib();
-	while (probeNXCL(c) == true) {
+	while (probeNXCL(c) == true && !c->getSessionRunning()) {
 		usleep (30000); // 3 100ths of a second => about 30 
-                                // probes a second (a lot).
+                                // probes a second. This will impact on power consumption.
 	}
 
-	nxcl.callbacks.write ("Program finished.");
+	// Now the process has started, reduce polling.
+	while (probeNXCL(c) == true) {
+		usleep (2000000); // poll once every 2 seconds.
+	}
+
+	nxcl.callbacks.write (NXCL_FINISHED, _("Program finished."));
 	debugLogFile.close();
 	return 0;
 }

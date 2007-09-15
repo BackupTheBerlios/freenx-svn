@@ -28,6 +28,7 @@
 #include <list>
 #include "notQt.h"
 
+
 using namespace std;
 
 namespace nxcl {
@@ -269,6 +270,7 @@ namespace nxcl {
 		NXSession* getSession (void) { return &this->session; }
 		void setIsFinished (bool status) { this->isFinished = status; }
 		void setExternalCallbacks (NXClientLibExternalCallbacks * cb) { this->externalCallbacks = cb; }
+		bool getSessionRunning (void) { return this->sessionRunning; }
 		//@}
 
 	private:
@@ -282,6 +284,13 @@ namespace nxcl {
 		 * Set true when nxssh is ready to launch the nxproxy process.
 		 */
 		bool readyForProxy;
+		/*!
+		 * Set true when the NX session is under way. This
+		 * means we can reduce the polling frequency right
+		 * down to a level which won't impact on power
+		 * consumption.
+		 */
+		bool sessionRunning;
 		/*!
 		 * Have we said we need to enter a password?
 		 */

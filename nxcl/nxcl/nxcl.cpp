@@ -48,7 +48,6 @@ NxclCallbacks::~NxclCallbacks ()
 void
 NxclCallbacks::write (string msg)
 {
-//	cout << "NXCL> " << msg << endl;
 	this->parent->sendDbusInfoMsg (msg);
 }
 void
@@ -252,7 +251,7 @@ Nxcl::receiveSettings (void)
 		// loop again if we haven't read a message
 		if (NULL == message) { 
 			//this->callbacks.debug ("receiveSettings(): No message yet, sleep a second.");
-			sleep(1);
+			usleep(1000000);
 			continue;
 		}
 
@@ -500,6 +499,8 @@ Nxcl::sendResumeList (list<NXResumeData>& resumable)
 	list<NXResumeData>::iterator it;
 	for (it=resumable.begin(); it!=resumable.end(); it++) {
 
+		this->callbacks.debug ("Sending a session..");
+
 		DBusMessage *message;
 
 		/* Create a new signal "AvailableSession" on the
@@ -633,7 +634,7 @@ Nxcl::receiveStartInstruction (void)
 
 		// loop again if we haven't read a message
 		if (NULL == message) { 
-			sleep(1);
+			usleep(1000000);
 			continue;
 		}
 
