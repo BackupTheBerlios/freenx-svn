@@ -434,13 +434,14 @@ Nxcl::setSessionDefaults (void)
 void
 Nxcl::startTheNXConnection (void)
 {
-	// First things first; set the sessionData. FIXME: Should check if sessionData has been set.
+	// First things first; set the sessionData.
+	// FIXME: Should check if this->sessionData has been set.
 	this->nxclientlib.setSessionData (&this->sessionData);
 
 	this->nxclientlib.setUsername (this->nxuser);
 	this->nxclientlib.setPassword (this->nxpass);
 
-	// FIXME: Need to pull in res from the dbus message or probe for it.	
+	// Probe for X display resolution in nxcl.
 	this->nxclientlib.setResolution (this->xRes, this->yRes); 
                                                // This is the size of
                                                // your screen... We need

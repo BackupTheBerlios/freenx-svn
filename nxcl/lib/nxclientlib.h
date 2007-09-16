@@ -275,6 +275,17 @@ namespace nxcl {
 
 	private:
 		/*!
+		 * Try a number of different paths to try to find the
+		 * program prog's full path.
+		 *
+		 * \param prog The program to find, likely to be nxssh
+		 * or nxproxy.
+		 *
+		 * \return The full path; e.g. /usr/bin/nxssh
+		 */
+		string getPath (string prog);
+
+		/*!
 		 * Set true when the program is ready to end, e.g if
 		 * authentication failed, nxssh failed to start amoung
 		 * other reasons.

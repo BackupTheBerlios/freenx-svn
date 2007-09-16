@@ -37,6 +37,7 @@
 #define NXCL_STARTING               1000008
 #define NXCL_FINISHED               1000009
 #define NXCL_ALIVE                  1000010
+#define NXCL_PROCESS_ERROR          1000011
 
 using namespace std;
 

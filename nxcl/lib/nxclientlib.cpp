@@ -24,7 +24,10 @@
 #include <fstream>
 
 extern "C" {
-#include "errno.h"
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 }
 
 /*
@@ -178,9 +181,7 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost, bool encrypt
 
 	// Start to build the arguments for the nxssh command.
 	// notQProcess requires that argv[0] contains the program name
-	// FIXME: Here, I place the PACKAGE_BIN_DIR path in front of
-	// nxssh, but nxssh may be installed in a different prefix...
-	arguments.push_back (PACKAGE_BIN_DIR"/nxssh");
+	arguments.push_back ("nxssh");
 	
 	argtmp << "-nx";
 	arguments.push_back (argtmp.str());
@@ -235,10 +236,12 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost, bool encrypt
 	// ...so there you have the meaning.
 	arguments.push_back ("-E");
 	
-	this->nxsshProcess.start (PACKAGE_BIN_DIR"/nxssh", arguments);
-
-	if (nxsshProcess.waitForStarted() == false) {
-		dbgln ("nx ssh process didn't start :(");
+	// Find a path for the nxssh process using getPath()
+	string nxsshPath = this->getPath ("nxssh");
+	this->nxsshProcess.start(nxsshPath, arguments);
+	if (this->nxsshProcess.waitForStarted() == false) {
+		this->externalCallbacks->write (NXCL_PROCESS_ERROR, _("Error starting nxssh!"));
+		this->isFinished = true;
 	}
 }
 
@@ -498,8 +501,6 @@ string NXClientLib::parseSSH (string message)
 
 void NXClientLib::invokeProxy()
 {
-	dbgln ("invokeProxy called");
-
 	this->externalCallbacks->write(NXCL_INVOKE_PROXY, _("Starting NX session"));
 	
 	int e;
@@ -552,18 +553,19 @@ void NXClientLib::invokeProxy()
 
 	// Build arguments for the call to the nxproxy command
 	list<string> arguments;
-	arguments.push_back(PACKAGE_BIN_DIR"/nxproxy"); // argv[0] has to be the program name
+	arguments.push_back("nxproxy"); // argv[0] has to be the program name
 	arguments.push_back("-S");
 	ss.str("");
 	ss << "options=" << nxdir;
 	ss << ":" << proxyData.display;
 	arguments.push_back(ss.str());	
 
-	// This is of type notQProcess.
-	this->nxproxyProcess.start(PACKAGE_BIN_DIR"/nxproxy", arguments);
-
-	if (nxproxyProcess.waitForStarted() == false) {
-		dbgln ("nxproxy process didn't start :(");
+	// Find a path for the nxproxy process using getPath()
+	string nxproxyPath = this->getPath ("nxproxy");
+	this->nxproxyProcess.start(nxproxyPath, arguments);
+	if (this->nxproxyProcess.waitForStarted() == false) {
+		this->externalCallbacks->write (NXCL_PROCESS_ERROR, _("Error starting nxproxy!"));
+		this->isFinished = true;
 	}
 }
 
@@ -575,5 +577,62 @@ bool NXClientLib::chooseResumable (int n)
 bool NXClientLib::terminateSession (int n)
 {
 	return (this->session.terminateSession(n));
+}
+
+string NXClientLib::getPath (string prog)
+{
+	string path;
+	struct stat * buf;
+
+	buf = static_cast<struct stat*>(malloc (sizeof (struct stat)));
+	if (!buf) {
+		// Malloc error.
+		return prog;
+	}
+
+	path = PACKAGE_BIN_DIR"/" + prog;
+	memset (buf, 0, sizeof(struct stat));
+	stat (path.c_str(), buf);
+	if (S_ISREG (buf->st_mode) || S_ISLNK (buf->st_mode)) {
+		// Found prog in PACKAGE_BIN_DIR
+	} else {
+		path = "/usr/local/bin/" + prog;
+		memset (buf, 0, sizeof(struct stat));
+		stat (path.c_str(), buf);
+		if (S_ISREG (buf->st_mode) || S_ISLNK (buf->st_mode)) {
+			// Found prog in /usr/local/bin
+		} else {
+			path = "/usr/bin/" + prog;
+			memset (buf, 0, sizeof(struct stat));
+			stat (path.c_str(), buf);
+			if (S_ISREG (buf->st_mode) || 
+			    S_ISLNK (buf->st_mode)) {
+				// Found prog in /usr/bin
+			} else {
+				path = "/usr/NX/bin/" + prog;
+				memset (buf, 0, sizeof(struct stat));
+				stat (path.c_str(), buf);
+				if (S_ISREG (buf->st_mode) || 
+				    S_ISLNK (buf->st_mode)) {
+
+				} else {
+					path = "/bin/" + prog;
+					memset (buf, 0, sizeof(struct stat));
+					stat (path.c_str(), buf);
+					if (S_ISREG (buf->st_mode) || 
+					    S_ISLNK (buf->st_mode)) {
+						// Found prog in /bin
+					} else {
+						// Just return the
+						// prog name.
+						path = prog;
+					}
+				}
+			}
+		}
+	}
+
+	free (buf);
+	return path;
 }
 //@}
