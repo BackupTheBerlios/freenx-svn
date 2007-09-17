@@ -68,6 +68,7 @@ namespace nxcl {
 		string key;
 		bool encryption;
 		bool fullscreen;
+		bool virtualDesktop;
 		string customCommand;
 	};
 
@@ -93,6 +94,7 @@ namespace nxcl {
 		string key;
 		bool encryption;
 		bool fullscreen;
+		bool virtualDesktop;
 		string customCommand;
 		bool suspended;
 		int xRes;

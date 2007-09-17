@@ -367,6 +367,9 @@ Nxcl::receiveSettings (void)
 					case 23:
 						this->sessionData.fullscreen = (iparam>0) ? true : false;
 						break;
+					case 25:
+						this->sessionData.virtualDesktop = (iparam>0) ? true : false;
+						break;
 					default:
 						this->callbacks.error ("ERROR: parameter type does not match its position in the message.");
 						break;
@@ -427,6 +430,7 @@ Nxcl::setSessionDefaults (void)
 	this->sessionData.suspended = false;
 	this->sessionData.fullscreen = false; // If true, session.geometry
 					  // is ignored
+	this->sessionData.virtualDesktop = false;
 
 	return;
 }

@@ -317,8 +317,24 @@ string NXSession::parseSSH(string message)
 						"\" --agent_server=\"" << this->sessionData->agentServer <<
 						"\" --agent_user=\"" << this->sessionData->agentUser <<
 						"\" --agent_password=\"" << this->sessionData->agentPass << "\"";
+					ss << " --title=\"sebtest\""; // testing a window title
 					if (this->sessionData->sessionType == "unix-application") {
 						ss << " --application=\"" << this->sessionData->customCommand << "\"";
+						if (this->sessionData->virtualDesktop == true) {
+							ss << " --rootless=\"0\" --virtualdesktop=\"1\"";
+						} else {
+							ss << " --rootless=\"1\" --virtualdesktop=\"0\"";
+						}
+
+					} else if (this->sessionData->sessionType == "unix-console") {
+						if (this->sessionData->virtualDesktop == true) {
+							ss << " --rootless=\"0\" --virtualdesktop=\"1\"";
+						} else {
+							ss << " --rootless=\"1\" --virtualdesktop=\"0\"";
+						}
+
+					} else if (this->sessionData->sessionType == "unix-default") {
+						// ignore this - does anyone use it?
 					}
 					returnMessage = ss.str();
 					dbgln ("session parameter command: " + ss.str());
