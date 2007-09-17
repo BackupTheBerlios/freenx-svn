@@ -163,6 +163,7 @@ void on_button_nxlaunch_launch_clicked (GtkButton * button);
 void on_button_nxlaunch_new_clicked (GtkButton * button);
 void on_button_nxlaunch_edit_clicked (GtkButton * button);
 void on_button_nxlaunch_delete_clicked (GtkButton * button);
+void on_button_confirm_delete_clicked (GtkButton * button);
 /*!
  * Called when the OK button is clicked in the config window. On this
  * callback we need to read the data from the window into an nx_conn

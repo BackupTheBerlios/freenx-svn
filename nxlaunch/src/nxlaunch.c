@@ -204,7 +204,7 @@ void on_button_nxlaunch_edit_clicked (GtkButton * button)
 
 	// Read in nx_conn for the highlighted entry
 	nx_conn = g_malloc0 (sizeof (struct nx_connection));
-	getActiveConnection (nx_conn);
+	getActiveConnection (nx_conn);	
 	setup_nx_popup (nx_conn);
 	nx_connection_free (nx_conn);
 
@@ -213,7 +213,39 @@ void on_button_nxlaunch_edit_clicked (GtkButton * button)
 
 void on_button_nxlaunch_delete_clicked (GtkButton * button)
 {
-	printerr ("%s\n", __FUNCTION__);
+	GtkWidget * widget;
+	widget = glade_xml_get_widget (xml_glob, "confirm_delete");
+	gtk_widget_show_all (widget);
+	return;
+}
+
+void on_button_confirm_delete_clicked (GtkButton * button)
+{
+	GtkTreeView * list_tree;
+	GtkTreeSelection * selected;
+	GtkTreeIter iter;
+	GtkTreeModel * tree_model;
+	gchar * name;
+
+	/* Get iter for current row and update connection list. */
+	list_tree = GTK_TREE_VIEW (glade_xml_get_widget (xml_nxlaunch_glob, "treeview_nxconnection"));
+	selected = gtk_tree_view_get_selection (list_tree);
+	tree_model = GTK_TREE_MODEL (conn_store);
+	if (gtk_tree_selection_get_selected (selected, &tree_model, &iter)) {
+		/* Get connection name */
+		gtk_tree_model_get (tree_model, &iter, CONN_CONNECTIONNAME, &name, -1);
+
+		/* delete the row */
+		if (FALSE == gtk_list_store_remove (conn_store, &iter)) {
+			printerr ("NXLAUNCH> Failed to remove that row..\n");
+		}
+	}
+
+	/* Unlink the connection file */
+	delete_nx_connection (name);
+
+	if (name) { g_free (name); }
+
 	return;
 }
 
@@ -278,6 +310,9 @@ void on_conn_new_ok_clicked (GtkButton * button)
 				    CONN_AGENTPASS,         nx_conn->agentPass,
 				    -1);
 	}
+
+	/* Re-write the connection to the xml file */
+	write_nx_connection (nx_conn);
 
 	nx_connection_free (nx_conn);
 	return;
