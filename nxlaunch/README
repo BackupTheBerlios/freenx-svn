@@ -18,7 +18,7 @@ Building:
 
 If you checked out the svn code, you need to do:
 
-autoconf -is
+autoreconf -is
 
 then:
 
