@@ -61,7 +61,7 @@ gboolean set_combobox (GtkWidget * widget, gchar * match_string)
 		valid = gtk_tree_model_iter_next (GTK_TREE_MODEL (prog_list), &iter);
 	}
 
-	/* FIXME: new_iter undefined if no match is found */
+	/* new_iter undefined if no match is found */
 	if (have_match == TRUE) {
 		gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget), &new_iter);		
 	} else {
@@ -320,6 +320,8 @@ gint write_nx_connection (struct nx_connection * nx_conn)
 
 	/* hardcoded options */
 	if (new_config_file == TRUE) {
+		/* FIXME: This needs to be fixed to match the system
+		   it was compiled for */
 		optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
 		xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "CUPSD path");
 		xmlNewProp (optionNode, BAD_CAST "value", BAD_CAST "/usr/sbin/cupsd");
@@ -331,11 +333,6 @@ gint write_nx_connection (struct nx_connection * nx_conn)
 		optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
 		xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Backingstore");
 		xmlNewProp (optionNode, BAD_CAST "value", BAD_CAST "when_requested");
-
-		/* We don't use NX for vnc or rdp sessions so this is hardcoded to "unix" */
-		optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
-		xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Session");
-		xmlNewProp (optionNode, BAD_CAST "value", BAD_CAST "unix"); 
 
 		optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
 		xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Use render");
@@ -350,6 +347,10 @@ gint write_nx_connection (struct nx_connection * nx_conn)
 	optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
 	xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Desktop");
 	xmlNewProp (optionNode, BAD_CAST "value", BAD_CAST nx_conn->Desktop);
+
+	optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
+	xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Session");
+	xmlNewProp (optionNode, BAD_CAST "value", BAD_CAST nx_conn->Session);
 	
 	optionNode = xmlNewChild (group, NULL, BAD_CAST "option", NULL);
 	xmlNewProp (optionNode, BAD_CAST "key", BAD_CAST "Custom Unix Desktop");
@@ -670,6 +671,9 @@ void parse_general (xmlDocPtr doc, xmlNodePtr cur,
 			}
 			else if ((!xmlStrcmp (option_key, BAD_CAST "Desktop"))) {
 				strncpy (nx_conn->Desktop, (gchar *) xmlGetProp (cur, BAD_CAST "value"), NX_FIELDLEN-1);
+			}
+			else if ((!xmlStrcmp (option_key, BAD_CAST "Session"))) {
+				strncpy (nx_conn->Session, (gchar *) xmlGetProp (cur, BAD_CAST "value"), NX_FIELDLEN-1);
 			}
 			else if ((!xmlStrcmp (option_key, BAD_CAST "Custom Unix Desktop"))) {
 				strncpy (nx_conn->CustomUnixDesktop, (gchar *) xmlGetProp (cur, BAD_CAST "value"), NX_FIELDLEN-1);
@@ -1175,6 +1179,7 @@ struct nx_connection * nx_connection_malloc (void)
 	nx_conn->Geometry = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
 	nx_conn->LinkSpeed = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
 	nx_conn->Desktop = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
+	nx_conn->Session = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
 	nx_conn->CustomUnixDesktop = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
 	nx_conn->XdmMode = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
 	nx_conn->XdmHost = g_malloc0 (NX_FIELDLEN * sizeof(gchar));
@@ -1199,6 +1204,7 @@ void nx_connection_zero (struct nx_connection * nx_conn)
 	strcpy (nx_conn->Pass, "");
 	strcpy (nx_conn->LinkSpeed, "wan");
 	strcpy (nx_conn->Desktop, "kde");
+	strcpy (nx_conn->Session, "unix");
 	strcpy (nx_conn->CustomUnixDesktop, "console");
 	strncpy (nx_conn->PublicKey, NXDefaultKey, SSLKEYLEN-1); /* Set to default */
 	strcpy (nx_conn->CommandLine, "");
@@ -1246,6 +1252,8 @@ gint nx_connection_free (struct nx_connection * nx_conn)
 		g_free (nx_conn->LinkSpeed);
 	if (nx_conn->Desktop)
 		g_free (nx_conn->Desktop);
+	if (nx_conn->Session)
+		g_free (nx_conn->Session);
 	if (nx_conn->CustomUnixDesktop)
 		g_free (nx_conn->CustomUnixDesktop);
 	if (nx_conn->PublicKey)
@@ -1327,37 +1335,51 @@ void setup_nx_popup (struct nx_connection * nx_conn)
 
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_desktop_session");
 
-	if (!strncmp (nx_conn->Desktop, "kde", NX_FIELDLEN)) {
-		set_combobox (widget, "KDE");
+	if (!strncmp (nx_conn->Session, "unix", NX_FIELDLEN)) {
 
-	} else 	if (!strncmp (nx_conn->Desktop, "gnome", NX_FIELDLEN)) {
-		set_combobox (widget, "GNOME");
+		// Unix sessions
+		if (!strncmp (nx_conn->Desktop, "kde", NX_FIELDLEN)) {
+			set_combobox (widget, "KDE");
 
-	} else 	if (!strncmp (nx_conn->Desktop, "cde", NX_FIELDLEN)) {
-		set_combobox (widget, "CDE");
+		} else 	if (!strncmp (nx_conn->Desktop, "gnome", NX_FIELDLEN)) {
+			set_combobox (widget, "GNOME");
 
-	} else 	if (!strncmp (nx_conn->Desktop, "xdm", NX_FIELDLEN)) {
-		set_combobox (widget, "XDM");
+		} else 	if (!strncmp (nx_conn->Desktop, "cde", NX_FIELDLEN)) {
+			set_combobox (widget, "CDE");
 
-	} else 	if (!strncmp (nx_conn->Desktop, "console", NX_FIELDLEN)) {
+		} else 	if (!strncmp (nx_conn->Desktop, "xdm", NX_FIELDLEN)) {
+			set_combobox (widget, "XDM");
 
-		if (!strncmp (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN)) {
+		} else 	if (!strncmp (nx_conn->Desktop, "console", NX_FIELDLEN)) {
 
-			set_combobox (widget, _("Console"));
+			if (!strncmp (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN)) {
 
-		} else if (!strncmp (nx_conn->CustomUnixDesktop, "default", NX_FIELDLEN)) {
+				set_combobox (widget, _("Console"));
 
-			set_combobox (widget, _("Default X client script on server"));
+			} else if (!strncmp (nx_conn->CustomUnixDesktop, "default", NX_FIELDLEN)) {
 
-		} else if (!strncmp (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN)) {
+				set_combobox (widget, _("Default X client script on server"));
 
-			set_combobox (widget, _("Custom command"));
+			} else if (!strncmp (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN)) {
+
+				set_combobox (widget, _("Custom command"));
+			} else {
+				set_combobox (widget, _("Console"));
+			}
+
 		} else {
-			set_combobox (widget, _("Console"));
+			set_combobox (widget, "KDE");
 		}
 
-	} else {
-		set_combobox (widget, "KDE");
+	} else if (!strncmp (nx_conn->Session, "windows", NX_FIELDLEN)) {
+		// Windows
+		set_combobox (widget, "Windows");
+	} else if (!strncmp (nx_conn->Session, "vnc", NX_FIELDLEN)) {
+		// VNC
+		set_combobox (widget, "VNC");
+	} else if (!strncmp (nx_conn->Session, "shadow", NX_FIELDLEN)) {
+		// Shadow sessions
+		set_combobox (widget, "Shadow");
 	}
 
 	widget = glade_xml_get_widget (xml_glob, "entry_nx_custom_command");
@@ -1622,34 +1644,57 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 
 	if (strstr (str, _("KDE"))) {
 		strncpy (nx_conn->Desktop, "kde", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 
 	} else if (strstr (str, _("GNOME"))) {
 		strncpy (nx_conn->Desktop, "gnome", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 
 	} else if (strstr (str, _("CDE"))) {
 		strncpy (nx_conn->Desktop, "cde", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 
 	} else if (strstr (str, _("XDM"))) {
 		strncpy (nx_conn->Desktop, "xdm", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 
 	} else if (strstr (str, _("Console"))) {
 		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 
 	} else if (strstr (str, _("Default X client script on server"))) {
 		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "default", NX_FIELDLEN);
 
 	} else if (strstr (str, _("Custom command"))) {
 		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
+		strncpy (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN);
+
+	} else if (strstr (str, _("Windows"))) {
+		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "windows", NX_FIELDLEN);
+		strncpy (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN);
+
+	} else if (strstr (str, _("VNC"))) {
+		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "vnc", NX_FIELDLEN);
+		strncpy (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN);
+
+	} else if (strstr (str, _("Shadow"))) {
+		strncpy (nx_conn->Desktop, "console", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "shadow", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "application", NX_FIELDLEN);
 
 	} else {
 		strncpy (nx_conn->Desktop, "kde", NX_FIELDLEN);
+		strncpy (nx_conn->Session, "unix", NX_FIELDLEN);
 		strncpy (nx_conn->CustomUnixDesktop, "console", NX_FIELDLEN);
 	}
 

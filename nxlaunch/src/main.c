@@ -121,6 +121,7 @@ main (gint argc, gchar * argv[])
 					 G_TYPE_STRING,
 					 G_TYPE_STRING,
 					 G_TYPE_STRING,
+					 G_TYPE_STRING,
 					 G_TYPE_BOOLEAN,
 					 G_TYPE_BOOLEAN,
 					 G_TYPE_BOOLEAN,

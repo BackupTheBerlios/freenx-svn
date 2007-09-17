@@ -225,7 +225,7 @@ void on_button_confirm_delete_clicked (GtkButton * button)
 	GtkTreeSelection * selected;
 	GtkTreeIter iter;
 	GtkTreeModel * tree_model;
-	gchar * name;
+	gchar * name = NULL;
 
 	/* Get iter for current row and update connection list. */
 	list_tree = GTK_TREE_VIEW (glade_xml_get_widget (xml_nxlaunch_glob, "treeview_nxconnection"));
@@ -287,6 +287,7 @@ void on_conn_new_ok_clicked (GtkButton * button)
 				    CONN_LINKSPEED,         nx_conn->LinkSpeed,
 				    CONN_PUBLICKEY,         nx_conn->PublicKey,
 				    CONN_DESKTOP,           nx_conn->Desktop,
+				    CONN_SESSION,           nx_conn->Session,
 				    CONN_CUSTOMUNIXDESKTOP, nx_conn->CustomUnixDesktop,
 				    CONN_COMMANDLINE,       nx_conn->CommandLine,
 				    CONN_VIRTUALDESKTOP,    nx_conn->VirtualDesktop ? TRUE : FALSE,
@@ -506,6 +507,7 @@ int nxconnection_buildlist (void)
 						    CONN_LINKSPEED,         nx_conn->LinkSpeed,
 						    CONN_PUBLICKEY,         nx_conn->PublicKey,
 						    CONN_DESKTOP,           nx_conn->Desktop,
+						    CONN_SESSION,           nx_conn->Session,
 						    CONN_CUSTOMUNIXDESKTOP, nx_conn->CustomUnixDesktop,
 						    CONN_COMMANDLINE,       nx_conn->CommandLine,
 						    CONN_VIRTUALDESKTOP,    nx_conn->VirtualDesktop ? TRUE : FALSE,
@@ -570,7 +572,7 @@ void nxlaunch_create_nxconnection_list (void)
 							   "text", CONN_CONNECTIONNAME,
 							   NULL);
 	gtk_tree_view_column_set_resizable (column, TRUE);
-	g_object_set (renderer, "width", 200, NULL);
+	g_object_set (renderer, "width", 160, NULL);
 	gtk_tree_view_append_column (list_tree, column);
 
 
@@ -590,9 +592,17 @@ void nxlaunch_create_nxconnection_list (void)
 	g_object_set (renderer, "width", 60, NULL);
 	gtk_tree_view_append_column (list_tree, column);
 
-	/* Type column */
+	/* Session column */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes (_("Session Type"), renderer,
+	column = gtk_tree_view_column_new_with_attributes (_("Session"), renderer,
+							   "text", CONN_SESSION,
+							   NULL);
+	g_object_set (renderer, "width", 60, NULL);
+	gtk_tree_view_append_column (list_tree, column);
+
+	/* Desktop column */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Desktop"), renderer,
 							   "text", CONN_DESKTOP,
 							   NULL);
 	g_object_set (renderer, "width", 60, NULL);
@@ -676,18 +686,54 @@ int sendSettings (DBusConnection *bus, struct nx_connection * nx_conn)
 		return -1;
 	}
 
-	int media=0, enc=0, fs=0, cups=0;
+	int media=0, enc=0, fs=0, cups=0, vdesk=0;
 	if (nx_conn->enableSound == TRUE) { media = 1; }
 	if (nx_conn->EnableSSLOnly == TRUE) { enc = 1; }
 	if (nx_conn->FullScreen == TRUE) { fs = 1; }
 	if (nx_conn->IPPPrinting == TRUE) { cups = 1; }
+	if (nx_conn->VirtualDesktop == TRUE) { vdesk = 1; }
 	int cache = 8, images = 24, render = 1;
 	const char * backingstore = "when_requested";
 	/* FIXME: Would like to store these in the .nxs file */
 	const char * keyboard = "";
 	const char * kbtype = "";
-	printerr ("Sending settings for connection %s, to Server %s\n",
+
+	printerr ("NXLAUNCH> Sending settings for connection %s, to Server %s\n",
 		  nx_conn->ConnectionName, nx_conn->ServerHost);
+
+	/* We have to translate the Desktop setting a bit - adding
+	 * unix- to the start of some of them. We're likely to need to
+	 * add to this logic for full functionality. */
+	char * session_type = NULL;
+	session_type = g_malloc0 (NX_FIELDLEN * sizeof (char));
+	if ( !strcmp (nx_conn->Session, "unix") ) {
+		
+		if ( !strcmp (nx_conn->Desktop, "gnome") || 
+		     !strcmp (nx_conn->Desktop, "kde") || 
+		     !strcmp (nx_conn->Desktop, "cde") || 
+		     !strcmp (nx_conn->Desktop, "xdm") ) {
+			snprintf (session_type, NX_FIELDLEN, "unix-%s", nx_conn->Desktop);
+
+		} else if (!strcmp (nx_conn->Desktop, "console") ) {
+
+			if (!strcmp (nx_conn->CustomUnixDesktop, "application") ) {
+				snprintf (session_type, NX_FIELDLEN, "unix-application");
+			} else {
+				snprintf (session_type, NX_FIELDLEN, "unix-console");
+			}
+		}
+	} else if ( !strcmp (nx_conn->Session, "shadow") ) {
+
+		snprintf (session_type, NX_FIELDLEN, "shadow");
+
+	} else if ( !strcmp (nx_conn->Session, "windows") ) {
+		printerr ("NXLAUNCH> FIXME Add windows support (with agentServer etc)\n");
+
+	} else if ( !strcmp (nx_conn->Session, "vnc") ) {
+		printerr ("NXLAUNCH> FIXME Add vnc support (with agentServer etc)\n");
+
+	}
+
 	dbus_message_append_args 
 		(message,
 		 DBUS_TYPE_STRING, &nx_conn->ServerHost,     //0
@@ -695,7 +741,7 @@ int sendSettings (DBusConnection *bus, struct nx_connection * nx_conn)
 		 DBUS_TYPE_STRING, &nx_conn->User,           //2
 		 DBUS_TYPE_STRING, &nx_conn->Pass,
 		 DBUS_TYPE_STRING, &nx_conn->ConnectionName, //4
-		 DBUS_TYPE_STRING, &nx_conn->Desktop,        // FIXME - but not exactly.. If Desktop == gnome, sessionType == unix-gnome.
+		 DBUS_TYPE_STRING, &session_type,   
 		 DBUS_TYPE_INT32,  &cache,                //6
 		 DBUS_TYPE_INT32,  &images,
 		 DBUS_TYPE_STRING, &nx_conn->LinkSpeed,      //8
@@ -715,8 +761,9 @@ int sendSettings (DBusConnection *bus, struct nx_connection * nx_conn)
 		 DBUS_TYPE_INT32,  &enc,                  //22
 		 DBUS_TYPE_INT32,  &fs,
 		 DBUS_TYPE_STRING, &nx_conn->CommandLine,    //24
+		 DBUS_TYPE_INT32,  &vdesk,
 		 DBUS_TYPE_INVALID);
-	printerr ("Sent settings to server\n");
+
 	/* Send the signal */
 	if (!dbus_connection_send (bus, message, NULL)) {
 		printerr ("NXLAUNCH> Out Of Memory!\n");
@@ -726,7 +773,7 @@ int sendSettings (DBusConnection *bus, struct nx_connection * nx_conn)
 	/* Clean up */
 	dbus_message_unref (message);
 	dbus_connection_flush (bus);
-	printerr ("Returning\n");
+	g_free (session_type);
 	return 1;
 }
 
@@ -1197,15 +1244,11 @@ void on_button_password_ok_clicked (GtkButton * button)
 	printerr ("NXLAUNCH> %s() called\n", __FUNCTION__);
 
 	if (nx_conn_glob == NULL) {
-		printerr ("NXLAUNCH> Reading the active connection from the tree model\n");
 		nx_conn = g_malloc0 (sizeof (struct nx_connection));
 		getActiveConnection (nx_conn);
 	} else { /* we already populated nx_conn in launch_named_connection() */
-		printerr ("NXLAUNCH> Using global nx_conn pointer, which is 0x%x\n", 
-			  (unsigned int)nx_conn_glob);
 		nx_conn = nx_conn_glob;
 		nx_conn_glob = NULL;
-		printerr ("NXLAUNCH> nx_conn is still 0x%x\n", (int)nx_conn);
 	}
 
 	/* Read the password into nx_conn->Pass, mallocing if necessary */
@@ -1213,7 +1256,13 @@ void on_button_password_ok_clicked (GtkButton * button)
 	if (!(nx_conn->Pass = g_try_realloc (nx_conn->Pass, NX_FIELDLEN * sizeof(gchar)))) {
 		printerr ("NXLAUNCH> Failed g_try_realloc\n");
 	}
-	strncpy (nx_conn->Pass, gtk_entry_get_text (GTK_ENTRY (widget)),  NX_FIELDLEN);
+	if (strlen (gtk_entry_get_text (GTK_ENTRY(widget))) > 0) {
+		strncpy (nx_conn->Pass, gtk_entry_get_text (GTK_ENTRY (widget)),  NX_FIELDLEN);
+	} else {
+		printerr ("NXLAUNCH> Zero length password\n");
+		// FIXME: Need better user feedback here.
+		return;
+	}
 
 	/* Hide the password window (this may not happen until this
 	 * callback returns, which is not what we want, really) */
@@ -1266,6 +1315,7 @@ void getActiveConnection (struct nx_connection * nx_conn)
 				    CONN_LINKSPEED,         &nx_conn->LinkSpeed,//
 				    CONN_PUBLICKEY,         &nx_conn->PublicKey,//
 				    CONN_DESKTOP,           &nx_conn->Desktop,//
+				    CONN_SESSION,           &nx_conn->Session,//
 				    CONN_CUSTOMUNIXDESKTOP, &nx_conn->CustomUnixDesktop,//
 				    CONN_COMMANDLINE,       &nx_conn->CommandLine,//
 				    CONN_VIRTUALDESKTOP,    &nx_conn->VirtualDesktop,
@@ -1338,6 +1388,7 @@ gboolean launch_named_connection (gchar * connection_name)
 					    CONN_LINKSPEED,         &nx_conn->LinkSpeed,
 					    CONN_PUBLICKEY,         &nx_conn->PublicKey,
 					    CONN_DESKTOP,           &nx_conn->Desktop,
+					    CONN_SESSION,           &nx_conn->Session,
 					    CONN_CUSTOMUNIXDESKTOP, &nx_conn->CustomUnixDesktop,
 					    CONN_COMMANDLINE,       &nx_conn->CommandLine,
 					    CONN_VIRTUALDESKTOP,    &nx_conn->VirtualDesktop,
@@ -1396,19 +1447,8 @@ gboolean launch_named_connection (gchar * connection_name)
 void launch_connection (struct nx_connection * nx_conn)
 {
 	GtkWidget * widget;
-	gchar temp[32];
 
 	printerr ("%s() called\n", __FUNCTION__);
-
-	/* FIXME
-	 * Not quite sure what to do with nx_conn->Desktop
-	 * here. Mostly, gnome goes to unix-gnome, kde to unix-kde and
-	 * so on, but not sure what sessionType should be for console,
-	 * custom and RDP/VNC sessions.
-	 * For now, apply this hack:
-	 */
-	snprintf (temp, 31, "unix-%s", nx_conn->Desktop);
-	snprintf (nx_conn->Desktop, 255, "%s", temp);
 
 	execNxcl();
 	sendNxclSettings (nx_conn);

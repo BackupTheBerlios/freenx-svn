@@ -91,8 +91,9 @@ struct nx_connection {
 
 	/* Configurable variables in the desktop page */
 	gchar * Desktop;                // NXCL:sessionType
+	gchar * Session;                // New - matches XML file.
 	gchar * CustomUnixDesktop;      // NXCL:in customCommand
-	gchar * CommandLine;            // NXCL:customeCommand and sessionType?
+	gchar * CommandLine;            // NXCL:customCommand and sessionType?
 	gboolean VirtualDesktop; /* if false, then "Floating Window" is true */ // NXCL:
 	gboolean XAgentEncoding;        // NXCL:?
 	gboolean UseTaint;              // NXCL:?
@@ -144,7 +145,7 @@ static const gchar nxclient_conf[] =
 "<option key=\"Hide Full Screen Info\" value=\"false\" />\n"
 "<option key=\"Last session\" value=\"Nx1\" />\n"
 "<option key=\"Permit Root Login\" value=\"false\" />\n"
-"<option key=\"Personal NX dir\" value=\"/etc/persistent/hc/.nx\" />\n"
+"<option key=\"Personal NX dir\" value=\"~/.nx\" />\n"
 "<option key=\"Remove old sessions\" value=\"true\" />\n"
 "<option key=\"System NX dir\" value=\"/opt/nx\" />\n"
 "</group>\n"

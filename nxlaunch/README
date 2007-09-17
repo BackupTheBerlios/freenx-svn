@@ -13,3 +13,15 @@ nxcl is distributed separately with the nxcl library.
 It would be quite possible to write a GTK client which links directly
 to the nxcl library, but that is left as a further exercise for
 someone.
+
+Building:
+
+If you checked out the svn code, you need to do:
+
+autoconf -is
+
+then:
+
+./configure [--enable-debug-output]
+make
+make install
