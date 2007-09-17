@@ -32,3 +32,15 @@ Tk, etc) which uses the Nxcl dbus daemon.
 
 Look at nxcl.cpp/h if you want to write an NX client which links
 directly to libnxcl.
+
+Building:
+
+If you checked out the svn code, you need to do:
+
+autoconf -is
+
+then:
+
+./configure [--enable-debug-output]
+make
+make install
