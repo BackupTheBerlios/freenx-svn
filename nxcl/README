@@ -33,14 +33,47 @@ Tk, etc) which uses the Nxcl dbus daemon.
 Look at nxcl.cpp/h if you want to write an NX client which links
 directly to libnxcl.
 
-Building:
+Building nxcl
+-------------
+
+Prerequisites are:
+
+* libXcomp from NoMachine, provided by the nxcomp package.
+* nxssh from NoMachine
+* nxproxy from NoMachine
+
+(These three NX components all should be from the 3.0.0 series. You can
+obtain them from NoMachine's servers at http://www.nomachine.com/sources.php)
+
+And for the standalong dbus client you'll also need:
+
+* libdbus-1 - http://dbus.freedesktop.org/ Note that you'll need the dbus
+daemon to be running to use the nxcl standalone binary, but NOT if you link
+your client directly to libnxcl.so*
+
+If you have doxygen on your system, (imperfect) documentation will be
+generated from the source header files.
+
+Compile and install libXcomp, nxssh and nxproxy following the instructions
+in the readme file for each package. You can install the nxssh and nxproxy
+in any of the following locations:
+
+/bin
+/usr/bin
+/usr/local/bin
+/usr/NX/bin
+_or_ the same place that you will install the nxcl binary, determined from
+your --prefix directive to the configure script.
 
 If you checked out the svn code, you need to do:
 
 autoreconf -is
 
-then:
+to create the configure script (from configure.ac) and the Makefiles (from
+Makefile.am files).
 
-./configure [--enable-debug-output]
+then configure, make and install in the usual way:
+
+./configure [--enable-debug-output] [--prefix=/opt/myNXstuff]
 make
 make install
