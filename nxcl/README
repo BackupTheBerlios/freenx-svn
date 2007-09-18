@@ -45,7 +45,7 @@ Prerequisites are:
 (These three NX components all should be from the 3.0.0 series. You can
 obtain them from NoMachine's servers at http://www.nomachine.com/sources.php)
 
-And for the standalong dbus client you'll also need:
+And (only) for the standalone dbus client you'll need:
 
 * libdbus-1 - http://dbus.freedesktop.org/ Note that you'll need the dbus
 daemon to be running to use the nxcl standalone binary, but NOT if you link
@@ -70,9 +70,9 @@ If you checked out the svn code, you need to do:
 autoreconf -is
 
 to create the configure script (from configure.ac) and the Makefiles (from
-Makefile.am files).
+the Makefile.am files).
 
-then configure, make and install in the usual way:
+Then configure, make and install in the usual way:
 
 ./configure [--enable-debug-output] [--prefix=/opt/myNXstuff]
 make
