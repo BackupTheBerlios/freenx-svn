@@ -50,6 +50,9 @@ xx.10.2007 FreeNX 0.7.1
 	  and handles errors better when it is but kde-config is not available
 	  or fails.
 	  (scop@bat.berlios.de)
+	* Changed unix:$display -> :$display to enable FreeNX usage with newer
+	  xlib in C (used for example by Novell).
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
