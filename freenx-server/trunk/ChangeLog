@@ -46,6 +46,10 @@ xx.10.2007 FreeNX 0.7.1
 	* Fixed diverse occurences of $sess_id in nxnode, when hostname
 	  contains whitespace.
 	  (fabianx@bat.berlios.de)
+	* Fixed setting up KDE_PRINTRC altogether if ENABLE_KDE_CUPS is not 1,
+	  and handles errors better when it is but kde-config is not available
+	  or fails.
+	  (scop@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

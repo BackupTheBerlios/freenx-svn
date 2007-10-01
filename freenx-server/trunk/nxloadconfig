@@ -292,9 +292,12 @@ then
 	[ -z "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 2.[01].0')" ] && ENABLE_2_0_0_BACKEND="0"
 fi 
 
-[ -z "$KDE_PRINTRC" -a -n "$KDEHOME" ] && KDE_PRINTRC="$KDEHOME/share/config/kdeprintrc"
-[ -z "$KDE_PRINTRC" ] && KDE_PRINTRC=$(kde-config --localprefix)"/share/config/kdeprintrc"
-[ -z "$KDE_PRINTRC" -o ! -r "$KDE_PRINTRC" ] && KDE_PRINTRC="$HOME/.kde/share/config/kdeprintrc"
+if [ "$ENABLE_KDE_CUPS" = "1" ]
+then
+	[ -z "$KDE_PRINTRC" -a -n "$KDEHOME" ] && KDE_PRINTRC="$KDEHOME/share/config/kdeprintrc"
+	[ -z "$KDE_PRINTRC" ] && which kde-config >/dev/null 2>&1 && KDE_PRINTRC=$(kde-config --localprefix 2>/dev/null)"/share/config/kdeprintrc"
+	[ -z "$KDE_PRINTRC" -o ! -r "$KDE_PRINTRC" ] && KDE_PRINTRC="$HOME/.kde/share/config/kdeprintrc"
+fi
 
 #########################################################################
 # Support for --check
