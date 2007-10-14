@@ -225,8 +225,12 @@
 #
 # "load", "round-robin", "random"
 #
+# For "load" you need a script called nxcheckload in PATH_BIN.
+# 
+# A sample script, which you can change to your needs it shipped with
+# FreeNX under the name nxcheckload.sample.
 
-#LOAD_BALANCE_ALGORITHM="load"
+#LOAD_BALANCE_ALGORITHM="random"
 
 # By setting ENABLE_LOADBALANCE="1" you can let users choose their
 # preferred host, while being forwarded to another server. Of course
