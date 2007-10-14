@@ -403,6 +403,7 @@ node_start_agent()
 	export DISPLAY="nx/nx,options=$USER_FAKE_HOME/.nx/C-$sess_id/options:$display"
 	export XAUTHORITY="$USER_FAKE_HOME/.nx/C-$sess_id/authority"
 	export HOME="$USER_FAKE_HOME"
+	export NX_CLIENT="$PATH_BIN/nxdialog"
 
 	#
 	# Setup optional parameters for nxagent
@@ -1288,10 +1289,10 @@ cmd_node_smbmount()
 	error=$(PASSWD="$password" $COMMAND_SMBMOUNT "//$computername/$share" "$HOME/$dir" -o username="$username,ip=127.0.0.1,port=$port" 2>&1)
 	if [ $? -eq 0 ]
 	then
-		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$share' mounted on: '$HOME/$dir'" -display :$display &
+		$PATH_BIN/nxdialog -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$share' mounted on: '$HOME/$dir'" -display :$display &
 		echo "$HOME/$dir" >> "$USER_FAKE_HOME/.nx/C-$SERVER_NAME-$display-$sessionid/scripts/mpoint"
 	else
-		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$share' failed to mount: $error" -display :$display &
+		$PATH_BIN/nxdialog -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$share' failed to mount: $error" -display :$display &
 	fi
 }
 
@@ -1327,7 +1328,7 @@ cmd_node_addprinter()
 
 	if [ "$ENABLE_CUPS_SEAMLESS" != "1" ]
 	then
-		MODEL=$($PATH_BIN/nxclient -printer "$NAME" -display :$display)
+		MODEL=$($PATH_BIN/nxdialog -printer "$NAME" -display :$display)
 		[ -z "$MODEL" -o "$MODEL" = "cancel: aborted" ] && return
 	else
 		sleep $CUPS_SEAMLESS_DELAY
@@ -1344,8 +1345,8 @@ cmd_node_addprinter()
 		then
 			curl --digest -o "$USER_FAKE_HOME/.nx/config/ppd/$printer.ppd" "http://$username:$password@127.0.0.1:$port/ppd/${printer}_nxdl.ppd" >>"$USER_FAKE_HOME/.nx/C-$sess_id/cups/curl.log" 2>&1
 		RC=$?
-		[ $RC -eq 0 -a "$ENABLE_CUPS_SEAMLESS" != "1" ] && $PATH_BIN/nxclient --message "Download successful." -display :$display
-		[ $RC -ne 0 -a "$ENABLE_CUPS_SEAMLESS" != "1" ] && $PATH_BIN/nxclient --message "Download failed. Log is: $USER_FAKE_HOME/.nx/C-$sess_id/cups/curl.log" -display :$display
+		[ $RC -eq 0 -a "$ENABLE_CUPS_SEAMLESS" != "1" ] && $PATH_BIN/nxdialog --message "Download successful." -display :$display
+		[ $RC -ne 0 -a "$ENABLE_CUPS_SEAMLESS" != "1" ] && $PATH_BIN/nxdialog --message "Download failed. Log is: $USER_FAKE_HOME/.nx/C-$sess_id/cups/curl.log" -display :$display
 		fi
 		MODEL="$USER_FAKE_HOME/.nx/config/ppd/$printer.ppd"
 	fi

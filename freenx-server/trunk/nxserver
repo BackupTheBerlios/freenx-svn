@@ -1720,7 +1720,7 @@ cmd_send()
 			# is it a "good" session?
 			if [ "$cmd_status" = "Running" ] && stringinstring "unix-" "$cmd_type"
 			then
-				su - "$cmd_user" -c "$PATH_BIN/nxclient --dialog ok --caption \"NX Administrator Message\" --message \"$@\" --noautokill -display \":$cmd_display\"" &
+				su - "$cmd_user" -c "$PATH_BIN/nxdialog --dialog ok --caption \"NX Administrator Message\" --message \"$@\" -display \":$cmd_display\"" &
 				disown $!
 			fi
 	done

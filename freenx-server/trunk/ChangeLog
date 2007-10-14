@@ -61,6 +61,9 @@ xx.10.2007 FreeNX 0.7.1
 	* Added parsing of aux parameter. This should remove all keyboard
 	  related problems with nxdesktop with 2.[01].0 backend.
 	  (fabianx@bat.berlios.de)
+	* Renamed nxclient to nxdialog and setup the necessary environment
+	  variable for nxagent to find it.
+	  (fabianx@bat.berlios.de, Thanks to NoMachine for giving this hint)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
