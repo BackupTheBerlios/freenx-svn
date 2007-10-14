@@ -12,6 +12,93 @@
 	</h2>
 	<h3>
 		<a
+	href="http://mail.kde.org/pipermail/freenx-knx/2007-October/005959.html">FreeNX
+	0.7.1 Released</a> 
+        - Sunday, 14/10/07 - 
+	[<a title="Download"
+	href="http://prdownload.berlios.de/freenx/freenx-0.7.1.tar.gz">Download</a>]
+	</h3>
+	<pre>
+14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
+        * Fixed the issue that makes fonts look tiny and unreadable by default
+          with freenx and the commercial client. (diamond@google.com)
+        * Added invalidating of NSCD cache after group and user add.
+          (diamond@google.com)
+        * Added better wording with less misunderstanding to dialog of
+          nxclient for Suspend/Terminate/Close case. (diamond@google.com)
+        * Added 'dialog_interface=dialog' option since many installations may
+          not have Xdialog and since xmessage is very limiting. This new option
+          will work on any machine that has dialog and xterm.
+          (puterguy@bat.berlios.de)
+        * Fixed the APPLICATION_LIBRARY_PRELOAD to be just a warning and fixed
+          the default path. (fabianx@bat.berlios.de)
+        * Added drivers.cache.all that is reloaded just every 60 minutes.
+          (puterguy@bat.berlios.de)
+        * Fixed missing services stop that lead to redundant mounts and still
+          running cupsd processes.
+          (puterguy@bat.berlios.de)
+        * Added support for mount.cifs additionally to the deprecated
+          smbmount. (fabianx@bat.berlios.de, puterguy@bat.berlios.de)
+        * Added "host" output to --list to see which user is connected to
+          which server in case of loadbalancing.
+          (fabianx@bat.berlios.de, Bastian Kames <kames@ibg-monforts.de>)
+        * Fixed nxclient -printer to not use commercial client, because its too
+          slow in case of huge databases like foomatic. (fabianx@bat.berlios.de)
+        * Removed bad -noautokill option from the nxclient dialog spawning.
+          (wayneb@bat.berlios.de)
+        * Added basic support for mirrored sessions.
+          * The functionality can be used by connecting to VNC session
+            and choosing to "resume" such a session.
+          * New configuration key: ENABLE_MIRROR_VIA_VNC=1
+          * New configuration key: ENABLE_DESKTOP_SHARING=1
+          (fabianx@bat.berlios.de)
+        * Fixed some portability issues.
+          * Fixed nxloadconfig in case that COMMAND_X is not only one word,
+            like "openssl md5".
+          * Added usage of "openssl md5" instead of "md5sum" by default.
+          * Changed perl to COMMAND_PERL.
+          * Removed rev and replaced the code with efficient awk code.
+          * Added an outcommented way to also use "POSIX find" for history
+            cleaning.
+          (Peter O'Gorman <peter@pogma.com>)
+        * Fix ownership of $SSH_AUTHORIZED_KEYS in nxkeygen, just in case
+          it is run without nxsetup.
+          (fabianx@bat.berlios.de, thx to sambiase on #nx)
+        * Fixed diverse occurences of $sess_id in nxnode, when hostname
+          contains whitespace.
+          (fabianx@bat.berlios.de)
+        * Fixed setting up KDE_PRINTRC altogether if ENABLE_KDE_CUPS is not 1,
+          and handles errors better when it is but kde-config is not available
+          or fails.
+          (scop@bat.berlios.de)
+        * Changed unix:$display -> :$display to enable FreeNX usage with newer
+          xlib in C (used for example by Novell).
+          (fabianx@bat.berlios.de)
+        * Enabled 3.0.0 backend with same usage pattern as 2.[0|1].0 backend.
+          (Shawn Starr <spstarr@kde.org>)
+        * Bumped version number to 2.1.0-71 to let things like File-sharing
+          port and auxiliary channels work.
+          (fabianx@bat.berlios.de)
+        * Added parsing of aux parameter. This should remove all keyboard
+          related problems with nxdesktop with 2.[01].0 backend.
+          (fabianx@bat.berlios.de)
+        * Renamed nxclient to nxdialog and setup the necessary environment
+          variable for nxagent to find it.
+          (fabianx@bat.berlios.de, Thanks to NoMachine for giving this hint)
+        * Added experimental support for usage of external rdesktop and
+          vncviewer programs.
+          This is for example needed for 3.0.0 backend.
+          (fabianx@bat.berlios.de)
+        * Changed the default load balancing algorithm to "random"
+          as the nxcheckload script might not be available.
+          (fabianx@bat.berlios.de)
+        * Added ENABLE_CLIPBOARD="none|client|server|both" option
+          to node.conf to disable, restrict or enable the clipboard
+          synchronization.
+          (fabianx@bat.berlios.de)		
+	</pre>
+	<h3>
+		<a
 	href="http://mail.kde.org/pipermail/freenx-knx/2007-July/005473.html">FreeNX
 	0.7.0 Released</a> 
         - Saturday, 07/07/07 - 
