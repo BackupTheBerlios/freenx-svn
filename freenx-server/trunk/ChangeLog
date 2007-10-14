@@ -71,6 +71,10 @@ xx.10.2007 FreeNX 0.7.1
 	* Changed the default load balancing algorithm to "random"
 	  as the nxcheckload script might not be available.
 	  (fabianx@bat.berlios.de)
+	* Added ENABLE_CLIPBOARD="none|client|server|both" option
+	  to node.conf to disable, restrict or enable the clipboard
+	  synchronization.
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

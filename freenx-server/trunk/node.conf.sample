@@ -135,6 +135,22 @@
 #
 #ENABLE_DESKTOP_SHARING=1
 
+#
+# Enable or disable clipboard:
+#
+# client:  The content copied on the client can be pasted inside the
+#            NX session.
+#
+# server: The content copied inside the NX session can be pasted
+#             on the client.
+#
+# both:    The copy&paste operations are allowed both between the
+#             client and the NX session and vice-versa.
+#
+# none:   The copy&paste operations between the client and the NX
+#            session are never allowed.
+#
+#ENABLE_CLIPBOARD = "both"
 
 #########################################################################
 # Logging directives
