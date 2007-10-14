@@ -477,7 +477,6 @@ node_start_agent()
 		# Start x11vnc
 		if [ -n "$mirrordisplay" ]
 		then
-			[ -z "$mirrorhost" ] && mirrorhost="unix"
 			(
 				unset XAUTHORITY
 				# Note: No "-accept popup" as its the same user and with that password
