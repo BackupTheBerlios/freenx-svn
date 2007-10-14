@@ -55,6 +55,9 @@ xx.10.2007 FreeNX 0.7.1
 	  (fabianx@bat.berlios.de)
 	* Enabled 3.0.0 backend with same usage pattern as 2.[0|1].0 backend.
 	  (Shawn Starr <spstarr@kde.org>)
+	* Bumped version number to 2.1.0-71 to let things like File-sharing
+	  port and auxiliary channels work.
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
