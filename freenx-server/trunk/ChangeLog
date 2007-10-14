@@ -64,6 +64,10 @@ xx.10.2007 FreeNX 0.7.1
 	* Renamed nxclient to nxdialog and setup the necessary environment
 	  variable for nxagent to find it.
 	  (fabianx@bat.berlios.de, Thanks to NoMachine for giving this hint)
+	* Added experimental support for usage of external rdesktop and
+	  vncviewer programs.	  
+	  This is for example needed for 3.0.0 backend.
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.

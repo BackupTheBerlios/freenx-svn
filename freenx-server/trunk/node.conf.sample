@@ -406,6 +406,19 @@
 # The tool to generate md5sums with
 #COMMAND_MD5SUM=md5sum
 
+# The key that contains the name of the complete path of the 'rdesktop' command.
+#COMMAND_RDESKTOP=rdesktop
+
+# The key that contains the name of the complete path of the 'vncviewer' command.
+#COMMAND_VNCVIEWER=vncviewer
+
+# The key that contains the name of the complete path of the 'vncpasswd' command.
+# By default the builtin nxpasswd is used.
+#COMMAND_VNCPASSWD="$PATH_BIN/nxpasswd"
+
+# The key that contains the name of the complete path of the 'x11vnc' command.
+#COMMAND_X11VNC=x11vnc
+
 #########################################################################
 # Misc directives
 #########################################################################
@@ -464,3 +477,20 @@
 
 # Extra options to nxproxy. See !M documentation for useful parameters.
 #PROXY_EXTRA_OPTIONS=""
+
+# In case you want to use an external 'rdesktop' command
+# set this to "1".
+# 
+# If nxdesktop cannot be found this is set automatically to "1".
+#ENABLE_EXTERNAL_NXDESKTOP="0"
+
+# This configuration variable determines if 'rdesktop' command should be run with -k keyboard option
+# or if the keyboard should be autodetected.
+#
+#ENABLE_EXTERNAL_NXDESKTOP_KEYBOARD="1"
+
+# In case you want to use an external 'nxviewer' command
+# set this to "1".
+# 
+# If nxviewer cannot be found this is set automatically to "1".
+#ENABLE_EXTERNAL_NXVIEWER="0"

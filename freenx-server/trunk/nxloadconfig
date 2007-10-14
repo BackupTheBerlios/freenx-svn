@@ -72,7 +72,7 @@ APPLICATION_LIBRARY_PRELOAD="" #Calculated
 # the name of the authorized keys file for ssh
 SSH_AUTHORIZED_KEYS="authorized_keys2"
 
-# retest values like xauth, netcat
+# retest values like xauth, netcat and checks for nxdesktop/nxviewer availability
 # set to 0 if you are sure, you set the right values
 
 NXCONFIG_RETEST=1
@@ -185,6 +185,10 @@ COMMAND_SSH_KEYGEN=ssh-keygen
 COMMAND_CUPSD=/usr/sbin/cupsd
 COMMAND_MD5SUM="openssl md5"
 COMMAND_PERL=perl
+COMMAND_RDESKTOP="rdesktop"
+COMMAND_VNCVIEWER="vncviewer"
+COMMAND_VNCPASSWD="$PATH_BIN/nxpasswd"
+COMMAND_X11VNC="x11vnc"
 
 # Misc directives
 
@@ -204,6 +208,9 @@ AGENT_STARTUP_TIMEOUT="60"
 AGENT_FONT_SERVER=""
 PROXY_TCP_NODELAY=""
 PROXY_EXTRA_OPTIONS=""
+ENABLE_EXTERNAL_NXDESKTOP="0"
+ENABLE_EXTERNAL_NXDESKTOP_KEYBOARD="1"
+ENABLE_EXTERNAL_NXVIEWER="0"
 
 ############################################################################
 # OS specific directives
@@ -257,6 +264,9 @@ if [ "$NXCONFIG_RETEST" = "1" ]
 then
 	{ ! mywhich "$COMMAND_XAUTH" && which xauth; } >/dev/null 2>&1 && COMMAND_XAUTH=$(which xauth)
 	{ ! mywhich "$COMMAND_NETCAT" && which nc; } >/dev/null 2>&1 && COMMAND_NETCAT=$(which nc)
+	{ ! mywhich "$PATH_BIN/nxdesktop"; } >/dev/null 2>&1 && ENABLE_EXTERNAL_NXDESKTOP="1"
+	{ ! mywhich "$PATH_BIN/nxviewer"; } >/dev/null 2>&1 && ENABLE_EXTERNAL_NXVIEWER="1"
+	{ ! mywhich "$COMMAND_VNCPASSWD" && which vncpasswd; } >/dev/null 2>&1 && COMMAND_VNCPASSWD=$(which vncpasswd)
 fi
 
 #########################################################################
@@ -314,14 +324,31 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"PATH_BIN=$PATH_BIN\""
 	# Check for NX agents ...
 	
-	[ ! -f "$PATH_BIN/nxagent" ] && \
+	[ ! -x "$PATH_BIN/nxagent" ] && \
 		ERROR="yes" && echo "Error: Could not find nxagent in $PATH_BIN. Please install some OSS components."
+	
+	if [ "ENABLE_EXTERNAL_NXDESKTOP" = "1" ]
+	then
+		[ ! mywhich "$COMMAND_RDESKTOP" >/dev/null 2>&1 ] && \
+			WARNING="yes" && echo "Warning: Could not find COMMAND_RDESKTOP=$COMMAND_RDESKTOP. RDP sessions won't work."
+	else
+		[ ! -x "$PATH_BIN/nxdesktop" ] && \
+			WARNING="yes" && echo "Warning: Could not find nxdesktop in $PATH_BIN. RDP sessions won't work."
+	fi
 		
-	[ ! -f "$PATH_BIN/nxdesktop" ] && \
-		WARNING="yes" && echo "Warning: Could not find nxdesktop in $PATH_BIN. RDP sessions won't work."
-		
-	[ ! -f "$PATH_BIN/nxviewer" ] && \
-		WARNING="yes" && echo "Warning: Could not find nxviewer in $PATH_BIN. VNC sessions won't work."
+	if [ "ENABLE_EXTERNAL_NXVIEWER" = "1" ]
+	then
+		[ ! mywhich "$COMMAND_VNCVIEWER" >/dev/null 2>&1 ] && \
+			WARNING="yes" && echo "Warning: Could not find COMMAND_VNCVIEWER=$COMMAND_VNCVIEWER. VNC sessions won't work."
+		[ ! mywhich "$COMMAND_VNCPASSWD" >/dev/null 2>&1 ] && \
+			WARNING="yes" && echo "Warning: Could not find COMMAND_VNCPASSWD=$COMMAND_VNCPASSWD. VNC sessions won't work."
+	else
+		[ ! -x "$PATH_BIN/nxviewer" ] && \
+			WARNING="yes" && echo "Warning: Could not find nxviewer in $PATH_BIN. VNC sessions won't work."
+	fi
+	
+	[ ! mywhich "$COMMAND_X11VNC" >/dev/null 2>&1 ] && \
+			WARNING="yes" && echo "Warning: Could not find COMMAND_X11VNC=$COMMAND_X11VNC. VNC mirror sessions won't work."
 
 	# Check for paths
 		

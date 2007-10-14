@@ -1144,6 +1144,28 @@ server_startrestore_session()
 		CMDLINE=$PARAMS
 	fi
 	
+	if [ "$ACTION" = "start" ]
+	then
+
+		# Hack for external RDP/RFB agents
+
+		if [ "$ENABLE_EXTERNAL_NXDESKTOP" = "1" -a "$(getparam type)" = "windows" ]
+		then
+			type="unix-application"
+			application="$PATH_BIN/nxdesktop_helper"
+			PARAMS="$PARAMS&type=$type&application=$application&freenx_export_agents=1"
+			CMDLINE=$PARAMS
+		fi
+		 
+		if [ "$ENABLE_EXTERNAL_NXVIEWER" = "1" -a "$(getparam type)" = "vnc" ]
+		then
+			type="unix-application"
+			application="$PATH_BIN/nxviewer_helper"
+			PARAMS="$PARAMS&type=$type&application=$application&freenx_export_agents=1"
+			CMDLINE=$PARAMS
+		fi
+	fi
+	
 	# If we can't get the userip and SSHD_CHECK_IP is set to 1
 	# we bail out.
 	if [ -z "$SSH_CLIENT" -a -z "$SSH2_CLIENT" ]

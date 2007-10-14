@@ -1096,6 +1096,34 @@ startsession()
 	host=$(getparam host)
 	mirrordisplay=$(getparam mirrordisplay)
 	mirrorhost=$(getparam mirrorhost)
+	
+	sess_id="$SERVER_NAME-$display-$uniqueid"
+	NXSESSION_DIRECTORY="$USER_FAKE_HOME/.nx/C-$sess_id"
+	
+	# export the agent_* options for the helper scripts
+	if [ "$(getparam freenx_export_agents)" = "1" ]
+	then
+		export agent_user
+		export agent_password
+		export agent_server
+		export agent_domain
+		agent_keyboard=""
+		[ "ENABLE_EXTERNAL_NXDESKTOP_KEYBOARD" = "1" ] && agent_keyboard=$(echo "$keyboard" | cut -d'/' -f2)
+		export agent_keyboard
+		export NXSESSION_DIRECTORY
+		export AGENT_EXTRA_OPTIONS_RFB
+		export AGENT_EXTRA_OPTIONS_RDP
+		export COMMAND_RDESKTOP
+		export COMMAND_VNCVIEWER
+		export COMMAND_VNCPASSWD
+		export COMMAND_X11VNC
+		export PATH_BIN
+		export mirrordisplay
+		export mirrorhost
+		# We do not want to suspend such a session
+		# as RDP/RFB are both suspendable as well
+		ENABLE_PERSISTENT_SESSION=""
+	fi
 
 	fullscreen=$(getparam fullscreen)
 	[ "$geometry" = "fullscreen" ] && fullscreen="1"
