@@ -1,4 +1,4 @@
-xx.10.2007 FreeNX 0.7.1
+14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 
 	  with freenx and the commercial client. (diamond@google.com)
 	* Added invalidating of NSCD cache after group and user add.
