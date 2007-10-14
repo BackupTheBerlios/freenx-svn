@@ -404,7 +404,7 @@
 #COMMAND_CUPSD=/usr/sbin/cupsd
 
 # The tool to generate md5sums with
-#COMMAND_MD5SUM=md5sum
+#COMMAND_MD5SUM="openssl md5"
 
 # The key that contains the name of the complete path of the 'rdesktop' command.
 #COMMAND_RDESKTOP=rdesktop
