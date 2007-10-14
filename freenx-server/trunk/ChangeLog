@@ -58,6 +58,9 @@ xx.10.2007 FreeNX 0.7.1
 	* Bumped version number to 2.1.0-71 to let things like File-sharing
 	  port and auxiliary channels work.
 	  (fabianx@bat.berlios.de)
+	* Added parsing of aux parameter. This should remove all keyboard
+	  related problems with nxdesktop with 2.[01].0 backend.
+	  (fabianx@bat.berlios.de)
 
 07.07.2007 FreeNX 0.7.0 "Jornade SPL Edition VI+1"
 	* Fixed the printing support for CUPS 1.2.
