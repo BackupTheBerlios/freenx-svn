@@ -138,7 +138,7 @@ notQProcess::start (const string& program, const list<string>& args)
 		close (childErrToParent[WRITING_END]);
 		
 		// Child should exit now.
-		exit(-1);
+		_exit(-1);
 
 	default:
 		// This is the PARENT process

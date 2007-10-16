@@ -229,7 +229,6 @@ Nxcl::receiveSettings (void)
 {
 	DBusMessage * message;
 	DBusMessageIter args;
-	DBusError error;
 	char * parameter = NULL;
 	bool settings_transferred = false;
 	stringstream ss;
@@ -240,8 +239,12 @@ Nxcl::receiveSettings (void)
 	// loop listening for signals being emitted
 	while (settings_transferred == false) {
 
-		if (dbus_error_is_set(&error)) { 
-			this->callbacks.error ("receiveSettings(): Got a dbus error");
+		if (dbus_error_is_set(&this->error)) {
+			stringstream errmsg;
+			errmsg << "receiveSettings(): Got a dbus error '"
+			       << this->error.name << "': " << this->error.message;
+			this->callbacks.error (errmsg.str());
+			dbus_error_free (&this->error);
 		}
 
 		// non blocking read of the next available message
