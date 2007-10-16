@@ -1,7 +1,7 @@
 
 AUTOMAKE_OPTIONS = check-news dist-bzip2
 
-SUBDIRS = src lib
+SUBDIRS = lib src
 
 CLEANFILES = *~
 
