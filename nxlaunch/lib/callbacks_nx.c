@@ -1541,14 +1541,17 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	GtkTextBuffer * buffer;
 	GtkTextIter start, end;
 	GtkTreeIter iter;
-	GtkListStore * nxList;
+	GtkListStore * nxList = NULL;
 	gchar * str;
+	gboolean strAllocatedMan = FALSE; // True if str has been allocated manually
+	gboolean strAllocatedGtk = FALSE; // True if str has been allocated within gtk fn
 
 	/* Used to get the connection capacity hscale value */
 	gdouble speed;
 	guint speed_as_int;
 
-	str = g_malloc0 (512 * sizeof (gchar));
+	// Either gtk_tree_model_get will malloc str or we manually malloc it
+	//str = g_malloc0 (512 * sizeof (gchar));
 
 	/*
 	 * The Network Tab.
@@ -1639,8 +1642,19 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_desktop_session");
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
 	printerr ("Getting active iter for desktop session list..\n");
-	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+
+	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {		
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+		strAllocatedGtk = TRUE;
+	} else {
+		if (strAllocatedMan == FALSE || strAllocatedGtk == TRUE) {
+			str = g_realloc ((gpointer)str, NX_FIELDLEN * sizeof (gchar));
+			strAllocatedMan = TRUE;
+			strAllocatedGtk = FALSE;
+		}
+		/* If we can't get the string from the tree_model, then set it manually to a default */
+		snprintf (str, 6, "%s", "GNOME");
+	}
 
 	if (strstr (str, _("KDE"))) {
 		strncpy (nx_conn->Desktop, "kde", NX_FIELDLEN);
@@ -1725,8 +1739,18 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_xdm_mode");
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
 	printerr ("Getting active iter for xdm mode..\n");
-	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {		
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+		strAllocatedGtk = TRUE;
+	} else {
+		if (strAllocatedMan == FALSE || strAllocatedGtk == TRUE) {
+			str = g_realloc ((gpointer)str, NX_FIELDLEN * sizeof (gchar));
+			strAllocatedMan = TRUE;
+			strAllocatedGtk = FALSE;
+		}
+		/* If we can't get the string from the tree_model, then set it manually to a default */
+		snprintf (str, NX_FIELDLEN, "%s", _("Let NX server decide"));
+	}
 
 	if (strstr (str, _("Let NX server decide"))) {
 		strncpy (nx_conn->XdmMode, "server decide", NX_FIELDLEN);
@@ -1753,8 +1777,18 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_window_size");
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
 	printerr ("Getting active iter for nx window size..\n");
-	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {		
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+		strAllocatedGtk = TRUE;
+	} else {
+		if (strAllocatedMan == FALSE || strAllocatedGtk == TRUE) {
+			str = g_realloc ((gpointer)str, NX_FIELDLEN * sizeof (gchar));
+			strAllocatedMan = TRUE;
+			strAllocatedGtk = FALSE;
+		}
+		/* If we can't get the string from the tree_model, then set it manually to a default */
+		snprintf (str, NX_FIELDLEN, "%s", _("Full Screen"));
+	}
 
 	if (strstr (str, "640 x 480")) {
 		nx_conn->FullScreen = FALSE;
@@ -1805,8 +1839,18 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_image_encoding");
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
 	printerr ("Getting active iter for image encoding..\n");
-	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {		
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+		strAllocatedGtk = TRUE;
+	} else {
+		if (strAllocatedMan == FALSE || strAllocatedGtk == TRUE) {
+			str = g_realloc ((gpointer)str, NX_FIELDLEN * sizeof (gchar));
+			strAllocatedMan = TRUE;
+			strAllocatedGtk = FALSE;
+		}
+		/* If we can't get the string from the tree_model, then set it manually to a default */
+		snprintf (str, NX_FIELDLEN, "%s", _("Default"));
+	}
 
 	if (strstr (str, _("Default"))) {
 		nx_conn->ImageEncoding = 0;
@@ -1823,7 +1867,12 @@ void read_nx_popup (gchar * name, gchar * server, gchar * uname, int * fullscree
 	widget = glade_xml_get_widget (xml_glob, "spinbutton_nx_jpeg_quality");
 	nx_conn->JPEGQuality = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
 
-	g_free (str);
+	/*
+	 * Free up str here before using it below
+	 */
+	if (strAllocatedMan == TRUE || strAllocatedGtk == TRUE) {
+		g_free (str);
+	}
 
 	/*
 	 * The SSH Public Key
@@ -2118,8 +2167,12 @@ int set_xdm_settings_sensitivity_do_work (void)
 	
 	widget = glade_xml_get_widget (xml_glob, "combobox_nx_desktop_session");
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (GTK_COMBO_BOX (widget)));
-	gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	} else {
+		str = g_malloc (NX_FIELDLEN * sizeof (gchar));
+		snprintf (str, NX_FIELDLEN, "%s", _("GNOME"));
+	}
 
 	if (strstr (str, _("KDE"))) {
 		grey_all_xdm_settings ();
@@ -2144,6 +2197,8 @@ int set_xdm_settings_sensitivity_do_work (void)
 	} else {
 		grey_all_xdm_settings ();
 	}
+
+	g_free (str);
 
 	return rtn;
 }
@@ -2215,12 +2270,16 @@ void on_combobox_nx_window_size_changed (GtkComboBox * box)
 	GtkTreeIter iter;
 	GtkListStore * nxList;
 	gchar * str;
-
-	str = g_malloc0 (512 * sizeof (gchar));
+	
+	//str = g_malloc0 (512 * sizeof (gchar));
 
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (box));
-	gtk_combo_box_get_active_iter (box, &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (box, &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	} else {
+		str = g_malloc0 (NX_FIELDLEN * sizeof (gchar));
+		snprintf (str, NX_FIELDLEN, "%s", _("Full Screen"));
+	}
 
 	if (strstr (str, "640 x 480")) {
 		widget =  glade_xml_get_widget (xml_glob, "spinbutton_nx_width");
@@ -2283,11 +2342,13 @@ void on_combobox_nx_image_encoding_changed (GtkComboBox * box)
 	GtkListStore * nxList;
 	gchar * str;
 
-	str = g_malloc0 (512 * sizeof (gchar));
-
 	nxList = GTK_LIST_STORE (gtk_combo_box_get_model (box));
-	gtk_combo_box_get_active_iter (box, &iter);
-	gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	if (gtk_combo_box_get_active_iter (box, &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (nxList), &iter, PROGRAM, &str, -1);
+	} else {
+		str = g_malloc0 (8 * sizeof (gchar));
+		snprintf (str, 5, "%s", "null");
+	}
 
 	if (strstr (str, "JPEG")) {
 		widget =  glade_xml_get_widget (xml_glob, "spinbutton_nx_jpeg_quality");
@@ -2302,6 +2363,8 @@ void on_combobox_nx_image_encoding_changed (GtkComboBox * box)
 		gtk_widget_set_sensitive (widget, FALSE);
 
 	}
+	
+	g_free (str);
 }
 
 
