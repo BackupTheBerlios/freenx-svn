@@ -191,6 +191,9 @@ void on_button_nxlaunch_new_clicked (GtkButton * button)
 	widget = glade_xml_get_widget (xml_glob, "conn_new_nx");
 	gtk_widget_show_all (widget);
 
+	/* Initialise the new connection popup */
+	zero_new_nx_popup();
+
 	return;
 }
 
