@@ -71,10 +71,13 @@ export DISPLAY
 # client does not like large databases like used when ENABLE_FOOMATIC=1.
 #
 # This seems to be because the used sorting algorithm scales in O(n^2).
+#
+# This is now fixed in NXClient 3.0.0, but still people sometimes use
+# older clients.
 
 NXCLIENT="/usr/NX/bin/nxclient"
 [ -x "$NXCLIENT" -a "$DIALOG_TYPE" != "printer" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
-	&& exec ${NXCLIENT} "$@"
+	&& exec ${NXCLIENT} $INPUTS
 
 # FIXME: This should be COMMAND_XDIALOG, ...
 if [ -x /usr/bin/Xdialog ] 
