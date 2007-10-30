@@ -26,6 +26,7 @@ function requote
 	done
 }
 
+PARAMS=( "$@" )
 INPUTS=$(requote "$@")	#JJK: Save input parameter line...
 
 TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display:,printer:,parent: -n $(basename $0) -- "$@"`
@@ -77,7 +78,7 @@ export DISPLAY
 
 NXCLIENT="/usr/NX/bin/nxclient"
 [ -x "$NXCLIENT" -a "$DIALOG_TYPE" != "printer" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
-	&& exec ${NXCLIENT} $INPUTS
+	&& exec ${NXCLIENT} "${PARAMS[@]}"
 
 # FIXME: This should be COMMAND_XDIALOG, ...
 if [ -x /usr/bin/Xdialog ] 
