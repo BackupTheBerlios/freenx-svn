@@ -13,6 +13,9 @@ xx.01.2008 FreeNX 0.7.2
 	  (fabianx@bat.berlios.de)
 	* Invoke curl with --proxy "" for automatic download of ppd files.
 	  (Wolfgang Schweer <schweer@cityweb.de>)
+	* Reorganized nxsetup to have a function for parsing command line
+	  options.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 

@@ -25,106 +25,110 @@ BUILD_KNOWN_HOSTS="yes"
 AUTOMATIC="no"
 IGNORE_ERRORS="no"
 
-while [ "$1" ]
-do
-	case "$1" in
-		--help) HELP="yes"; shift ;;
-		--install) INSTALL="yes"; shift ;;
-		--ignore-errors) IGNORE_ERRORS="yes"; shift;;
-		--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
-		--ssh2) SETUP_SSH2_KEY="yes"; shift;;
-		--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
-		--uid) SETUP_UID=$2; shift 2 ;;
-		--gid) SETUP_GID=$2; shift 2 ;;
-		--localuser) SETUP_LOCAL_USER="yes"; shift;;
-		--clean) CLEAN="yes"; shift ;;
-		--uninstall) UNINSTALL="yes"; shift ;;
-		--purge) PURGE="yes"; shift ;;
-		--auto) AUTOMATIC="yes"; shift ;;
-		--) shift ; break ;;
-		*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
-	esac
-done
-
-#Check for invalid combinations:
-[ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
-[ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
-[ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
-[ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
-[ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
-[ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
-
-if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
-then
-	echo "------> You did select no action."
-	echo "        FreeNX guesses that you want to _install_ the server."
-	echo "        Type \"y\" to abort the installation at this point in time."
-	echo "        \"N\" is the default and continues installation."
-	echo "        Use \"${0} --help\" to get more detailed help hints."
-	echo ""
-	echo -n " Do you want to abort now? [y/N] "
-	read -n 1 CHOICE
-	echo
-	[ "$CHOICE" = "y" ] || INSTALL="yes"
-fi
-
-[ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
-
-if [ "$HELP" = "yes" ]
-then
-	echo "nxsetup - Setup the FreeNX server."
-	echo "Syntax: nxsetup --help"
-	echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
-	echo "        nxsetup --uninstall [--purge]"
-	echo
-	echo "  --help                 Display this help message."
-	echo "  --install              Install necessary files and add the special user \"nx\"."
-	echo "  --ignore-errors        Check for false configuration, but don't complain."
-	echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
-	echo "                         client. This is fairly secure, and it simplifies the "
-	echo "                         configuration of clients. (Using a custom key pair."
-	echo "                         increases security even more, but complicates the"
-	echo "                         configuration of clients.)"
-	echo "                         Use this option at your own risk."
-	echo "  --ssh2                 Create additionally commercial pubkey-support; beware:"
-	echo "                         own _commercial_ ssh2-key is not supported!"
-	echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
-	echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
-	[ -n "$LOCAL_USER_OPTION" ] && \
-	echo "  --localuser            The special user \"nx\" will be created locally using"
-	echo "                         \"luseradd\", for use in NIS and NISplus environments."
-	echo "  --clean                Perform an uninstallation prior to installation."
-	echo "  --uninstall            Remove log and session files, as well as the special"
-	echo "                         user \"nx\"."
-	echo "  --purge                Remove extra configuration files and ssh keys when"
-	echo "                         performing a \"--uninstall\"."
-	echo "                         Note that node.conf will always be saved."
-	exit 0
-fi
-#Undocumented
-#
-#    --dont-build-known-hosts		For system without /etc/ssh/ssh_host_key.rsa.pub and anyway
-#					expect should handle nx-users known-hosts keys so why borther
-#					in nxsetup?
-
 if [ $UID -ne 0 ]
 then
 	echo "You need to be root to use this program." 
 	exit 1
 fi
 
-if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
-then
-	echo "------> It is recommended that you use the NoMachine key for"
-	echo "        easier setup. If you answer \"y\", FreeNX creates a custom"
-	echo "        KeyPair and expects you to setup your clients manually. "
-	echo "        \"N\" is default and uses the NoMachine key for installation."
-	echo ""
-	echo -n " Do you want to use your own custom KeyPair? [y/N] "
-	read -n 1 CHOICE
-	[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
-fi
+parse_cmdline()
+{
+	while [ "$1" ]
+	do
+		case "$1" in
+			--help) HELP="yes"; shift ;;
+			--install) INSTALL="yes"; shift ;;
+			--ignore-errors) IGNORE_ERRORS="yes"; shift;;
+			--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
+			--ssh2) SETUP_SSH2_KEY="yes"; shift;;
+			--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
+			--uid) SETUP_UID=$2; shift 2 ;;
+			--gid) SETUP_GID=$2; shift 2 ;;
+			--localuser) SETUP_LOCAL_USER="yes"; shift;;
+			--clean) CLEAN="yes"; shift ;;
+			--uninstall) UNINSTALL="yes"; shift ;;
+			--purge) PURGE="yes"; shift ;;
+			--auto) AUTOMATIC="yes"; shift ;;
+			--) shift ; break ;;
+			*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
+		esac
+	done
 
+	#Check for invalid combinations:
+	[ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
+	[ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
+	[ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
+	[ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
+	[ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
+	[ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
+
+	if [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" -a "$AUTOMATIC" = "no" -a "$HELP" = "no" ]
+	then
+		echo "------> You did select no action."
+		echo "        FreeNX guesses that you want to _install_ the server."
+		echo "        Type \"y\" to abort the installation at this point in time."
+		echo "        \"N\" is the default and continues installation."
+		echo "        Use \"${0} --help\" to get more detailed help hints."
+		echo ""
+		echo -n " Do you want to abort now? [y/N] "
+		read -n 1 CHOICE
+		echo
+		[ "$CHOICE" = "y" ] || INSTALL="yes"
+	fi
+
+	[ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
+
+	if [ "$HELP" = "yes" ]
+	then
+		echo "nxsetup - Setup the FreeNX server."
+		echo "Syntax: nxsetup --help"
+		echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
+		echo "        nxsetup --uninstall [--purge]"
+		echo
+		echo "  --help                 Display this help message."
+		echo "  --install              Install necessary files and add the special user \"nx\"."
+		echo "  --ignore-errors        Check for false configuration, but don't complain."
+		echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
+		echo "                         client. This is fairly secure, and it simplifies the "
+		echo "                         configuration of clients. (Using a custom key pair."
+		echo "                         increases security even more, but complicates the"
+		echo "                         configuration of clients.)"
+		echo "                         Use this option at your own risk."
+		echo "  --ssh2                 Create additionally commercial pubkey-support; beware:"
+		echo "                         own _commercial_ ssh2-key is not supported!"
+		echo "  --uid <number>         Give the uid <number> to the user \"nx\"."
+		echo "  --gid <number>         Give the gid <number> to the user \"nx\"."
+		[ -n "$LOCAL_USER_OPTION" ] && \
+		echo "  --localuser            The special user \"nx\" will be created locally using"
+		echo "                         \"luseradd\", for use in NIS and NISplus environments."
+		echo "  --clean                Perform an uninstallation prior to installation."
+		echo "  --uninstall            Remove log and session files, as well as the special"
+		echo "                         user \"nx\"."
+		echo "  --purge                Remove extra configuration files and ssh keys when"
+		echo "                         performing a \"--uninstall\"."
+		echo "                         Note that node.conf will always be saved."
+		exit 0
+	fi
+	#Undocumented
+	#
+	#    --dont-build-known-hosts		For system without /etc/ssh/ssh_host_key.rsa.pub and anyway
+	#					expect should handle nx-users known-hosts keys so why borther
+	#					in nxsetup?
+
+	if [ "$INSTALL" = "yes" -a "$AUTOMATIC" = "no" -a "$SETUP_NOMACHINE_KEY" = "no" ]
+	then
+		echo "------> It is recommended that you use the NoMachine key for"
+		echo "        easier setup. If you answer \"y\", FreeNX creates a custom"
+		echo "        KeyPair and expects you to setup your clients manually. "
+		echo "        \"N\" is default and uses the NoMachine key for installation."
+		echo ""
+		echo -n " Do you want to use your own custom KeyPair? [y/N] "
+		read -n 1 CHOICE
+		[ "$CHOICE" = "y" ] || SETUP_NOMACHINE_KEY="yes"
+	fi
+}
+
+parse_cmdline "$@"
 
 # Read the config file
 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
