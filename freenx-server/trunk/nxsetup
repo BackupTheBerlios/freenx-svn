@@ -405,10 +405,18 @@ test_nx()
 		echo ""
 		echo "	- Make sure \"nx\" is one of the AllowUsers in sshd_config."
 		echo "    (or that the line is outcommented/not there)"
+		echo "	- Make sure \"nx\" is one of the AllowGroups in sshd_config."
+		echo "    (or that the line is outcommented/not there)"
 		echo "	- Make sure your sshd allows public key authentication."
 		echo "	- Make sure your sshd is really running on port $SSHD_PORT."
 		echo "	- Make sure your sshd_config AuthorizedKeysFile in sshd_config is set to $SSH_AUTHORIZED_KEYS."
 		echo "    (this should be a filename not a pathname+filename)"
+		echo "  - Make sure you allow ssh on localhost, this could come from some"
+		echo "    restriction of:"
+		echo "      -the tcp wrapper. Then add in /etc/hosts.allow: ALL:localhost"
+		echo "      -the iptables. add to it:"
+		echo "         $ iptables -A INPUT  -i lo -j ACCEPT"
+		echo "         $ iptables -A OUTPUT -o lo -j ACCEPT"
 		exit 1
 	fi
 	echo "<--- done"
