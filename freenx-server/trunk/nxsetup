@@ -49,10 +49,13 @@ parse_cmdline()
 			--uninstall) UNINSTALL="yes"; shift ;;
 			--purge) PURGE="yes"; shift ;;
 			--auto) AUTOMATIC="yes"; shift ;;
+			--test) TEST="yes"; shift ;;
 			--) shift ; break ;;
 			*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
 		esac
 	done
+
+	[ "$TEST" = "yes" ] && return         # If we just test, we can return directly
 
 	#Check for invalid combinations:
 	[ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
@@ -82,10 +85,12 @@ parse_cmdline()
 	then
 		echo "nxsetup - Setup the FreeNX server."
 		echo "Syntax: nxsetup --help"
+		echo "        nxsetup --test [--ignore-errors]"
 		echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
 		echo "        nxsetup --uninstall [--purge]"
 		echo
 		echo "  --help                 Display this help message."
+		echo "  --test                 Test the configuration and connection to localhost NX Server."
 		echo "  --install              Install necessary files and add the special user \"nx\"."
 		echo "  --ignore-errors        Check for false configuration, but don't complain."
 		echo "  --setup-nomachine-key  Allow login with the key shipped with the NoMachine"
@@ -107,6 +112,7 @@ parse_cmdline()
 		echo "  --purge                Remove extra configuration files and ssh keys when"
 		echo "                         performing a \"--uninstall\"."
 		echo "                         Note that node.conf will always be saved."
+		echo "  --auto                 Perform automatic installation without testing or asking."
 		exit 0
 	fi
 	#Undocumented
@@ -460,6 +466,12 @@ uninstall_nx()
 		echo "done"
 	fi
 }
+
+if [ "$TEST" = "yes" ]
+then
+	test_nx
+	exit 0
+fi
 
 if [ "$INSTALL" = "yes" ]
 then
