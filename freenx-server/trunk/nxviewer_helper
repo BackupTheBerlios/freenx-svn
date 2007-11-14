@@ -36,4 +36,4 @@ fi
 
 # Start the vncviewer
 
-exec $COMMAND_VNCVIEWER -passwd "$NXSESSION_DIRECTORY/scripts/.passwd" -fullscreen "$agent_server" $AGENT_EXTRA_OPTIONS_RFB
+exec $COMMAND_VNCVIEWER -passwd "$NXSESSION_DIRECTORY/scripts/.passwd" -fullscreen $AGENT_EXTRA_OPTIONS_RFB "$agent_server" 

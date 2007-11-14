@@ -23,6 +23,9 @@ xx.01.2008 FreeNX 0.7.2
 	  (cedric briner <work@infomaniak.ch>)
 	* Added more examples for "failed ssh connection to localhost" cases.
 	  (cedric briner <work@infomaniak.ch>, fabianx@bat.berlios.de)
+	* Fixed helpers (desktop, viewer) to honour the AGENT_EXTRA_OPTIONS_{RDP,RFB}
+	  parameters set in node.conf.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 
