@@ -150,7 +150,7 @@
 # none:   The copy&paste operations between the client and the NX
 #            session are never allowed.
 #
-#ENABLE_CLIPBOARD = "both"
+#ENABLE_CLIPBOARD="both"
 
 #########################################################################
 # Logging directives
