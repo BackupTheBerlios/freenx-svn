@@ -120,6 +120,8 @@ monitor_cupsd_internal()
 		sleep 5
 		grep -q "cups/cupsd.pid" "$NX_ROOT/cups/cupsd.conf" && reload_cupsd
 	done
+	
+	rm -f "$NX_ROOT/cups/cupsd.pid"
 }
 
 monitor_cupsd()
