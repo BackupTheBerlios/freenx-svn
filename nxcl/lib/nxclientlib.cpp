@@ -203,6 +203,7 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost, bool encrypt
 		this->keyFile->close();
 
 	} else {
+		this->keyFile = NULL;
 		argtmp.str("");
 		argtmp << "-i" << publicKey;
 		arguments.push_back (argtmp.str());

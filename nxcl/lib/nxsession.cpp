@@ -165,11 +165,11 @@ string NXSession::parseSSH(string message)
 					// client and see
 					// ~/.nx/temp/(pid)/sshlog for
 					// connection details
-					ss << "Listsession --type=\"shadow\"";
+					ss << "listsession --type=\"shadow\"";
 
 				} else {
 
-					ss << "Listsession --user=\"" << nxUsername
+					ss << "listsession --user=\"" << nxUsername
 					   << "\" --status=\"suspended,running\" --geometry=\"" 
 					   << this->sessionData->xRes << "x"
 					   << this->sessionData->yRes << "x" 
