@@ -8,3 +8,8 @@ CLEANFILES = *~
 MAINTAINERCLEANFILES = aclocal.m4 nxcl-*.tar.gz nxcl-*.tar.bz2 nxcl-*.diff
 
 INCLUDES = -I./lib
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = nxcl.pc
+
+EXTRA_DIST = nxcl.pc.in

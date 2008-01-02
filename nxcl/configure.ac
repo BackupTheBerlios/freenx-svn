@@ -71,6 +71,6 @@ else
 fi
 
 dnl Add in doc/Makefile to this:
-AC_CONFIG_FILES([Makefile lib/Makefile nxcl/Makefile test/Makefile doc/Makefile])
+AC_CONFIG_FILES([Makefile lib/Makefile nxcl/Makefile test/Makefile doc/Makefile nxcl.pc])
 
 AC_OUTPUT
