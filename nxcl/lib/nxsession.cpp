@@ -362,7 +362,6 @@ string NXSession::parseSSH(string message)
 void NXSession::setSessionData (NXSessionData *sd)
 {
 	this->sessionData = sd;
-	this->sessionDataSet = true;
 }
 
 int NXSession::parseResponse(string message)

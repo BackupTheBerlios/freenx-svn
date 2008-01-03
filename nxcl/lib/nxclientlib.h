@@ -222,7 +222,9 @@ namespace nxcl {
 		 * \return true if the nth session is terminatable, false
 		 * if not, or if there is no nth session.
 		 */
-		bool terminateSession (int n); 
+		bool terminateSession (int n);
+
+    void runSession (void);
 
 		// public slots:
 		//@{

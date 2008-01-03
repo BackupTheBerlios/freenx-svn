@@ -454,6 +454,16 @@ void NXClientLib::setSessionData (NXSessionData *nxSessionData)
 	}
 }
 
+void NXClientLib::runSession ()
+{
+	session.runSession();
+	string a = "NX> 105";
+	string d = session.parseSSH(a);
+	if (d.size()>0) {
+		this->write(d);
+	}
+}
+
 string NXClientLib::parseSSH (string message)
 {
 	string rMessage;

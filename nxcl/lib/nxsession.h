@@ -69,6 +69,7 @@ namespace nxcl {
 		bool chooseResumable (int n);
 		bool terminateSession (int n);
 		string generateCookie (void);
+    void runSession (void) { sessionDataSet = true; }
 
 		/*!
 		 * Accessors
