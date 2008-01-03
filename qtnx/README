@@ -1,0 +1,31 @@
+
+  qtnx: A Qt-based NX client linking to nxcl
+
+  George Wright. January 2008. gwright@kde.org
+
+This is an update of the experimental QtNX client which was based on the
+now deprecated NXClientLib backend library. This is an experimental port
+to Seb James' nxcl library.
+
+Building qtnx
+-------------
+
+Prerequisites are:
+
+* libXcomp from NoMachine, provided by the nxcomp package.
+* nxssh from NoMachine
+* nxproxy from NoMachine
+* nxcl from the FreeNX subversion repository
+
+(These three NX components all should be from the 3.x.x series. You can
+obtain them from NoMachine's servers at http://www.nomachine.com/sources.php)
+
+Read the nxcl README for details of the first three packages.
+
+To build QtNX you will need Qt 4.x. You need to run the following commands:
+
+qmake
+make
+
+This will generate a qtnx binary in that directory; install it to /usr/bin
+or anywhere you want.
