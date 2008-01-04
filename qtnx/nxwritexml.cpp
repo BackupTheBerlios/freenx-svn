@@ -70,20 +70,20 @@ void NXWriteXML::write(QString fileName)
         "\"></option>\n";
 
     if (sessionData.render == true)
-        xml << "<option key=\"Use Render Extension\" value=\"True\">" +
+        xml << "<option key=\"Use Render Extension\" value=\"True\">" <<
             "</option>\n";
     else
-        xml << "<option key=\"Use Render Extension\" value=\"False\">" +
+        xml << "<option key=\"Use Render Extension\" value=\"False\">" <<
             "</option>\n";
 
     if (sessionData.imageCompressionMethod == -1)
-        xml << "<option key=\"Image Compression Method\" value=\"JPEG\">" +
+        xml << "<option key=\"Image Compression Method\" value=\"JPEG\">" <<
             "</option>\n";
     else if (sessionData.imageCompressionMethod == 2)
-        xml << "<option key=\"Image Compression Method\" value=\"PNG\">" +
+        xml << "<option key=\"Image Compression Method\" value=\"PNG\">" <<
             "</option>\n";
     else if (sessionData.imageCompressionMethod == 0)
-        xml << "<option key=\"Image Compression Method\" value=\"Raw X11\">" +
+        xml << "<option key=\"Image Compression Method\" value=\"Raw X11\">" <<
             "</option>\n";
 
     xml << "<option key=\"JPEG Compression Level\" value=\"" <<
@@ -124,17 +124,17 @@ void NXWriteXML::write(QString fileName)
         "\"></option>\n";
 
     if (sessionData.encryption == true)
-        xml << "<option key=\"Use SSL Tunnelling\" value=\"True\">" +
+        xml << "<option key=\"Use SSL Tunnelling\" value=\"True\">" <<
             "</option>\n";
     else
-        xml << "<option key=\"Use SSL Tunnelling\" value=\"False\">" +
+        xml << "<option key=\"Use SSL Tunnelling\" value=\"False\">" <<
             "</option>\n";
 
     if (sessionData.fullscreen == true)
-        xml << "<option key=\"Enable Fullscreen Desktop\" value=\"True\">" +
+        xml << "<option key=\"Enable Fullscreen Desktop\" value=\"True\">" <<
             "</option>\n";
     else
-        xml << "<option key=\"Enable Fullscreen Desktop\" value=\"False\">" +
+        xml << "<option key=\"Enable Fullscreen Desktop\" value=\"False\">" <<
             "</option>\n";
 
     xml << "</NXClientLibSettings>\n";
