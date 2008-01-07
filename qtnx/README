@@ -27,5 +27,14 @@ To build QtNX you will need Qt 4.x. You need to run the following commands:
 qmake
 make
 
+There is currently a bug in nxcl which means that qtnx (or any other
+application linking directly) won't compile properly; simply remove
+the line
+
+#include "../config.h"
+
+from notQt.h in $PREFIX/include/nxcl (normally /usr/local/include/nxcl)
+to allow it to compile cleanly.
+
 This will generate a qtnx binary in that directory; install it to /usr/bin
 or anywhere you want.
