@@ -122,7 +122,7 @@ void QtNXWindow::handleProgress(int id, QString message)
             updateStatusBar("Invalid authentication key");
             break;
         case NXCL_AUTHENTICATING:
-            updateStatusBar("Authentication client");
+            updateStatusBar("Authenticating client");
             break;
         case NXCL_LOGIN_FAILED:
             updateStatusBar("Invalid username or password");
@@ -217,6 +217,7 @@ void QtNXWindow::startConnect()
     session.fullscreen = config.fullscreen;
     session.encryption = true;
     session.virtualDesktop = false;
+    session.terminate = false;
 
     if (!config.key.empty()) {
         key = config.key;
