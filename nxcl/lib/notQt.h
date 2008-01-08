@@ -28,8 +28,6 @@
 #ifndef _NOTQT_H_
 #define _NOTQT_H_
 
-#include "../config.h"
-
 #include <list>
 #include <vector>
 #include <string>

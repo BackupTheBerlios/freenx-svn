@@ -28,6 +28,8 @@ extern "C" {
 #include <sys/poll.h>	
 #include <signal.h>
 }
+
+#include "../config.h"
 #include "notQt.h"
 
 using namespace std;
