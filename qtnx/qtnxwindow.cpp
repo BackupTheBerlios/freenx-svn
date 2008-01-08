@@ -28,14 +28,43 @@
 using namespace nxcl;
 using namespace std;
 
-QtNXWindow::QtNXWindow() : QMainWindow()
+QtNXWindow::QtNXWindow() : 
+    QMainWindow(),
+    processProbe(new QTimer()),
+    sessionsDialog(NULL)
 {
     nxClient.setExternalCallbacks(&callback);
 
-    processProbe = new QTimer();
+    setupUI();
 
-    sessionsDialog = 0;
+    QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
 
+    for (unsigned int i=0;i<dir.count();i++) {
+        QString conn=dir[i];
+        ui_lg.session->addItem(conn.left(conn.length()-5));
+    }
+
+    ui_lg.session->addItem(tr("Create new session"));
+
+    connect(ui_lg.connectButton, SIGNAL(pressed()), this, SLOT(startConnect()));
+    connect(ui_lg.configureButton, SIGNAL(pressed()), this, SLOT(configure()));
+    connect(processProbe, SIGNAL(timeout()), this, SLOT(processProbeTimeout()));
+    connect(&callback, SIGNAL(logging(QString)), this, SLOT(logStd(QString)));
+    connect(&callback, SIGNAL(status(QString)), this, 
+            SLOT(updateStatusBar(QString)));
+    connect(&callback, SIGNAL(suspendedSessions(QList<NXResumeData>)), this,
+            SLOT(loadResumeDialog(QList<NXResumeData>)));
+    connect(&callback, SIGNAL(noSessions()), this, SLOT(noSessions()));
+    connect(&callback, SIGNAL(progress(int, QString)), this, 
+            SLOT(handleProgress(int, QString)));
+}
+
+QtNXWindow::~QtNXWindow()
+{
+}
+
+void QtNXWindow::setupUI()
+{
     logWindow = new QDialog(0);
     ui_lw.setupUi(logWindow);
 
@@ -73,32 +102,6 @@ QtNXWindow::QtNXWindow() : QMainWindow()
     connectionMenu->addAction(tr("Connect..."),
             this,
             SLOT(startConnect()));
-
-    QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
-
-    for (unsigned int i=0;i<dir.count();i++) {
-        QString conn=dir[i];
-        ui_lg.session->addItem(conn.left(conn.length()-5));
-    }
-
-    ui_lg.session->addItem(tr("Create new session"));
-
-
-    connect(ui_lg.connectButton, SIGNAL(pressed()), this, SLOT(startConnect()));
-    connect(ui_lg.configureButton, SIGNAL(pressed()), this, SLOT(configure()));
-    connect(processProbe, SIGNAL(timeout()), this, SLOT(processProbeTimeout()));
-    connect(&callback, SIGNAL(logging(QString)), this, SLOT(logStd(QString)));
-    connect(&callback, SIGNAL(status(QString)), this, 
-            SLOT(updateStatusBar(QString)));
-    connect(&callback, SIGNAL(suspendedSessions(QList<NXResumeData>)), this,
-            SLOT(loadResumeDialog(QList<NXResumeData>)));
-    connect(&callback, SIGNAL(noSessions()), this, SLOT(noSessions()));
-    connect(&callback, SIGNAL(progress(int, QString)), this, 
-            SLOT(handleProgress(int, QString)));
-}
-
-QtNXWindow::~QtNXWindow()
-{
 }
 
 void QtNXWindow::showLogWindow()
@@ -181,8 +184,6 @@ void QtNXWindow::sshContinue(QString message)
 void QtNXWindow::startConnect()
 {
     string key = "";
-    QDesktopWidget dw;
-    QX11Info info;
 
     NXParseXML handler;
     handler.setData(&config);
@@ -197,27 +198,7 @@ void QtNXWindow::startConnect()
     reader.setErrorHandler(&handler);
     reader.parse(inputSource);
 
-    session.sessionName = config.sessionName;
-    session.sessionType = config.sessionType;
-    session.cache = config.cache;
-    session.images = config.images;
-    session.linkType = config.linkType;
-    session.render = config.render;
-    session.backingstore = "when_requested";
-    session.imageCompressionMethod = config.imageCompressionMethod;
-    session.imageCompressionLevel = config.imageCompressionLevel;
-    session.geometry = config.geometry;
-    session.keyboard = "defkeymap";
-    session.kbtype = "pc102/defkeymap";
-    session.media = config.media;
-    session.agentServer = config.agentServer;
-    session.agentUser = config.agentUser;
-    session.agentPass = config.agentPass;
-    session.cups = config.cups;
-    session.fullscreen = config.fullscreen;
-    session.encryption = true;
-    session.virtualDesktop = false;
-    session.terminate = false;
+    setDefaultData();
 
     if (!config.key.empty()) {
         key = config.key;
@@ -239,10 +220,54 @@ void QtNXWindow::startConnect()
 
     nxClient.setUsername(username);
     nxClient.setPassword(password);
-    nxClient.setResolution(dw.screenGeometry(this).width(),
-            dw.screenGeometry(this).height());
+    nxClient.setResolution(getWidth(), getHeight());
 
-    nxClient.setDepth(info.depth());
+    nxClient.setDepth(getDepth());
+}
+
+void QtNXWindow::setDefaultData()
+{
+    // These seem to be a fairly sane set of defaults for session data
+    session.sessionName = config.sessionName;
+    session.sessionType = config.sessionType;
+    session.cache = config.cache;
+    session.images = config.images;
+    session.linkType = config.linkType;
+    session.render = config.render;
+    session.backingstore = "when_requested";
+    session.imageCompressionMethod = config.imageCompressionMethod;
+    session.imageCompressionLevel = config.imageCompressionLevel;
+    session.geometry = config.geometry;
+    session.keyboard = "defkeymap";
+    session.kbtype = "pc102/defkeymap";
+    session.media = config.media;
+    session.agentServer = config.agentServer;
+    session.agentUser = config.agentUser;
+    session.agentPass = config.agentPass;
+    session.cups = config.cups;
+    session.fullscreen = config.fullscreen;
+    session.encryption = true;
+    session.virtualDesktop = false;
+    session.terminate = false;
+}
+
+// This should be the only function that needs porting to other platforms
+int QtNXWindow::getDepth()
+{
+    QX11Info info;
+    return info.depth();
+}
+
+int QtNXWindow::getWidth()
+{
+    QDesktopWidget dw;
+    return dw.screenGeometry(this).width();
+}
+
+int QtNXWindow::getHeight()
+{
+    QDesktopWidget dw;
+    return dw.screenGeometry(this).height();
 }
 
 void QtNXWindow::updateStatusBar(QString message)

@@ -112,6 +112,14 @@ class QtNXWindow : public QMainWindow
         void processProbeTimeout();
         void handleProgress(int, QString);
     private:
+
+        // Decided to split up the code
+        void setupUI();
+        void setDefaultData();
+        int getWidth();
+        int getHeight();
+        int getDepth();
+
         Ui::LoginDialog ui_lg;
         Ui::LogWindow ui_lw;
 
