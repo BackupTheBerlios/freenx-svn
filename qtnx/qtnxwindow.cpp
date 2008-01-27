@@ -23,7 +23,6 @@
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
-#include <QX11Info>
 
 using namespace nxcl;
 using namespace std;
@@ -209,20 +208,20 @@ void QtNXWindow::startConnect()
     if (config.sessionType == "unix-application")
         session.customCommand = config.customCommand;
 
-    nxClient.setSessionData(&session);
-
-    nxClient.invokeNXSSH("id.key", config.serverHost, config.encryption, "",
-            config.serverPort);
-    processProbe->start(30);
-
     string username = ui_lg.username->text().toStdString();
     string password = ui_lg.password->text().toStdString();
+
+    nxClient.setSessionData(&session);
 
     nxClient.setUsername(username);
     nxClient.setPassword(password);
     nxClient.setResolution(getWidth(), getHeight());
 
     nxClient.setDepth(getDepth());
+
+    nxClient.invokeNXSSH("id.key", config.serverHost, config.encryption, "",
+            config.serverPort);
+    processProbe->start(30);
 }
 
 void QtNXWindow::setDefaultData()
@@ -251,23 +250,19 @@ void QtNXWindow::setDefaultData()
     session.terminate = false;
 }
 
-// This should be the only function that needs porting to other platforms
 int QtNXWindow::getDepth()
 {
-    QX11Info info;
-    return info.depth();
+    return qApp->desktop()->depth();
 }
 
 int QtNXWindow::getWidth()
 {
-    QDesktopWidget dw;
-    return dw.screenGeometry(this).width();
+    return qApp->desktop()->screenGeometry(this).width();
 }
 
 int QtNXWindow::getHeight()
 {
-    QDesktopWidget dw;
-    return dw.screenGeometry(this).height();
+    return qApp->desktop()->screenGeometry(this).height();
 }
 
 void QtNXWindow::updateStatusBar(QString message)
