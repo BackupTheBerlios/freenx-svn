@@ -80,17 +80,13 @@ namespace nxcl {
             void setPassword (string& pass) { nxPassword = pass; }
             void setResolution (int x, int y) 
             {
-                if (this->sessionDataSet) {
-                    this->sessionData->xRes = x;
-                    this->sessionData->yRes = y;
-                }
+                this->sessionData->xRes = x;
+                this->sessionData->yRes = y;
             }
 
             void setDepth (int d) 
             {
-                if (this->sessionDataSet) {
-                    this->sessionData->depth = d;
-                }
+                this->sessionData->depth = d;
             }
 
             void setRender (bool isRender)
