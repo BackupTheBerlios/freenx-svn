@@ -391,6 +391,11 @@ namespace nxcl {
             notQProcess nxproxyProcess;
             notQProcess* pNxproxyProcess;
             /*!
+             * The nxwin process object
+             */
+            notQProcess nxwinProcess;
+            notQProcess* pNxwinProcess;
+            /*!
              * A callbacks object. This holds the various callback
              * methods. The callback methods are defined here, but
              * are callable from notQProcess etc.

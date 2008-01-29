@@ -153,6 +153,7 @@ NXClientLib::NXClientLib()
 
     this->pNxsshProcess = &this->nxsshProcess;
     this->pNxproxyProcess = &this->nxproxyProcess;
+    this->pNxwinProcess = &this->nxwinProcess;
 
     /* Set up callback pointers */
     this->nxsshProcess.setCallbacks (&callbacks);
@@ -683,13 +684,12 @@ void NXClientLib::invokeProxy()
     }
 }
 
-int NXClientLib::startX11 (int xResolution, int yResolution, string name)
+int NXClientLib::startX11 (string resolution, string name)
 {
 #ifdef NXCL_CYGWIN
     // Invoke NXWin.exe on Windows machines
 
     // See if XAUTHORITY path is set
-
     stringstream xauthority;
 
     xauthority << getenv("XAUTHORITY");
@@ -710,26 +710,84 @@ int NXClientLib::startX11 (int xResolution, int yResolution, string name)
 
     domain << getenv("HOME") << ":0.0";
 
-    list<string> arguments;
+    list<string> nxauthArguments;
 
     // These arguments taken from the 2X GPL client
     // We're going to assume that nxauth is in PATH
-    arguments.push_back("nxauth");
-    arguments.push_back("-i");
-    arguments.push_back("-f");
-    arguments.push_back(xauthority.str());
-    arguments.push_back("add");
-    arguments.push_back(domain.str());
-    arguments.push_back("MIT-MAGIC-COOKIE-1");
-    arguments.push_back(cookie);
+    nxauthArguments.push_back("nxauth");
+    nxauthArguments.push_back("-i");
+    nxauthArguments.push_back("-f");
+    nxauthArguments.push_back(xauthority.str());
+    nxauthArguments.push_back("add");
+    nxauthArguments.push_back(domain.str());
+    nxauthArguments.push_back("MIT-MAGIC-COOKIE-1");
+    nxauthArguments.push_back(cookie);
 
     notQProcess nxauthProcess;
 
-    nxauthProcess.start("nxauth", arguments);
+    nxauthProcess.start("nxauth", nxauthArguments);
 
     if (nxauthProcess.waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
+        this->isFinished = true;
+    }
+
+    // Now we actually start NXWin.exe
+
+    list<string> nxwinArguments;
+
+    // Arguments taken from 2X
+    nxwinArguments.push_back("NXWin");
+    nxwinArguments.push_back("-auth");
+
+    stringstream xauthPath;
+    xauthPath << "'" << xauthority.str() << "'";
+
+    nxwinArguments.push_back(xauthPath.str());
+    nxwinArguments.push_back("-nowinkill");
+    nxwinArguments.push_back("-clipboard");
+    nxwinArguments.push_back("-noloadxkb");
+
+    // TODO: If rootless, append "-multiwindow" and "-hide" but only
+    // hide if not restoring
+
+    // Now we set up the font paths. By default this is $PWD/usr/X11R6/...
+
+    stringstream fontPath;
+
+    fontPath << "\"" << "usr/X11R6/lib/X11/fonts/TTF" << "\","
+        << "\"" << "usr/X11R6/lib/X11/fonts/misc" << "\","
+        << "\"" << "usr/X11R6/lib/X11/fonts/Speedo" << "\","
+        << "\"" << "usr/X11R6/lib/X11/fonts/Type1" << "\","
+        << "\"" << "usr/X11R6/lib/X11/fonts/75dpi" << "\","
+        << "\"" << "usr/X11R6/lib/X11/fonts/100dpi" << "\"";
+
+    nxwinArguments.push_back("-fp");
+    nxwinArguments.push_back(fontPath.str());
+    nxwinArguments.push_back("-agent");
+    nxwinArguments.push_back("-emulate3buttons");
+    nxwinArguments.push_back("-hide");
+    nxwinArguments.push_back("-noreset");
+    nxwinArguments.push_back("-name");
+    nxwinArguments.push_back("NXWin");
+    nxwinArguments.push_back("0");
+
+    nxwinArguments.push_back("-screen");
+    nxwinArguments.push_back("0");
+
+    char* dimensions = strtok(resolution.c_str(), "x");
+
+    while (dimensions != NULL) {
+        nxwinArguments.push_back(dimensions);
+        dimensions = strtok(NULL, "x");
+    }
+
+    this->nxwinProcess->start("nxwin", nxwinArguments);
+
+    if (this->nxwinProcess->waitForStarted() == false) {
+        this->externalCallbacks->write
+            (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
         this->isFinished = true;
     }
 #endif
