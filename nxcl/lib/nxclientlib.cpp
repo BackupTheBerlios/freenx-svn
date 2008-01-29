@@ -24,6 +24,8 @@
 #include "nxclientlib.h"
 #include "nxdata.h"
 
+#include "../config.h"
+
 #include <fstream>
 
 extern "C" {
@@ -681,18 +683,20 @@ void NXClientLib::invokeProxy()
     }
 }
 
-#ifdef NXCL_CYGWIN
 int NXClientLib::startX11 (int xResolution, int yResolution, string name)
 {
+#ifdef NXCL_CYGWIN
     // Invoke NXWin.exe on Windows machines
 
     // See if XAUTHORITY path is set
 
-    stringstream xauthority = getenv("XAUTHORITY");
+    stringstream xauthority;
 
-    if (xauthority.empty()) {
+    xauthority << getenv("XAUTHORITY");
+
+    if (xauthority.str().empty()) {
         // We hardcode XAUTHORITY to $HOME/.Xauthority
-        xauthority = getenv("HOME") << "/.Xauthority";
+        xauthority << getenv("HOME") << "/.Xauthority";
     }
 
     // Now we add a cookie to this auth file
@@ -701,8 +705,10 @@ int NXClientLib::startX11 (int xResolution, int yResolution, string name)
 
     gethostname(hostname, 256);
 
-    string cookie = NXSession::generateCookie();
-    stringstream domain = getenv("HOME") << ":0.0";
+    string cookie = getSession()->generateCookie();
+    stringstream domain;
+
+    domain << getenv("HOME") << ":0.0";
 
     list<string> arguments;
 
@@ -721,13 +727,13 @@ int NXClientLib::startX11 (int xResolution, int yResolution, string name)
 
     nxauthProcess.start("nxauth", arguments);
 
-    if (this->nxauthProcess.waitForStarted() == false) {
+    if (nxauthProcess.waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
         this->isFinished = true;
     }
-}
 #endif
+}
 
 bool NXClientLib::chooseResumable (int n)
 {

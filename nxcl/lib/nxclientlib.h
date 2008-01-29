@@ -232,6 +232,8 @@ namespace nxcl {
 
             void runSession (void);
 
+	    int startX11(int xResolution, int yResolution, string name);
+
             // public slots:
             //@{
             void doneAuth (void);
