@@ -18,8 +18,6 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
-AC_CHECK_PROG(DOXYGEN, doxygen, doxygen, /bin/echo)
-
 dnl check for boost library
 dnl I would prefer to include boost code and compile in place and statically link.
 dnl AC_CHECK_LIB(boost_signals, LIB_BOOST_SIGNALS="-lboost_signals")
@@ -45,6 +43,17 @@ AS_IF([test "$with_nxcmd" != no], [
 ])
 
 AM_CONDITIONAL(WITH_NXCMD, test "$with_nxcmd" = yes)
+
+AC_ARG_WITH(doxygen,
+            AC_HELP_STRING([--with-doxygen], [build doxygen API documentation]),
+        [with_doxygen=${withval}],
+        [with_doxygen=yes])
+
+if test "$with_doxygen" = yes; then
+  AC_CHECK_PROG(DOXYGEN, doxygen, doxygen, /bin/echo)
+fi
+
+AM_CONDITIONAL(WITH_DOXYGEN, test "$with_doxygen" = yes)
 
 dnl Checks for library functions.
 AC_HEADER_STDC

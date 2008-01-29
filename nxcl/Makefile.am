@@ -1,13 +1,16 @@
 
 AUTOMAKE_OPTIONS = check-news dist-bzip2
 
-ALWAYS_SUBDIRS = lib test doc
-
+ALWAYS_SUBDIRS = lib test
 
 SUBDIRS = $(ALWAYS_SUBDIRS)
 
 if WITH_NXCMD
-  SUBDIRS +=  nxcl
+  SUBDIRS += nxcl
+endif
+
+if WITH_DOXYGEN
+  SUBDIRS += doc
 endif
 
 CLEANFILES = *~
