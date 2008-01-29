@@ -602,9 +602,15 @@ void NXClientLib::invokeProxy()
 
 #ifdef NXCL_CYGWIN
     NXSessionData* sessionData = getSession()->getSessionData();
+
     stringstream resolution;
-    resolution << itoa(sessionData->xRes) << "x" << itoa(sessionData->yRes);
-    startX11(resolution, "");
+
+    ostringstream dimensionX, dimensionY;
+    dimensionX << sessionData->xRes;
+    dimensionY << sessionData->yRes;
+
+    resolution << dimensionX.str() << "x" << dimensionY.str();
+    startX11(resolution.str(), "");
 #endif
 
     int e;
