@@ -308,6 +308,16 @@ namespace nxcl {
                 return this->pNxproxyProcess;
             }
 
+	    notQProcess* getNXWinProcess (void)
+	    {
+                return this->pNxwinProcess;
+            }
+
+            notQProcess* getNXAuthProcess (void)
+            {
+                return this->pNxauthProcess;
+            }
+
             bool getIsFinished (void)
             {
                 return this->isFinished;
@@ -395,6 +405,11 @@ namespace nxcl {
              */
             notQProcess nxwinProcess;
             notQProcess* pNxwinProcess;
+            /*!
+             * The nxauth process object
+             */
+            notQProcess nxauthProcess;
+            notQProcess* pNxauthProcess;
             /*!
              * A callbacks object. This holds the various callback
              * methods. The callback methods are defined here, but

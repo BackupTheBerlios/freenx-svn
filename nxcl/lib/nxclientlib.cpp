@@ -154,10 +154,13 @@ NXClientLib::NXClientLib()
     this->pNxsshProcess = &this->nxsshProcess;
     this->pNxproxyProcess = &this->nxproxyProcess;
     this->pNxwinProcess = &this->nxwinProcess;
+    this->pNxauthProcess = &this->nxauthProcess;
 
     /* Set up callback pointers */
     this->nxsshProcess.setCallbacks (&callbacks);
     this->nxproxyProcess.setCallbacks (&callbacks);
+    this->nxwinProcess.setCallbacks (&callbacks);
+    this->nxauthProcess.setCallbacks (&callbacks);
     this->session.setCallbacks (&callbacks);
     this->callbacks.setParent (this);
 
@@ -736,11 +739,11 @@ void NXClientLib::startX11 (string resolution, string name)
     nxauthArguments.push_back("MIT-MAGIC-COOKIE-1");
     nxauthArguments.push_back(cookie);
 
-    notQProcess nxauthProcess;
+    this->nxauthProcess.setCallbacks (&callbacks);
 
-    nxauthProcess.start("nxauth", nxauthArguments);
+    this->nxauthProcess.start("nxauth", nxauthArguments);
 
-    if (nxauthProcess.waitForStarted() == false) {
+    if (this->nxauthProcess.waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
         this->isFinished = true;
