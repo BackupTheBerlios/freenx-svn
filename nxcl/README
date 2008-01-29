@@ -51,8 +51,12 @@ And (only) for the standalone dbus client you'll need:
 daemon to be running to use the nxcl standalone binary, but NOT if you link
 your client directly to libnxcl.so*
 
+The D-Bus client can be disabled with the --without-nxcmd flag to configure.
+
 If you have doxygen on your system, (imperfect) documentation will be
 generated from the source header files.
+
+Documentation can be disabled with the --without-doxygen flag to configure.
 
 Compile and install libXcomp, nxssh and nxproxy following the instructions
 in the readme file for each package. You can install the nxssh and nxproxy
