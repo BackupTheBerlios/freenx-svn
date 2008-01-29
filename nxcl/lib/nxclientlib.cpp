@@ -681,6 +681,54 @@ void NXClientLib::invokeProxy()
     }
 }
 
+#ifdef NXCL_CYGWIN
+int NXClientLib::startX11 (int xResolution, int yResolution, string name)
+{
+    // Invoke NXWin.exe on Windows machines
+
+    // See if XAUTHORITY path is set
+
+    stringstream xauthority = getenv("XAUTHORITY");
+
+    if (xauthority.empty()) {
+        // We hardcode XAUTHORITY to $HOME/.Xauthority
+        xauthority = getenv("HOME") << "/.Xauthority";
+    }
+
+    // Now we add a cookie to this auth file
+
+    char hostname[256];
+
+    gethostname(hostname, 256);
+
+    string cookie = NXSession::generateCookie();
+    stringstream domain = getenv("HOME") << ":0.0";
+
+    list<string> arguments;
+
+    // These arguments taken from the 2X GPL client
+    // We're going to assume that nxauth is in PATH
+    arguments.push_back("nxauth");
+    arguments.push_back("-i");
+    arguments.push_back("-f");
+    arguments.push_back(xauthority.str());
+    arguments.push_back("add");
+    arguments.push_back(domain.str());
+    arguments.push_back("MIT-MAGIC-COOKIE-1");
+    arguments.push_back(cookie);
+
+    notQProcess nxauthProcess;
+
+    nxauthProcess.start("nxauth", arguments);
+
+    if (this->nxauthProcess.waitForStarted() == false) {
+        this->externalCallbacks->write
+            (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
+        this->isFinished = true;
+    }
+}
+#endif
+
 bool NXClientLib::chooseResumable (int n)
 {
     return (this->session.chooseResumable(n));
