@@ -684,7 +684,7 @@ void NXClientLib::invokeProxy()
     }
 }
 
-int NXClientLib::startX11 (string resolution, string name)
+void NXClientLib::startX11 (string resolution, string name)
 {
 #ifdef NXCL_CYGWIN
     // Invoke NXWin.exe on Windows machines
@@ -776,16 +776,16 @@ int NXClientLib::startX11 (string resolution, string name)
     nxwinArguments.push_back("-screen");
     nxwinArguments.push_back("0");
 
-    char* dimensions = strtok(resolution.c_str(), "x");
+    char* dimensions = strtok(const_cast<char*>(resolution.c_str()), "x");
 
     while (dimensions != NULL) {
         nxwinArguments.push_back(dimensions);
         dimensions = strtok(NULL, "x");
     }
 
-    this->nxwinProcess->start("nxwin", nxwinArguments);
+    this->nxwinProcess.start("nxwin", nxwinArguments);
 
-    if (this->nxwinProcess->waitForStarted() == false) {
+    if (this->nxwinProcess.waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
         this->isFinished = true;

@@ -232,7 +232,7 @@ namespace nxcl {
 
             void runSession (void);
 
-	    int startX11(int xResolution, int yResolution, string name);
+	    void startX11(string resolution, string name);
 
             // public slots:
             //@{
