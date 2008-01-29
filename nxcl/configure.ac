@@ -99,6 +99,22 @@ else
   AC_DEFINE(DEBUG, 0, Define if debugging output should be enabled)
 fi
 
+dnl Do some platform checking for cygwin
+
+if test "$(uname -o)" = Cygwin; then
+  AC_DEFINE(NXCL_CYGWIN, 1, Define if compiling on Cygwin)
+else
+  AC_DEFINE(NXCL_CYGWIN, 0, Define if compiling on Cygwin)
+fi
+
+dnl Do some platform checking for OS X
+
+if test "$(uname)" = Darwin; then
+  AC_DEFINE(NXCL_DARWIN, 1, Define if compiling on Darwin)
+else
+  AC_DEFINE(NXCL_DARWIN, 0, Define if compiling on Darwin)
+fi
+
 dnl Add in doc/Makefile to this:
 AC_CONFIG_FILES([Makefile lib/Makefile nxcl/Makefile test/Makefile doc/Makefile nxcl.pc])
 
