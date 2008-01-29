@@ -20,21 +20,38 @@ Prerequisites are:
 (These three NX components all should be from the 3.x.x series. You can
 obtain them from NoMachine's servers at http://www.nomachine.com/sources.php)
 
-Read the nxcl README for details of the first three packages.
+Read the nxcl README for details of the first three packages. You will not need
+to build the nxcmd daemon nor the doxygen API documentation.
 
 To build QtNX you will need Qt 4.x. You need to run the following commands:
 
-qmake
-make
-
-There is currently a bug in nxcl which means that qtnx (or any other
-application linking directly) won't compile properly; simply remove
-the line
-
-#include "../config.h"
-
-from notQt.h in $PREFIX/include/nxcl (normally /usr/local/include/nxcl)
-to allow it to compile cleanly.
+$ qmake
+$ make
 
 This will generate a qtnx binary in that directory; install it to /usr/bin
 or anywhere you want.
+
+Win32 Builds
+------------
+
+In order to build on Win32, you will need a full Cygwin setup. Ensure you have
+pkg-config installed in cygwin.
+
+Build Qt 4.3.3 as per the instructions on http://wiki.lyx.org/LyX/LyXOnCygwin;
+you will, however, need to patch Qt. Line 528 in src/corelib/codecs/qtextcodec.cpp
+should also contain an extra conditional:
+
+&& !defined(Q_CYGWIN_WIN)
+
+You can then build Qt without any trouble by following those instructions. 
+
+Afterwards, set QTDIR to point to wherever you installed Qt to, and set the
+PATH to point to QTDIR/bin as well:
+
+$ export QTDIR=/usr/local/src/qtwin-4.3.3
+$ export PATH=$QTDIR/bin:$PATH
+
+You can then build qtnx normally with the standard steps:
+
+$ qmake
+$ make
