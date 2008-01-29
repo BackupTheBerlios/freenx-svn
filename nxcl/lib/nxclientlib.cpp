@@ -245,6 +245,11 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
 
     // Find a path for the nxssh process using getPath()
     string nxsshPath = this->getPath ("nxssh");
+
+#ifdef NXCL_DARWIN
+    nxsshPath = "open-x11";
+#endif
+
     this->nxsshProcess.start(nxsshPath, arguments);
 
     if (this->nxsshProcess.waitForStarted() == false) {
@@ -682,6 +687,9 @@ void NXClientLib::invokeProxy()
 
     // Build arguments for the call to the nxproxy command
     list<string> arguments;
+#ifdef NXCL_DARWIN
+    arguments.push_back("open-x11"); // We open X11 apps on OS X with this script
+#endif
     arguments.push_back("nxproxy"); // argv[0] has to be the program name
     arguments.push_back("-S");
     ss.str("");
