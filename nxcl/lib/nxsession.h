@@ -110,6 +110,11 @@ namespace nxcl {
 
             void setSessionData (NXSessionData*);
 
+            NXSessionData* getSessionData()
+            {
+                return this->sessionData;
+            }
+
             bool getSessionDataSet (void)
             {
                 return this->sessionDataSet;

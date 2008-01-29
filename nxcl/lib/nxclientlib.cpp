@@ -600,6 +600,13 @@ void NXClientLib::invokeProxy()
     this->externalCallbacks->write
         (NXCL_INVOKE_PROXY, _("Starting NX session"));
 
+#ifdef NXCL_CYGWIN
+    NXSessionData* sessionData = getSession()->getSessionData();
+    stringstream resolution;
+    resolution << itoa(sessionData->xRes) << "x" << itoa(sessionData->yRes);
+    startX11(resolution, "");
+#endif
+
     int e;
     char * home;
 
