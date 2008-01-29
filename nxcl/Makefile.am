@@ -1,7 +1,14 @@
 
 AUTOMAKE_OPTIONS = check-news dist-bzip2
 
-SUBDIRS = lib nxcl test doc
+ALWAYS_SUBDIRS = lib test doc
+
+
+SUBDIRS = $(ALWAYS_SUBDIRS)
+
+if WITH_NXCMD
+  SUBDIRS +=  nxcl
+endif
 
 CLEANFILES = *~
 
@@ -13,3 +20,4 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = nxcl.pc
 
 EXTRA_DIST = nxcl.pc.in
+
