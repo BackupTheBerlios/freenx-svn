@@ -153,13 +153,13 @@ NXClientLib::NXClientLib()
 
     this->pNxsshProcess = &this->nxsshProcess;
     this->pNxproxyProcess = &this->nxproxyProcess;
-    this->pNxwinProcess = &this->nxwinProcess;
+    this->pX11Process = &this->x11Process;
     this->pNxauthProcess = &this->nxauthProcess;
 
     /* Set up callback pointers */
     this->nxsshProcess.setCallbacks (&callbacks);
     this->nxproxyProcess.setCallbacks (&callbacks);
-    this->nxwinProcess.setCallbacks (&callbacks);
+    this->x11Process.setCallbacks (&callbacks);
     this->nxauthProcess.setCallbacks (&callbacks);
     this->session.setCallbacks (&callbacks);
     this->callbacks.setParent (this);
@@ -245,10 +245,6 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
 
     // Find a path for the nxssh process using getPath()
     string nxsshPath = this->getPath ("nxssh");
-
-#ifdef NXCL_DARWIN
-    nxsshPath = "open-x11";
-#endif
 
     this->nxsshProcess.start(nxsshPath, arguments);
 
@@ -608,7 +604,7 @@ void NXClientLib::invokeProxy()
     this->externalCallbacks->write
         (NXCL_INVOKE_PROXY, _("Starting NX session"));
 
-#ifdef NXCL_CYGWIN
+#if NXCL_CYGWIN
     NXSessionData* sessionData = getSession()->getSessionData();
 
     stringstream resolution;
@@ -619,6 +615,32 @@ void NXClientLib::invokeProxy()
 
     resolution << dimensionX.str() << "x" << dimensionY.str();
     startX11(resolution.str(), "");
+#endif
+
+#if NXCL_DARWIN
+    // Let's run open -a X11 to fire up X
+    list<string> x11Arguments;
+
+    x11Arguments.push_back("open");
+    x11Arguments.push_back("-a");
+    x11Arguments.push_back("X11");
+
+    string openPath = this->getPath("open");
+    
+    this->x11Process.start(openPath, x11Arguments);
+
+    this->x11Probe = true;
+    
+    if (this->x11Process.waitForStarted() == false) {
+        this->externalCallbacks->write
+            (NXCL_PROCESS_ERROR, _("Error starting X11!"));
+        this->isFinished = true;
+    }
+    
+    this->x11Probe = false;
+
+    // Horrendous hack - must fix
+    for (int i = 0; i < 32768; i++) {};
 #endif
 
     int e;
@@ -660,9 +682,16 @@ void NXClientLib::invokeProxy()
         }
     }
 
+    string x11Display = "";
+
+#if NXCL_DARWIN
+    x11Display = ",display=:0.0";
+#endif
+
     stringstream data;
+ 
     if (proxyData.encrypted) {
-        data << "nx/nx,session=session,encryption=1,cookie="
+        data << "nx/nx" << x11Display << ",session=session,encryption=1,cookie="
             << proxyData.cookie
             << ",root=" << home << "/.nx"
             << ",id=" << proxyData.id << ",listen=" 
@@ -671,10 +700,11 @@ void NXClientLib::invokeProxy()
 
     } else {
         // Not tested yet
-        data << "nx,session=session,cookie=" << proxyData.cookie
+        data << "nx/nx" << x11Display << ",session=session,cookie=" << proxyData.cookie
             << ",root=" << home
             << "/.nx,id=" << proxyData.id
-            << ",connect=" << proxyData.server << ":" << proxyData.display
+            // << ",connect=" << proxyData.server << ":" << proxyData.display
+            << ",listen=" << proxyData.port << ":" << proxyData.display
             << "\n";
     }
 
@@ -687,9 +717,6 @@ void NXClientLib::invokeProxy()
 
     // Build arguments for the call to the nxproxy command
     list<string> arguments;
-#ifdef NXCL_DARWIN
-    arguments.push_back("open-x11"); // We open X11 apps on OS X with this script
-#endif
     arguments.push_back("nxproxy"); // argv[0] has to be the program name
     arguments.push_back("-S");
     ss.str("");
@@ -710,7 +737,7 @@ void NXClientLib::invokeProxy()
 
 void NXClientLib::startX11 (string resolution, string name)
 {
-#ifdef NXCL_CYGWIN
+#if NXCL_CYGWIN
     // Invoke NXWin.exe on Windows machines
 
     // See if XAUTHORITY path is set
@@ -807,9 +834,9 @@ void NXClientLib::startX11 (string resolution, string name)
         dimensions = strtok(NULL, "x");
     }
 
-    this->nxwinProcess.start("nxwin", nxwinArguments);
+    this->x11Process.start("nxwin", nxwinArguments);
 
-    if (this->nxwinProcess.waitForStarted() == false) {
+    if (this->x11Process.waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
         this->isFinished = true;
@@ -837,6 +864,19 @@ string NXClientLib::getPath (string prog)
     if (!buf) {
         // Malloc error.
         return prog;
+    }
+
+    // We'll check the custom search path first
+    stringstream pathTest;
+    pathTest << customPath << "/" << prog;
+
+    memset (buf, 0, sizeof(struct stat));
+    stat (pathTest.str().c_str(), buf);
+
+    if (S_ISREG (buf->st_mode) || S_ISLNK (buf->st_mode)) {
+        // Found in custom path
+        free(buf);
+        return pathTest.str();
     }
 
     path = PACKAGE_BIN_DIR"/" + prog;

@@ -186,6 +186,14 @@ namespace nxcl {
             void write (string data);
 
             /*!
+             * Sets a custom binary search path
+             */
+            void setCustomPath(string path)
+            {
+                this->customPath = path;
+            }
+            
+            /*!
              * Passes auth to this->session.setContinue()
              */
             void allowSSHConnect (bool auth);
@@ -232,8 +240,13 @@ namespace nxcl {
 
             void runSession (void);
 
-	    void startX11(string resolution, string name);
+            void startX11 (string resolution, string name);
 
+            bool needX11Probe (void)
+            {
+                return x11Probe;
+            }
+            
             // public slots:
             //@{
             void doneAuth (void);
@@ -308,9 +321,9 @@ namespace nxcl {
                 return this->pNxproxyProcess;
             }
 
-	    notQProcess* getNXWinProcess (void)
-	    {
-                return this->pNxwinProcess;
+            notQProcess* getX11Process (void)
+            {
+                return this->pX11Process;
             }
 
             notQProcess* getNXAuthProcess (void)
@@ -362,6 +375,12 @@ namespace nxcl {
             string getPath (string prog);
 
             /*!
+             * Custom search path
+             */
+            string customPath;
+
+            bool x11Probe;
+            /*!
              * Set true when the program is ready to end, e.g if
              * authentication failed, nxssh failed to start amoung
              * other reasons.
@@ -401,10 +420,10 @@ namespace nxcl {
             notQProcess nxproxyProcess;
             notQProcess* pNxproxyProcess;
             /*!
-             * The nxwin process object
+             * The X11 process object
              */
-            notQProcess nxwinProcess;
-            notQProcess* pNxwinProcess;
+            notQProcess x11Process;
+            notQProcess* pX11Process;
             /*!
              * The nxauth process object
              */
