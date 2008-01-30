@@ -6,6 +6,10 @@ if WITH_NXCMD
   bin_PROGRAMS += nxcmd
 endif
 
+if DEBUG
+  AM_CPPFLAGS += -DDEBUG
+endif
+
 libtest_SOURCES = libtest.cpp
 libtest_LDADD = @PACKAGE_LIBS@ $(LIBINTL) -L../lib -lnxcl
 notQttest_SOURCES = notQttest.cpp

@@ -1,5 +1,10 @@
 CLEANFILES = *~
 AM_CPPFLAGS = @PACKAGE_CFLAGS@  -DPACKAGE_BIN_DIR=\""$(bindir)"\"
+
+if DEBUG
+    AM_CPPFLAGS += -DDEBUG
+endif
+
 INCLUDES = -I$(top_srcdir) -I$(top_builddir)
 lib_LTLIBRARIES = libnxcl.la
 libnxcl_la_SOURCES = notQt.cpp nxsession.cpp nxclientlib.cpp

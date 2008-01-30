@@ -99,6 +99,8 @@ else
   AC_DEFINE(DEBUG, 0, Define if debugging output should be enabled)
 fi
 
+AM_CONDITIONAL(DEBUG, test "$nxcl_debug" = yes)
+
 dnl Do some platform checking for cygwin
 
 if test "$(uname -o)" = Cygwin; then
