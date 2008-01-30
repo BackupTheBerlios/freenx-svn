@@ -93,11 +93,6 @@ AC_ARG_ENABLE(debug-output,
   esac], nxcl_debug=no)
 AC_MSG_CHECKING(whether to enable debugging output)
 AC_MSG_RESULT($nxcl_debug)
-if test "$nxcl_debug" = yes; then
-  AC_DEFINE(DEBUG, 1, Define if debugging output should be enabled)
-else
-  AC_DEFINE(DEBUG, 0, Define if debugging output should be enabled)
-fi
 
 AM_CONDITIONAL(DEBUG, test "$nxcl_debug" = yes)
 
