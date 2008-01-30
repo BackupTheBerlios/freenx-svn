@@ -8,7 +8,7 @@ includedir=@includedir@/nxcl
 Name: nxcl
 Description: NX client library
 Version: @VERSION@
-Requires: x11
+Requires:
 Conflicts:
 Libs: -L${libdir} -lnxcl
 Cflags: -I${includedir}
