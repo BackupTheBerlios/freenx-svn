@@ -43,7 +43,8 @@ should also contain an extra conditional:
 
 && !defined(Q_CYGWIN_WIN)
 
-You can then build Qt without any trouble by following those instructions. 
+You can then build Qt without any trouble by following those instructions. Ensure
+you also build the XML module and install qmake and mkspecs.
 
 Afterwards, set QTDIR to point to wherever you installed Qt to, and set the
 PATH to point to QTDIR/bin as well:
@@ -55,3 +56,16 @@ You can then build qtnx normally with the standard steps:
 
 $ qmake
 $ make
+
+Mac OS X Builds
+---------------
+
+Ensure that you have a build of Qt 4 on OS X, then run qmake from $QTDIR/bin.
+
+Standard procedure then follows:
+
+$ qmake
+$ make
+
+You can then put statically linked versions of nxssh and nxproxy and id.key in
+qtnx.app/Contents/MacOS - it should then all just work.

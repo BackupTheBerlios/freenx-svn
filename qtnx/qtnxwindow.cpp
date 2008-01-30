@@ -24,6 +24,10 @@
 #include <QFile>
 #include <QMessageBox>
 
+#ifdef Q_WS_MAC
+    #include <CoreFoundation/CFBundle.h>
+#endif
+
 using namespace nxcl;
 using namespace std;
 
@@ -35,6 +39,25 @@ QtNXWindow::QtNXWindow() :
     nxClient.setExternalCallbacks(&callback);
 
     setupUI();
+
+#ifdef Q_WS_MAC
+    // We ship nxproxy and nxssh in qtnx.app/Contents/MacOS
+    CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+    CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
+            kCFURLPOSIXPathStyle);
+
+    const char *pathPtr = CFStringGetCStringPtr(macPath,
+            CFStringGetSystemEncoding());
+
+    CFRelease(appUrlRef);
+    CFRelease(macPath);
+
+    stringstream binaryPath;
+    binaryPath << pathPtr << "/Contents/MacOS";
+    cout << binaryPath.str() << endl;
+
+    nxClient.setCustomPath(binaryPath.str());
+#endif
 
     QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
 
@@ -113,40 +136,43 @@ void QtNXWindow::showLogWindow()
 
 void QtNXWindow::handleProgress(int id, QString message)
 {
+    if (!message.isEmpty())
+        message = ": " + message;
+
     switch (id) {
         case NXCL_PROCESS_STARTED:
-            updateStatusBar("Process started");
+            updateStatusBar(tr("Process started"));
             break;
         case NXCL_PROCESS_EXITED:
-            updateStatusBar("Process exited");
+            updateStatusBar(tr("Process exited"));
             break;
         case NXCL_AUTH_FAILED:
-            updateStatusBar("Invalid authentication key");
+            updateStatusBar(tr("Invalid authentication key"));
             break;
         case NXCL_AUTHENTICATING:
-            updateStatusBar("Authenticating client");
+            updateStatusBar(tr("Authenticating client"));
             break;
         case NXCL_LOGIN_FAILED:
-            updateStatusBar("Invalid username or password");
+            updateStatusBar(tr("Invalid username or password"));
             failedLogin();
             break;
         case NXCL_HOST_KEY_VERIFAILED:
-            updateStatusBar("Host key verification failed");
+            updateStatusBar(tr("Host key verification failed"));
             break;
         case NXCL_INVOKE_PROXY:
-            updateStatusBar("Starting NX proxy");
+            updateStatusBar(tr("Starting NX proxy"));
             break;
         case NXCL_STARTING:
-            updateStatusBar("Starting session");
+            updateStatusBar(tr("Starting session"));
             break;
         case NXCL_FINISHED:
-            updateStatusBar("Finished connecting");
+            updateStatusBar(tr("Finished connecting"));
             break;
         case NXCL_ALIVE:
-            updateStatusBar("NX session active");
+            updateStatusBar(tr("NX session active"));
             break;
         case NXCL_PROCESS_ERROR:
-            updateStatusBar("Process error");
+            updateStatusBar(tr("Process error"));
             break;
         default:
             break;

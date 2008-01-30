@@ -1,6 +1,6 @@
 TEMPLATE	= app
 
-CONFIG		+= qt warn_on debug
+CONFIG		+= static qt warn_on release
 
 FORMS = settingsdialog.ui logindialog.ui sessionsdialog.ui keydialog.ui logwindow.ui
 
@@ -10,11 +10,19 @@ HEADERS = qtnxwindow.h qtnxsettings.h qtnxsessions.h nxparsexml.h nxwritexml.h
 
 INCLUDEPATH	+= $(QTDIR)/include
 
-QMAKE_CXXFLAGS += $$system(pkg-config --cflags nxcl)
+!macx {
+    QMAKE_CXXFLAGS += $$system(pkg-config --cflags nxcl)
+
+    LIBS += $$system(pkg-config --libs nxcl)
+}
+
+macx {
+    QMAKE_CXXFLAGS += -I/usr/local/include/nxcl
+    LIBS += -lnxcl
+}
 
 DEPENDPATH	+= $(QTDIR)/include
 
-LIBS += $$system(pkg-config --libs nxcl)
 
 QT += ui xml
 
