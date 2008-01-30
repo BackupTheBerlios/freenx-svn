@@ -141,5 +141,7 @@ class QtNXWindow : public QMainWindow
         QWidget *loginDialog;
 
         QtNXCallback callback;
+
+        QString binaryPath;
 };
 #endif

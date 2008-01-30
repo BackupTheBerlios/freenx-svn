@@ -52,11 +52,12 @@ QtNXWindow::QtNXWindow() :
     CFRelease(appUrlRef);
     CFRelease(macPath);
 
-    stringstream binaryPath;
-    binaryPath << pathPtr << "/Contents/MacOS";
-    cout << binaryPath.str() << endl;
+    binaryPath = pathPtr;
+    binaryPath.append("/Contents/MacOS");
 
-    nxClient.setCustomPath(binaryPath.str());
+    nxClient.setCustomPath(binaryPath.toStdString());
+
+    setenv("NX_SYSTEM", binaryPath.toStdString().c_str(), 1);
 #endif
 
     QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
@@ -245,7 +246,13 @@ void QtNXWindow::startConnect()
 
     nxClient.setDepth(getDepth());
 
-    nxClient.invokeNXSSH("id.key", config.serverHost, config.encryption, "",
+    QString keyPath = "id.key";
+
+#ifdef Q_WS_MAC
+    keyPath = binaryPath + "/id.key";
+#endif
+
+    nxClient.invokeNXSSH(keyPath.toStdString(), config.serverHost, config.encryption, "",
             config.serverPort);
     processProbe->start(30);
 }
@@ -302,6 +309,10 @@ void QtNXWindow::processProbeTimeout()
 
     if ((nxClient.getIsFinished()) == false) {
         if (nxClient.getReadyForProxy() == false) {
+            p->probeProcess();
+        } else if (nxClient.needX11Probe()) {
+            p->probeProcess();
+            p = nxClient.getX11Process();
             p->probeProcess();
         } else {
             p->probeProcess();
