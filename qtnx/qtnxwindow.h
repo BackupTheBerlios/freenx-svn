@@ -120,6 +120,7 @@ class QtNXWindow : public QMainWindow
         void sshContinue(QString);
         void failedLogin();
         void showLogWindow();
+        void quit();
     private:
 
         // Decided to split up the code
@@ -143,6 +144,7 @@ class QtNXWindow : public QMainWindow
         QtNXSettings *settingsDialog;
         QtNXSessions *sessionsDialog;
 
+        QAction *closeWindowAction;
         QDialog *logWindow;
         QMenu *fileMenu;
         QMenu *connectionMenu;

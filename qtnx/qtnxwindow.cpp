@@ -74,7 +74,7 @@ QtNXWindow::QtNXWindow() :
 
     connect(&callback, SIGNAL(atCapacity()), this, SLOT(handleAtCapacity()));
 
-    connect(&callback, SIGNAL(connectedSuccessfully()), this, SLOT(close()));
+    connect(&callback, SIGNAL(connectedSuccessfully()), this, SLOT(quit()));
 }
 
 QtNXWindow::~QtNXWindow()
@@ -82,6 +82,11 @@ QtNXWindow::~QtNXWindow()
     delete m_NXClient;
 }
 
+void QtNXWindow::quit()
+{
+    if (closeWindowAction->isChecked())
+        qApp->quit();
+}
 void QtNXWindow::initialiseClient()
 {
     m_NXClient->setExternalCallbacks(&callback);
@@ -147,6 +152,17 @@ void QtNXWindow::setupUI()
     connectionMenu->addAction(tr("Connect..."),
             this,
             SLOT(startConnect()));
+
+    connectionMenu->addSeparator();
+
+    closeWindowAction = connectionMenu->addAction(
+            tr("Close QtNX when NX starts"),
+            this,
+            SLOT(closeNXStarts()),
+            QKeySequence(tr("CTRL+O")));
+
+    closeWindowAction->setCheckable(true);
+    closeWindowAction->setChecked(true);
 }
 
 void QtNXWindow::showLogWindow()
