@@ -187,7 +187,6 @@ notQProcess::waitForStarted (void)
     void
 notQProcess::terminate (void)
 {
-    return;
     kill (this->pid, 15); // 15 is TERM
     // Now check if the process has gone and kill it with signal 9 (KILL)
     this->pid = 0;
