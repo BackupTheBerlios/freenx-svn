@@ -141,7 +141,11 @@ void NXClientLibCallbacks::sessionsSignal (list<NXResumeData> data)
  * Implementation of the NXClientLib class
  */
 //@{
-NXClientLib::NXClientLib()
+NXClientLib::NXClientLib() :
+    nxsshProcess(new notQProcess()),
+    nxproxyProcess(new notQProcess()),
+    x11Process(new notQProcess()),
+    nxauthProcess(new notQProcess())
 {
     this->isFinished = false;
     this->readyForProxy = false;
@@ -151,16 +155,12 @@ NXClientLib::NXClientLib()
 
     dbgln ("In NXClientLib constructor");
 
-    this->pNxsshProcess = &this->nxsshProcess;
-    this->pNxproxyProcess = &this->nxproxyProcess;
-    this->pX11Process = &this->x11Process;
-    this->pNxauthProcess = &this->nxauthProcess;
-
     /* Set up callback pointers */
-    this->nxsshProcess.setCallbacks (&callbacks);
-    this->nxproxyProcess.setCallbacks (&callbacks);
-    this->x11Process.setCallbacks (&callbacks);
-    this->nxauthProcess.setCallbacks (&callbacks);
+    this->nxsshProcess->setCallbacks (&callbacks);
+    this->nxproxyProcess->setCallbacks (&callbacks);
+    this->x11Process->setCallbacks (&callbacks);
+    this->nxauthProcess->setCallbacks (&callbacks);
+
     this->session.setCallbacks (&callbacks);
     this->callbacks.setParent (this);
 
@@ -170,7 +170,7 @@ NXClientLib::NXClientLib()
 NXClientLib::~NXClientLib()
 {
     dbgln ("In NXClientLib destructor");
-    this->nxsshProcess.terminate();
+    this->nxsshProcess->terminate();
 }
 
 void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
@@ -183,7 +183,7 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
     dbgln("invokeNXSSH called");
 
     // We use same environment for the process as was used for the
-    // parent, so remove nxsshProcess.setEnvironment();
+    // parent, so remove nxsshProcess->setEnvironment();
 
     // Start to build the arguments for the nxssh command.
     // notQProcess requires that argv[0] contains the program name
@@ -246,9 +246,9 @@ void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
     // Find a path for the nxssh process using getPath()
     string nxsshPath = this->getPath ("nxssh");
 
-    this->nxsshProcess.start(nxsshPath, arguments);
+    this->nxsshProcess->start(nxsshPath, arguments);
 
-    if (this->nxsshProcess.waitForStarted() == false) {
+    if (this->nxsshProcess->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxssh!"));
         this->isFinished = true;
@@ -266,7 +266,7 @@ void NXClientLib::requestConfirmation (string msg)
 
 void NXClientLib::reset()
 {
-    this->nxsshProcess.terminate();
+    this->nxsshProcess->terminate();
     this->isFinished = false;
     this->proxyData.encrypted = false;
     this->password = false;	
@@ -279,12 +279,12 @@ void NXClientLib::loginFailed()
         (NXCL_LOGIN_FAILED, _("Got \"Login Failed\""));
 
     this->isFinished = true;
-    this->nxsshProcess.terminate();
+    this->nxsshProcess->terminate();
 }
 
 void NXClientLib::processParseStdout()
 {
-    string message = nxsshProcess.readAllStandardOutput();
+    string message = nxsshProcess->readAllStandardOutput();
 
     this->externalCallbacks->stdoutSignal (message);
 
@@ -308,15 +308,15 @@ void NXClientLib::processParseStdout()
 
         int pid = response - 100000;
 
-        if (this->nxsshProcess.getPid() == pid) {
-            this->nxsshProcess.setError(NOTQPROCCRASHED);
+        if (this->nxsshProcess->getPid() == pid) {
+            this->nxsshProcess->setError(NOTQPROCCRASHED);
 
             this->externalCallbacks->error
                 (_("nxsshProcess crashed or exited"));
 
             this->isFinished = true;
-        } else if (this->nxproxyProcess.getPid() == pid) {
-            this->nxproxyProcess.setError(NOTQPROCCRASHED);
+        } else if (this->nxproxyProcess->getPid() == pid) {
+            this->nxproxyProcess->setError(NOTQPROCCRASHED);
 
             this->externalCallbacks->error
                 (_("nxproxyProcess crashed or exited"));
@@ -415,7 +415,7 @@ void NXClientLib::processParseStdout()
 
 void NXClientLib::processParseStderr()
 {
-    string message = nxsshProcess.readAllStandardError();
+    string message = nxsshProcess->readAllStandardError();
 
     dbgln ("In NXClientLib::processParseStderr for message: '"
             + message + "'(msg end)");
@@ -486,7 +486,7 @@ void NXClientLib::write (string data)
 
     dbgln ("Writing '" << data << "' to nxssh process.");
 
-    this->nxsshProcess.writeIn(data);
+    this->nxsshProcess->writeIn(data);
 
     if (password) {
         data = "********";
@@ -627,11 +627,11 @@ void NXClientLib::invokeProxy()
 
     string openPath = this->getPath("open");
     
-    this->x11Process.start(openPath, x11Arguments);
+    this->x11Process->start(openPath, x11Arguments);
 
     this->x11Probe = true;
     
-    if (this->x11Process.waitForStarted() == false) {
+    if (this->x11Process->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting X11!"));
         this->isFinished = true;
@@ -726,9 +726,9 @@ void NXClientLib::invokeProxy()
 
     // Find a path for the nxproxy process using getPath()
     string nxproxyPath = this->getPath ("nxproxy");
-    this->nxproxyProcess.start(nxproxyPath, arguments);
+    this->nxproxyProcess->start(nxproxyPath, arguments);
 
-    if (this->nxproxyProcess.waitForStarted() == false) {
+    if (this->nxproxyProcess->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxproxy!"));
         this->isFinished = true;
@@ -774,11 +774,11 @@ void NXClientLib::startX11 (string resolution, string name)
     nxauthArguments.push_back("MIT-MAGIC-COOKIE-1");
     nxauthArguments.push_back(cookie);
 
-    this->nxauthProcess.setCallbacks (&callbacks);
+    this->nxauthProcess->setCallbacks (&callbacks);
 
-    this->nxauthProcess.start("nxauth", nxauthArguments);
+    this->nxauthProcess->start("nxauth", nxauthArguments);
 
-    if (this->nxauthProcess.waitForStarted() == false) {
+    if (this->nxauthProcess->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
         this->isFinished = true;
@@ -834,9 +834,9 @@ void NXClientLib::startX11 (string resolution, string name)
         dimensions = strtok(NULL, "x");
     }
 
-    this->x11Process.start("nxwin", nxwinArguments);
+    this->x11Process->start("nxwin", nxwinArguments);
 
-    if (this->x11Process.waitForStarted() == false) {
+    if (this->x11Process->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
         this->isFinished = true;

@@ -313,22 +313,22 @@ namespace nxcl {
 
             notQProcess* getNXSSHProcess (void)
             {
-                return this->pNxsshProcess;
+                return this->nxsshProcess;
             }
 
             notQProcess* getNXProxyProcess (void)
             {
-                return this->pNxproxyProcess;
+                return this->nxproxyProcess;
             }
 
             notQProcess* getX11Process (void)
             {
-                return this->pX11Process;
+                return this->x11Process;
             }
 
             notQProcess* getNXAuthProcess (void)
             {
-                return this->pNxauthProcess;
+                return this->nxauthProcess;
             }
 
             bool getIsFinished (void)
@@ -412,23 +412,19 @@ namespace nxcl {
             /*!
              * The nxssh process object
              */
-            notQProcess nxsshProcess;
-            notQProcess* pNxsshProcess;
+            notQProcess* nxsshProcess;
             /*!
              * The nxproxy process object
              */
-            notQProcess nxproxyProcess;
-            notQProcess* pNxproxyProcess;
+            notQProcess* nxproxyProcess;
             /*!
              * The X11 process object
              */
-            notQProcess x11Process;
-            notQProcess* pX11Process;
+            notQProcess* x11Process;
             /*!
              * The nxauth process object
              */
-            notQProcess nxauthProcess;
-            notQProcess* pNxauthProcess;
+            notQProcess* nxauthProcess;
             /*!
              * A callbacks object. This holds the various callback
              * methods. The callback methods are defined here, but
