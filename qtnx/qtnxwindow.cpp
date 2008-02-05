@@ -156,10 +156,7 @@ void QtNXWindow::setupUI()
     connectionMenu->addSeparator();
 
     closeWindowAction = connectionMenu->addAction(
-            tr("Close QtNX when NX starts"),
-            this,
-            SLOT(closeNXStarts()),
-            QKeySequence(tr("CTRL+O")));
+            tr("Close QtNX when NX starts"));
 
     closeWindowAction->setCheckable(true);
     closeWindowAction->setChecked(true);
