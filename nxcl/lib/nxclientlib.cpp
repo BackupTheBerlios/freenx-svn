@@ -385,6 +385,7 @@ void NXClientLib::processParseStdout()
 
             this->externalCallbacks->write
                 (287, _("The session has been started successfully"));
+            this->externalCallbacks->connectedSuccessfullySignal();
             this->sessionRunning = true;
         }
 

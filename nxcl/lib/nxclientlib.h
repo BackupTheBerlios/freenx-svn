@@ -64,7 +64,7 @@ namespace nxcl {
             virtual void resumeSessionsSignal (list<NXResumeData>) {}
             virtual void noSessionsSignal (void) {}
             virtual void serverCapacitySignal (void) {}
-
+            virtual void connectedSuccessfullySignal (void) {}
     };
 
     /*!
