@@ -685,7 +685,7 @@ void NXClientLib::invokeProxy()
 
     string x11Display = "";
 
-#if NXCL_DARWIN
+#if NXCL_DARWIN || NXCL_CYGWIN
     x11Display = ",display=:0.0";
 #endif
 
@@ -742,27 +742,80 @@ void NXClientLib::startX11 (string resolution, string name)
     // Invoke NXWin.exe on Windows machines
 
     // See if XAUTHORITY path is set
+
     stringstream xauthority;
 
-    xauthority << getenv("XAUTHORITY");
+    xauthority << getenv("HOME") << "/.Xauthority";
 
-    if (xauthority.str().empty()) {
-        // We hardcode XAUTHORITY to $HOME/.Xauthority
-        xauthority << getenv("HOME") << "/.Xauthority";
+    // Now we set the environment variable
+    setenv("XAUTHORITY", xauthority.str().c_str(), 1);
+
+    // Now we actually start NXWin.exe
+    list<string> nxwinArguments;
+
+    // Arguments taken from 2X
+    nxwinArguments.push_back("NXWin");
+
+    nxwinArguments.push_back("-nowinkill");
+    nxwinArguments.push_back("-clipboard");
+    nxwinArguments.push_back("-noloadxkb");
+    nxwinArguments.push_back("-agent");
+    nxwinArguments.push_back("-hide");
+    nxwinArguments.push_back("-noreset");
+    nxwinArguments.push_back("-nolisten");
+    nxwinArguments.push_back("tcp");
+
+    // TODO: If rootless, append "-multiwindow" and "-hide" but only
+    // hide if not restoring
+
+    // Now we set up the font paths. By default this is $NX_SYSTEM/usr/X11R6/...
+
+    stringstream fontPath;
+
+    fontPath << getenv("NX_SYSTEM") << "/X11R6/lib/X11/fonts/base,"
+        << getenv("NX_SYSTEM") << "/X11R6/lib/X11/fonts/TTF";
+
+    nxwinArguments.push_back("-fp");
+    nxwinArguments.push_back(fontPath.str());
+
+    nxwinArguments.push_back("-name");
+    nxwinArguments.push_back("NXWin");
+    nxwinArguments.push_back(":0");
+
+    nxwinArguments.push_back("-screen");
+    nxwinArguments.push_back("0");
+
+    nxwinArguments.push_back(resolution);
+
+    nxwinArguments.push_back(":0");
+    nxwinArguments.push_back("-nokeyhook");
+
+    string nxwinPath = this->getPath("nxwin");
+
+    this->x11Process->start(nxwinPath, nxwinArguments);
+
+    this->x11Probe = true;
+
+    if (this->x11Process->waitForStarted() == false) {
+        this->externalCallbacks->write
+            (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
+        this->isFinished = true;
     }
 
-    // Now we add a cookie to this auth file
+    this->x11Probe = false;
+
+    list<string> nxauthArguments;
 
     char hostname[256];
 
     gethostname(hostname, 256);
 
     string cookie = getSession()->generateCookie();
+    cookie.resize(32);
+
     stringstream domain;
 
-    domain << getenv("HOME") << ":0.0";
-
-    list<string> nxauthArguments;
+    domain << hostname << "/unix:0";
 
     // These arguments taken from the 2X GPL client
     // We're going to assume that nxauth is in PATH
@@ -782,64 +835,6 @@ void NXClientLib::startX11 (string resolution, string name)
     if (this->nxauthProcess->waitForStarted() == false) {
         this->externalCallbacks->write
             (NXCL_PROCESS_ERROR, _("Error starting nxauth!"));
-        this->isFinished = true;
-    }
-
-    // Now we actually start NXWin.exe
-
-    list<string> nxwinArguments;
-
-    // Arguments taken from 2X
-    nxwinArguments.push_back("NXWin");
-    nxwinArguments.push_back("-auth");
-
-    stringstream xauthPath;
-    xauthPath << "'" << xauthority.str() << "'";
-
-    nxwinArguments.push_back(xauthPath.str());
-    nxwinArguments.push_back("-nowinkill");
-    nxwinArguments.push_back("-clipboard");
-    nxwinArguments.push_back("-noloadxkb");
-
-    // TODO: If rootless, append "-multiwindow" and "-hide" but only
-    // hide if not restoring
-
-    // Now we set up the font paths. By default this is $PWD/usr/X11R6/...
-
-    stringstream fontPath;
-
-    fontPath << "\"" << "usr/X11R6/lib/X11/fonts/TTF" << "\","
-        << "\"" << "usr/X11R6/lib/X11/fonts/misc" << "\","
-        << "\"" << "usr/X11R6/lib/X11/fonts/Speedo" << "\","
-        << "\"" << "usr/X11R6/lib/X11/fonts/Type1" << "\","
-        << "\"" << "usr/X11R6/lib/X11/fonts/75dpi" << "\","
-        << "\"" << "usr/X11R6/lib/X11/fonts/100dpi" << "\"";
-
-    nxwinArguments.push_back("-fp");
-    nxwinArguments.push_back(fontPath.str());
-    nxwinArguments.push_back("-agent");
-    nxwinArguments.push_back("-emulate3buttons");
-    nxwinArguments.push_back("-hide");
-    nxwinArguments.push_back("-noreset");
-    nxwinArguments.push_back("-name");
-    nxwinArguments.push_back("NXWin");
-    nxwinArguments.push_back("0");
-
-    nxwinArguments.push_back("-screen");
-    nxwinArguments.push_back("0");
-
-    char* dimensions = strtok(const_cast<char*>(resolution.c_str()), "x");
-
-    while (dimensions != NULL) {
-        nxwinArguments.push_back(dimensions);
-        dimensions = strtok(NULL, "x");
-    }
-
-    this->x11Process->start("nxwin", nxwinArguments);
-
-    if (this->x11Process->waitForStarted() == false) {
-        this->externalCallbacks->write
-            (NXCL_PROCESS_ERROR, _("Error starting nxwin!"));
         this->isFinished = true;
     }
 #endif
