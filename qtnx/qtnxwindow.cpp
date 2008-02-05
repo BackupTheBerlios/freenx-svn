@@ -395,7 +395,7 @@ void QtNXWindow::handleLogging(QString message)
     else
         cout << message.toStdString();
 
-    log->setPlainText(log->toPlainText() + message);
+    ui_lw.output->append(message);
 }
 
 void QtNXWindow::handleProgress(int id, QString message)
