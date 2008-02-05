@@ -170,7 +170,6 @@ NXClientLib::NXClientLib() :
 NXClientLib::~NXClientLib()
 {
     dbgln ("In NXClientLib destructor");
-    this->nxsshProcess->terminate();
 }
 
 void NXClientLib::invokeNXSSH (string publicKey, string serverHost,
