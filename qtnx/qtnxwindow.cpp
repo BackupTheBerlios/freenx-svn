@@ -37,6 +37,8 @@ QtNXWindow::QtNXWindow() :
     sessionsDialog(NULL),
     processProbe(new QTimer())
 {
+    setWindowTitle("QtNX");
+
     initialiseClient();
 
     setupUI();
