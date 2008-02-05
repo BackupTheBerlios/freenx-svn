@@ -111,6 +111,16 @@ void QtNXWindow::initialiseClient()
     setenv("NX_SYSTEM", binaryPath.toStdString().c_str(), 1);
 #endif
 
+#ifdef Q_CYGWIN_WIN
+    QString filePath = qApp->applicationDirPath();
+
+    // On Windows QtNX will ship with the NX system components in NX/ relative to the
+    // QtNX binary
+    filePath.append("/NX");
+    setenv("NX_SYSTEM", filePath.toStdString().c_str(), 1);
+    filePath.append("/bin");
+    m_NXClient->setCustomPath(filePath.toStdString());
+#endif
 }
 
 void QtNXWindow::setupUI()
