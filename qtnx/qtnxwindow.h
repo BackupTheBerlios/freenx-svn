@@ -77,12 +77,17 @@ class QtNXCallback :
 
         void serverCapacitySignal()
           { emit atCapacity(); }
+
+        void connectedSuccessfullySignal()
+          { emit connectedSuccessfully(); }
+
     signals:
         void logging(QString);
         void status(QString);
         void progress(int, QString);
         void debug(QString);
         void error(QString);
+        void connectedSuccessfully();
 
         void suspendedSessions(QList<NXResumeData>);
         void noSessions();

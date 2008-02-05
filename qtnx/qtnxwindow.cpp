@@ -45,7 +45,7 @@ QtNXWindow::QtNXWindow() :
 
     QDir dir(QDir::homePath() + "/.qtnx", "*.nxml");
 
-    for (unsigned int i = 0; i<dir.count(); i++) {
+    for (unsigned int i = 0; i < dir.count(); i++) {
         QString conn=dir[i];
         ui_lg.session->addItem(conn.left(conn.length() - 5));
     }
@@ -73,6 +73,8 @@ QtNXWindow::QtNXWindow() :
             SLOT(handleProgress(int, QString)));
 
     connect(&callback, SIGNAL(atCapacity()), this, SLOT(handleAtCapacity()));
+
+    connect(&callback, SIGNAL(connectedSuccessfully()), this, SLOT(close()));
 }
 
 QtNXWindow::~QtNXWindow()
