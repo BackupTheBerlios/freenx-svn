@@ -31,14 +31,56 @@
 using namespace nxcl;
 using namespace std;
 
-QtNXWindow::QtNXWindow() : 
+QtNXWindow::QtNXWindow() :
     QMainWindow(),
+    sessionsDialog(NULL),
     processProbe(new QTimer()),
-    sessionsDialog(NULL)
+    m_NXClient(new NXClientLib())
 {
-    nxClient.setExternalCallbacks(&callback);
+    initiateNXClient();
 
     setupUI();
+
+    QDir dir(QDir::homePath() + "/.qtnx", "*.nxml");
+
+    for (unsigned int i = 0; i<dir.count(); i++) {
+        QString conn=dir[i];
+        ui_lg.session->addItem(conn.left(conn.length() - 5));
+    }
+
+    ui_lg.session->addItem(tr("Create new session"));
+
+    connect(ui_lg.connectButton, SIGNAL(pressed()), this, SLOT(startConnect()));
+    connect(ui_lg.password, SIGNAL(returnPressed()), this, SLOT(startConnect()));
+
+    connect(ui_lg.configureButton, SIGNAL(pressed()), this, SLOT(configure()));
+
+    connect(processProbe, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+
+    connect(&callback, SIGNAL(logging(QString)), this, SLOT(handleLogging(QString)));
+
+    connect(&callback, SIGNAL(status(QString)), this,
+            SLOT(handleStatus(QString)));
+
+    connect(&callback, SIGNAL(suspendedSessions(QList<NXResumeData>)), this,
+            SLOT(handleSuspendedSessions(QList<NXResumeData>)));
+
+    connect(&callback, SIGNAL(noSessions()), this, SLOT(handleNoSessions()));
+
+    connect(&callback, SIGNAL(progress(int, QString)), this,
+            SLOT(handleProgress(int, QString)));
+
+    connect(&callback, SIGNAL(atCapacity()), this, SLOT(handleAtCapacity()));
+}
+
+QtNXWindow::~QtNXWindow()
+{
+    delete m_NXClient;
+}
+
+void QtNXWindow::initiateNXClient()
+{
+    m_NXClient->setExternalCallbacks(&callback);
 
 #ifdef Q_WS_MAC
     // We ship nxproxy and nxssh in qtnx.app/Contents/MacOS
@@ -55,35 +97,11 @@ QtNXWindow::QtNXWindow() :
     binaryPath = pathPtr;
     binaryPath.append("/Contents/MacOS");
 
-    nxClient.setCustomPath(binaryPath.toStdString());
+    m_NXClient->setCustomPath(binaryPath.toStdString());
 
     setenv("NX_SYSTEM", binaryPath.toStdString().c_str(), 1);
 #endif
 
-    QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
-
-    for (unsigned int i=0;i<dir.count();i++) {
-        QString conn=dir[i];
-        ui_lg.session->addItem(conn.left(conn.length()-5));
-    }
-
-    ui_lg.session->addItem(tr("Create new session"));
-
-    connect(ui_lg.connectButton, SIGNAL(pressed()), this, SLOT(startConnect()));
-    connect(ui_lg.configureButton, SIGNAL(pressed()), this, SLOT(configure()));
-    connect(processProbe, SIGNAL(timeout()), this, SLOT(processProbeTimeout()));
-    connect(&callback, SIGNAL(logging(QString)), this, SLOT(logStd(QString)));
-    connect(&callback, SIGNAL(status(QString)), this, 
-            SLOT(updateStatusBar(QString)));
-    connect(&callback, SIGNAL(suspendedSessions(QList<NXResumeData>)), this,
-            SLOT(loadResumeDialog(QList<NXResumeData>)));
-    connect(&callback, SIGNAL(noSessions()), this, SLOT(noSessions()));
-    connect(&callback, SIGNAL(progress(int, QString)), this, 
-            SLOT(handleProgress(int, QString)));
-}
-
-QtNXWindow::~QtNXWindow()
-{
 }
 
 void QtNXWindow::setupUI()
@@ -135,60 +153,29 @@ void QtNXWindow::showLogWindow()
         logWindow->hide();
 }
 
-void QtNXWindow::handleProgress(int id, QString message)
-{
-    if (!message.isEmpty())
-        message = ": " + message;
-
-    switch (id) {
-        case NXCL_PROCESS_STARTED:
-            updateStatusBar(tr("Process started"));
-            break;
-        case NXCL_PROCESS_EXITED:
-            updateStatusBar(tr("Process exited"));
-            break;
-        case NXCL_AUTH_FAILED:
-            updateStatusBar(tr("Invalid authentication key"));
-            break;
-        case NXCL_AUTHENTICATING:
-            updateStatusBar(tr("Authenticating client"));
-            break;
-        case NXCL_LOGIN_FAILED:
-            updateStatusBar(tr("Invalid username or password"));
-            failedLogin();
-            break;
-        case NXCL_HOST_KEY_VERIFAILED:
-            updateStatusBar(tr("Host key verification failed"));
-            break;
-        case NXCL_INVOKE_PROXY:
-            updateStatusBar(tr("Starting NX proxy"));
-            break;
-        case NXCL_STARTING:
-            updateStatusBar(tr("Starting session"));
-            break;
-        case NXCL_FINISHED:
-            updateStatusBar(tr("Finished connecting"));
-            break;
-        case NXCL_ALIVE:
-            updateStatusBar(tr("NX session active"));
-            break;
-        case NXCL_PROCESS_ERROR:
-            updateStatusBar(tr("Process error"));
-            break;
-        default:
-            break;
-    }
-}
-
 void QtNXWindow::failedLogin()
 {
     QMessageBox::critical(this, tr("Authentication failure"),
-            tr("You have supplied an incorrect username or password for this \
-                NX server."), QMessageBox::Ok, QMessageBox::NoButton,
+            tr("You have supplied an incorrect username or password for this " \
+               "NX server."), QMessageBox::Ok, QMessageBox::NoButton,
+            QMessageBox::NoButton);
+
+    statusBar->showMessage(tr("Login failed"));
+
+    delete m_NXClient;
+    m_NXClient = new NXClientLib();
+    initiateNXClient();
+}
+
+void QtNXWindow::handleAtCapacity()
+{
+    QMessageBox::critical(this, tr("Server at capacity"),
+            tr("This NX server is running at capacity."), QMessageBox::Ok, QMessageBox::NoButton,
             QMessageBox::NoButton);
 
     statusBar->showMessage(tr("Login failed"));
 }
+
 void QtNXWindow::sshContinue(QString message)
 {
     /*TODO: this is not functionally available in nxcl
@@ -201,9 +188,9 @@ void QtNXWindow::sshContinue(QString message)
             QMessageBox::NoButton);
 
     if (reply == QMessageBox::Yes)
-        nxClient.allowSSHConnect(true);
+        m_NXClient->allowSSHConnect(true);
     else
-        nxClient.allowSSHConnect(false);
+        m_NXClient->allowSSHConnect(false);
     */
 }
 
@@ -238,13 +225,13 @@ void QtNXWindow::startConnect()
     string username = ui_lg.username->text().toStdString();
     string password = ui_lg.password->text().toStdString();
 
-    nxClient.setSessionData(&session);
+    m_NXClient->setSessionData(&session);
 
-    nxClient.setUsername(username);
-    nxClient.setPassword(password);
-    nxClient.setResolution(getWidth(), getHeight());
+    m_NXClient->setUsername(username);
+    m_NXClient->setPassword(password);
+    m_NXClient->setResolution(getWidth(), getHeight());
 
-    nxClient.setDepth(getDepth());
+    m_NXClient->setDepth(getDepth());
 
     QString keyPath = "id.key";
 
@@ -252,8 +239,9 @@ void QtNXWindow::startConnect()
     keyPath = binaryPath + "/id.key";
 #endif
 
-    nxClient.invokeNXSSH(keyPath.toStdString(), config.serverHost, config.encryption, "",
+    m_NXClient->invokeNXSSH(keyPath.toStdString(), config.serverHost, config.encryption, "",
             config.serverPort);
+
     processProbe->start(30);
 }
 
@@ -298,28 +286,23 @@ int QtNXWindow::getHeight()
     return qApp->desktop()->screenGeometry(this).height();
 }
 
-void QtNXWindow::updateStatusBar(QString message)
+void QtNXWindow::handleTimeout()
 {
-    statusBar->showMessage(message);
-}
+    notQProcess* p = m_NXClient->getNXSSHProcess();
 
-void QtNXWindow::processProbeTimeout()
-{
-    notQProcess* p = nxClient.getNXSSHProcess();
-
-    if ((nxClient.getIsFinished()) == false) {
-        if (nxClient.getReadyForProxy() == false) {
+    if ((m_NXClient->getIsFinished()) == false) {
+        if (m_NXClient->getReadyForProxy() == false) {
             p->probeProcess();
-        } else if (nxClient.needX11Probe()) {
+        } else if (m_NXClient->needX11Probe()) {
             p->probeProcess();
-            p = nxClient.getX11Process();
+            p = m_NXClient->getX11Process();
             p->probeProcess();
         } else {
             p->probeProcess();
-            p = nxClient.getNXProxyProcess();
+            p = m_NXClient->getNXProxyProcess();
             p->probeProcess();
         }
-        if (!nxClient.getSessionRunning())
+        if (!m_NXClient->getSessionRunning())
             processProbe->start(30);
         else {
             processProbe->start(2000);
@@ -347,7 +330,7 @@ void QtNXWindow::configureClosed()
         ui_lg.session->removeItem(0);
     }
 
-    QDir dir(QDir::homePath()+"/.qtnx","*.nxml");
+    QDir dir(QDir::homePath() + "/.qtnx", "*.nxml");
     for (unsigned int i=0;i<dir.count();i++) {
         QString conn=dir[i];
         ui_lg.session->addItem(conn.left(conn.length()-5));
@@ -355,7 +338,27 @@ void QtNXWindow::configureClosed()
     ui_lg.session->addItem(tr("Create new session"));
 }
 
-void QtNXWindow::loadResumeDialog(QList<NXResumeData> data)
+void QtNXWindow::resumeNewPressed()
+{
+    m_NXClient->setSessionData(&session);
+    m_NXClient->runSession();
+}
+
+void QtNXWindow::resumeResumePressed(QString id)
+{
+    session.id = id.toStdString();
+    session.suspended = true;
+    m_NXClient->setSessionData(&session);
+    m_NXClient->runSession();
+}
+
+void QtNXWindow::handleStatus(QString message)
+{
+    handleLogging(message);
+    statusBar->showMessage(message);
+}
+
+void QtNXWindow::handleSuspendedSessions(QList<NXResumeData> data)
 {
     delete sessionsDialog;
     sessionsDialog = new QtNXSessions(data);
@@ -366,28 +369,14 @@ void QtNXWindow::loadResumeDialog(QList<NXResumeData> data)
             this, SLOT(resumeResumePressed(QString)));
 }
 
-void QtNXWindow::resumeNewPressed()
-{
-    nxClient.setSessionData(&session);
-    nxClient.runSession();
-}
-
-void QtNXWindow::resumeResumePressed(QString id)
-{
-    session.id = id.toStdString();
-    session.suspended = true;
-    nxClient.setSessionData(&session);
-    nxClient.runSession();
-}
-
-void QtNXWindow::noSessions()
+void QtNXWindow::handleNoSessions()
 {
     session.suspended = false;
-    nxClient.setSessionData(&session);
-    nxClient.runSession();
+    m_NXClient->setSessionData(&session);
+    m_NXClient->runSession();
 }
 
-void QtNXWindow::logStd(QString message)
+void QtNXWindow::handleLogging(QString message)
 {
     if (message.right(1) != "\n")
         cout << message.toStdString() << endl;
@@ -395,5 +384,50 @@ void QtNXWindow::logStd(QString message)
         cout << message.toStdString();
 
     log->setPlainText(log->toPlainText() + message);
+}
+
+void QtNXWindow::handleProgress(int id, QString message)
+{
+    if (!message.isEmpty())
+        message = ": " + message;
+
+    switch (id) {
+        case NXCL_PROCESS_STARTED:
+            handleStatus(tr("Process started"));
+            break;
+        case NXCL_PROCESS_EXITED:
+            handleStatus(tr("Process exited"));
+            break;
+        case NXCL_AUTH_FAILED:
+            handleStatus(tr("Invalid authentication key"));
+            break;
+        case NXCL_AUTHENTICATING:
+            handleStatus(tr("Authenticating client"));
+            break;
+        case NXCL_LOGIN_FAILED:
+            handleStatus(tr("Invalid username or password"));
+            failedLogin();
+            break;
+        case NXCL_HOST_KEY_VERIFAILED:
+            handleStatus(tr("Host key verification failed"));
+            break;
+        case NXCL_INVOKE_PROXY:
+            handleStatus(tr("Starting NX proxy"));
+            break;
+        case NXCL_STARTING:
+            handleStatus(tr("Starting session"));
+            break;
+        case NXCL_FINISHED:
+            handleStatus(tr("Finished connecting"));
+            break;
+        case NXCL_ALIVE:
+            handleStatus(tr("NX session active"));
+            break;
+        case NXCL_PROCESS_ERROR:
+            handleStatus(tr("Process error"));
+            break;
+        default:
+            break;
+    }
 }
 

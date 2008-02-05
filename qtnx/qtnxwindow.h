@@ -76,7 +76,7 @@ class QtNXCallback :
           { emit noSessions(); }
 
         void serverCapacitySignal()
-          { emit serverAtCapacity(); }
+          { emit atCapacity(); }
     signals:
         void logging(QString);
         void status(QString);
@@ -86,7 +86,7 @@ class QtNXCallback :
 
         void suspendedSessions(QList<NXResumeData>);
         void noSessions();
-        void serverAtCapacity();
+        void atCapacity();
 };
 
 class QtNXWindow : public QMainWindow
@@ -100,22 +100,28 @@ class QtNXWindow : public QMainWindow
         void startConnect();
         void configure();
         void configureClosed();
-        void loadResumeDialog(QList<NXResumeData>);
+
+        // Callback handlers
+        void handleSuspendedSessions(QList<NXResumeData>);
+        void handleNoSessions();
+        void handleLogging(QString);
+        void handleTimeout();
+        void handleProgress(int, QString);
+        void handleStatus(QString);
+        void handleAtCapacity();
+
         void resumeNewPressed();
         void resumeResumePressed(QString);
-        void noSessions();
         void sshContinue(QString);
-        void updateStatusBar(QString);
         void failedLogin();
         void showLogWindow();
-        void logStd(QString);
-        void processProbeTimeout();
-        void handleProgress(int, QString);
     private:
 
         // Decided to split up the code
         void setupUI();
         void setDefaultData();
+        void initiateNXClient();
+
         int getWidth();
         int getHeight();
         int getDepth();
@@ -126,7 +132,7 @@ class QtNXWindow : public QMainWindow
         NXSessionData session;
         NXConfigData config;
 
-        NXClientLib nxClient;
+        NXClientLib *m_NXClient;
 
         QtNXSettings *settingsDialog;
         QtNXSessions *sessionsDialog;
