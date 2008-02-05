@@ -99,7 +99,7 @@ class QtNXWindow : public QMainWindow
     public slots:
         void startConnect();
         void configure();
-        void configureClosed();
+        void configureClosed(QString);
 
         // Callback handlers
         void handleSuspendedSessions(QList<NXResumeData>);

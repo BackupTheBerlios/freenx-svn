@@ -48,7 +48,7 @@ class QtNXSettings : public QDialog
         void keyDialogAccept();
         void keyDialogReject();
 signals:
-        void closing();
+        void closing(QString);
     private:
         Ui::SettingsDialog ui_sd;
         Ui::KeyDialog ui_kd;

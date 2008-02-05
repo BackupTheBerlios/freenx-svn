@@ -187,7 +187,7 @@ void QtNXSettings::cancelPressed()
 void QtNXSettings::okPressed()
 {
     applyPressed();
-    emit closing();
+    emit closing(ui_sd.sessionName->text());
     close();
 }
 
