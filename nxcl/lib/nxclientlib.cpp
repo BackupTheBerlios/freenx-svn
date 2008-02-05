@@ -453,6 +453,7 @@ void NXClientLib::processParseStderr()
 
             this->externalCallbacks->write
                 (287, _("The session has been started successfully"));
+            this->externalCallbacks->connectedSuccessfullySignal();
 
         } else if ((*msgiter).find
                 ("NX> 209 Remote host identification has changed") !=
