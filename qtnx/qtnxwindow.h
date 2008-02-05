@@ -120,7 +120,8 @@ class QtNXWindow : public QMainWindow
         // Decided to split up the code
         void setupUI();
         void setDefaultData();
-        void initiateNXClient();
+        void initialiseClient();
+        void reinitialiseClient();
 
         int getWidth();
         int getHeight();

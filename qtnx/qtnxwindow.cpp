@@ -33,11 +33,11 @@ using namespace std;
 
 QtNXWindow::QtNXWindow() :
     QMainWindow(),
+    m_NXClient(new NXClientLib()),
     sessionsDialog(NULL),
-    processProbe(new QTimer()),
-    m_NXClient(new NXClientLib())
+    processProbe(new QTimer())
 {
-    initiateNXClient();
+    initialiseClient();
 
     setupUI();
 
@@ -78,7 +78,7 @@ QtNXWindow::~QtNXWindow()
     delete m_NXClient;
 }
 
-void QtNXWindow::initiateNXClient()
+void QtNXWindow::initialiseClient()
 {
     m_NXClient->setExternalCallbacks(&callback);
 
@@ -162,9 +162,7 @@ void QtNXWindow::failedLogin()
 
     statusBar->showMessage(tr("Login failed"));
 
-    delete m_NXClient;
-    m_NXClient = new NXClientLib();
-    initiateNXClient();
+    reinitialiseClient();
 }
 
 void QtNXWindow::handleAtCapacity()
@@ -174,6 +172,16 @@ void QtNXWindow::handleAtCapacity()
             QMessageBox::NoButton);
 
     statusBar->showMessage(tr("Login failed"));
+
+    reinitialiseClient();
+}
+
+void QtNXWindow::reinitialiseClient()
+{
+    delete m_NXClient;
+
+    m_NXClient = new NXClientLib();
+    initialiseClient();
 }
 
 void QtNXWindow::sshContinue(QString message)
