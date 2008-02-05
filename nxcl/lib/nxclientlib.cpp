@@ -694,7 +694,6 @@ void NXClientLib::invokeProxy()
     if (proxyData.encrypted) {
         data << "nx/nx" << x11Display << ",session=session,encryption=1,cookie="
             << proxyData.cookie
-            << ",root=" << home << "/.nx"
             << ",id=" << proxyData.id << ",listen=" 
             << proxyData.port << ":" << proxyData.display << "\n";
         // may also need shmem=1,shpix=1,font=1,product=...
@@ -702,8 +701,7 @@ void NXClientLib::invokeProxy()
     } else {
         // Not tested yet
         data << "nx/nx" << x11Display << ",session=session,cookie=" << proxyData.cookie
-            << ",root=" << home
-            << "/.nx,id=" << proxyData.id
+            << ",id=" << proxyData.id
             // << ",connect=" << proxyData.server << ":" << proxyData.display
             << ",listen=" << proxyData.port << ":" << proxyData.display
             << "\n";
