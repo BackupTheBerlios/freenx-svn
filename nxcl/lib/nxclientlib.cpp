@@ -608,14 +608,22 @@ void NXClientLib::invokeProxy()
 #if NXCL_CYGWIN
     NXSessionData* sessionData = getSession()->getSessionData();
 
-    stringstream resolution;
+    string res;
 
-    ostringstream dimensionX, dimensionY;
-    dimensionX << sessionData->xRes;
-    dimensionY << sessionData->yRes;
+    if (sessionData->geometry == "fullscreen") {
+        stringstream resolution;
 
-    resolution << dimensionX.str() << "x" << dimensionY.str();
-    startX11(resolution.str(), "");
+        ostringstream dimensionX, dimensionY;
+        dimensionX << sessionData->xRes;
+        dimensionY << sessionData->yRes;
+
+        resolution << dimensionX.str() << "x" << dimensionY.str();
+        res = resolution.str();
+    } else {
+        res = sessionData->geometry;
+    }
+
+    startX11(res, "");
 #endif
 
 #if NXCL_DARWIN
