@@ -37,6 +37,9 @@ QtNXWindow::QtNXWindow() :
     sessionsDialog(NULL),
     processProbe(new QTimer())
 {
+#ifdef Q_CYGWIN_WIN
+    qApp->setStyle("plastique");
+#endif
     setWindowTitle("QtNX");
 
     initialiseClient();

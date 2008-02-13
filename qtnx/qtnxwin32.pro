@@ -17,3 +17,7 @@ QMAKE_LFLAGS += -Wl,-subsystem,windows
 QT += ui xml
 
 TARGET		= qtnx
+
+QMAKE_CXXFLAGS += $$system(pkg-config --cflags nxcl)
+
+LIBS += $$system(pkg-config --libs nxcl)
