@@ -828,7 +828,9 @@ void NXClientLib::startX11 (string resolution, string name)
 
     this->nxauthProcess->setCallbacks (&callbacks);
 
-    this->nxauthProcess->start("nxauth", nxauthArguments);
+    string nxauthPath = this->getPath("nxauth");
+
+    this->nxauthProcess->start(nxauthPath, nxauthArguments);
 
     if (this->nxauthProcess->waitForStarted() == false) {
         this->externalCallbacks->write
