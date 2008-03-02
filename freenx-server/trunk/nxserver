@@ -1221,7 +1221,7 @@ server_startrestore_session()
 			
 		while true
 		do
-			while [ -e /tmp/.X$SESS_DISPLAY-lock -o -e "/tmp/.nX$SESS_DISPLAY-lock" ]
+			while [ -e /tmp/.X$SESS_DISPLAY-lock -o -e "/tmp/.nX$SESS_DISPLAY-lock"  -o -e "/tmp/.X11-unix/X$SESS_DISPLAY" ]
 			do
 				let SESS_DISPLAY=$SESS_DISPLAY+1
 			done
