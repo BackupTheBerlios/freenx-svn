@@ -443,8 +443,8 @@
 # Misc directives
 #########################################################################
 
-# When you installed a 2.0.0 NX Backend, set this to 1.
-#ENABLE_2_0_0_BACKEND="0"
+# When you installed an old 1.5.0 NX Backend, set this to 1.
+#ENABLE_1_5_0_BACKEND="0"
 
 # When set to 1 this will automatically resume started sessions
 #ENABLE_AUTORECONNECT="0"

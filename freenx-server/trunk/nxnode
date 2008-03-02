@@ -419,7 +419,7 @@ node_start_agent()
 	# backingstore
 	
 	B=""
-	if [ -n "$backingstore" -a "$ENABLE_2_0_0_BACKEND" != "1" ]
+	if [ -n "$backingstore" -a "$ENABLE_1_5_0_BACKEND" = "1" ]
 	then
 		[ "$backingstore" != 1 ] && B="-bs $backingstore"
 		[ "$backingstore" = 1 ] && B="+bs"
@@ -976,8 +976,13 @@ node_start_monitor_1_5_0()
 
 node_start_monitor()
 {
-	[ "$ENABLE_2_0_0_BACKEND" = "1" ] && node_start_monitor_2_0_0 "$@"
-	[ "$ENABLE_2_0_0_BACKEND" = "1" ] || node_start_monitor_1_5_0 "$@"
+	if [ "$ENABLE_1_5_0_BACKEND" = "1" ]
+	then
+		node_start_monitor_1_5_0 "$@"
+	else
+		node_start_monitor_2_0_0 "$@"
+	fi
+
 }
 
 #

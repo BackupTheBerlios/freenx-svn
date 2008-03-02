@@ -194,7 +194,7 @@ COMMAND_X11VNC="x11vnc"
 
 # Misc directives
 
-ENABLE_2_0_0_BACKEND=""
+ENABLE_1_5_0_BACKEND=""
 ENABLE_AUTORECONNECT="0"
 ENABLE_AUTORECONNECT_BEFORE_140="1"
 EXPORT_USERIP="0"
@@ -298,11 +298,10 @@ fi
 [ -z "$PROXY_LIBRARY_PATH" ] && PROXY_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PATH" ] && APPLICATION_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so:$APPLICATION_LIBRARY_PATH/libXcompext.so:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"
-if [ -z "$ENABLE_2_0_0_BACKEND" ]
+if [ -z "$ENABLE_1_5_0_BACKEND" ]
 then
-	ENABLE_2_0_0_BACKEND="1"
-	[ -z "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 2.[01].0|NXAGENT - Version 3.0.0')" ] && ENABLE_2_0_0_BACKEND="0"
-fi 
+	[ -n "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 1.5.0')" ] && ENABLE_1_5_0_BACKEND="1"
+fi
 
 if [ "$ENABLE_KDE_CUPS" = "1" ]
 then
@@ -578,8 +577,8 @@ then
 	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
 
-	[ -z "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 1.5.0|NXAGENT - Version 2.[01].0|NXAGENT - Version 3.0.0')" ] && \
-		ERROR="yes" && echo "Error: Could not find 1.5.0 or 2.[01].0 or 3.0.0 version string in nxagent. NX 1.5.0 or 2.[01].0 or 3.0.0 backend is needed for this version of FreeNX."
+	[ -z "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 1.5.0|NXAGENT - Version 2.[01].0|NXAGENT - Version 3.[01].0')" ] && \
+		ERROR="yes" && echo "Error: Could not find 1.5.0 or 2.[01].0 or 3.[01].0 version string in nxagent. NX 1.5.0 or 2.[01].0 or 3.[01].0 backend is needed for this version of FreeNX."
 		
 	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""

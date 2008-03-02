@@ -37,6 +37,9 @@ xx.01.2008 FreeNX 0.7.2
 	* Set ENABLE_USESSION="1" option by default - its hard to find and those who know can
 	  shut it off anyway. Added automatic adding of user nx to group utmp.
 	  (Patch by Gentoo Portage)
+	* Added support for 3.1.0 and later backends. Made 2.0.0 backend the
+	  default and added a fallback to 1.5.0 via the same detection mechanism.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 
