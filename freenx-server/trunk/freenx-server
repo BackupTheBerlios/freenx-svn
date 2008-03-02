@@ -16,8 +16,10 @@ case "$1" in
 	start)
 		[ ! -d "/tmp/.X11-unix" ] && mkdir -m1755 /tmp/.X11-unix/
 		$PATH_BIN/nxserver --cleanup
+		$PATH_BIN/nxserver --start
 	;;
 	stop)
+		$PATH_BIN/nxserver --stop
 		$PATH_BIN/nxserver --cleanup
 	;;	
 	*)
