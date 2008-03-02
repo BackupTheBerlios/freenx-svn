@@ -426,7 +426,7 @@ session_suspend()
 # Main nxserver <-> nxclient communication module
 #
 
-if [ $USER = "nxfree" -o "$USER" = "nx" -o "$ENABLE_USERMODE_AUTHENTICATION" = "1" ]
+if [ "$USER" = "nxfree" -o "$USER" = "nx" -o "$ENABLE_USERMODE_AUTHENTICATION" = "1" ]
 then
 
 setup_usermode_auth()
