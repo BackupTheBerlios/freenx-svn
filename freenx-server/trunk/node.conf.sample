@@ -152,6 +152,21 @@
 #
 #ENABLE_CLIPBOARD="both"
 
+
+#
+# Enable or disable the pulldown dialog, which provides a graphical
+# way to suspend or terminate the rootless session:
+#
+# 1: Enabled. The pulldown menu is shown when the mouse pointer
+#     moves near the middle of the top boundary of a window and
+#     allows the user to suspend or terminate the session by means
+#     of an icon-click.
+#
+# 0: Disabled. The ctrl+alt+T key combination has to be issued
+#     to get the dialog for suspending or terminating the session.
+#
+#ENABLE_PULLDOWN_MENU="1"
+
 #########################################################################
 # Logging directives
 #########################################################################

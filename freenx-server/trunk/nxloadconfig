@@ -113,6 +113,7 @@ ENABLE_MIRROR_VIA_VNC=1
 ENABLE_DESKTOP_SHARING=1
 
 ENABLE_CLIPBOARD="both"
+ENABLE_PULLDOWN_MENU="1"
 
 # Logging directives
 
@@ -300,7 +301,7 @@ fi
 [ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so:$APPLICATION_LIBRARY_PATH/libXcompext.so:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"
 if [ -z "$ENABLE_1_5_0_BACKEND" ]
 then
-	[ -n "$(strings $PATH_BIN/nxagent | egrep 'NXAGENT - Version 1.5.0')" ] && ENABLE_1_5_0_BACKEND="1"
+	[ -n "$(strings $PATH_BIN/nxagent 2>/dev/null | egrep 'NXAGENT - Version 1.5.0')" ] && ENABLE_1_5_0_BACKEND="1"
 fi
 
 if [ "$ENABLE_KDE_CUPS" = "1" ]
