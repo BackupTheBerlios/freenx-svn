@@ -671,7 +671,10 @@ do
 			echo_x $USER
 			
 			echo_x -n "NX> 102 Password: "
+			old_ifs="$IFS"
+			export IFS=$'\n'
 			read -s PASS
+			export IFS="$old_ifs"
 			echo_x ""
 			log 6 -n "Info: Auth method: "
 			
