@@ -141,7 +141,10 @@ parse_cmdline "$@"
 
 run_nscd()
 {
-	nscd "$@" 2>/dev/null || true
+	if [ -f /var/run/nscd/nscd.pid ]
+	then
+		nscd "$@" 2>/dev/null || true
+	fi
 }
 
 nx_user_exists()
