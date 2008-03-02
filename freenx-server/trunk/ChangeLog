@@ -46,6 +46,8 @@ xx.01.2008 FreeNX 0.7.2
 	* Fixed a small bug in nxserver when password has spaces at the end or
 	  beginning.
 	  (Dimitar Paskov)
+	* Fixed round-robin mode of load balancing.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 

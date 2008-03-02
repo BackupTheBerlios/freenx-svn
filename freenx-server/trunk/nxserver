@@ -1037,7 +1037,7 @@ server_loadbalance_round_robin()
 		return
 	fi
 	
-	trap "rm -f $SERVER_LB_LOCKFILE $NX_SESS_DIR/round-robin.lock" EXIT
+	trap "rm -f \"$SERVER_LB_LOCKFILE\" \"$NX_SESS_DIR/round-robin.lock\"" EXIT
 
 	# Lock held
 
@@ -1046,7 +1046,7 @@ server_loadbalance_round_robin()
 	echo $SERVER_LB_NR >$NX_SESS_DIR/round-robin
 
 	# Exit critical section
-	rm -f "$SERVER_LB_LOCKFILE $NX_SESS_DIR/round-robin.lock"
+	rm -f "$SERVER_LB_LOCKFILE" "$NX_SESS_DIR/round-robin.lock"
 
 	trap - EXIT
 
