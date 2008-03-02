@@ -469,7 +469,7 @@
 # Note: You have to make sure that you add the nx user to the
 #       utmp or tty group or how its called on your system
 #       before this directive works.
-#ENABLE_USESSION="0"
+#ENABLE_USESSION="1"
 #COMMAND_SESSREG="sessreg"
 
 # Extra options sent to the different nx agents. See !M documentation

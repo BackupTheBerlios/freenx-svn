@@ -269,6 +269,13 @@ install_nx()
 		echo "done"
 	fi
 	
+	if [ "$ENABLE_USESSION" = "1" ]
+	then
+		echo -n "Adding user \"nx\" to group \"utmp\" ..."
+		usermod -G utmp nx
+		echo "done"
+	fi
+	
 	if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a -x "$NOMACHINE_SERVER" ]
 	then
 		echo -n "Setting up NoMachine forwarding ..."

@@ -34,6 +34,9 @@ xx.01.2008 FreeNX 0.7.2
 	  (Patch from Gentoo Portage)
 	* Fixed possible bug in nxserver when $USER is not set.
 	  (Patch from Gentoo Portage)
+	* Set ENABLE_USESSION="1" option by default - its hard to find and those who know can
+	  shut it off anyway. Added automatic adding of user nx to group utmp.
+	  (Patch by Gentoo Portage)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 
