@@ -1,7 +1,7 @@
 all: libnxredir.so.0
 
 CC=gcc
-CFLAGS=-g -O2 -Wall
+CFLAGS=-g -O2 -Wall -fPIC
 
 libnxredir.so.0: nxredir.o
 	$(CC) -fPIC $(CFLAGS) -nostdlib -shared -o libnxredir.so.0 nxredir.o -ldl -lc

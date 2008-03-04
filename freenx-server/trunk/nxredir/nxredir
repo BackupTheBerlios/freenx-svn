@@ -9,7 +9,7 @@ then
 	exit 0
 fi
 
-LD_PRELOAD="/usr/lib/libnxredir.so.0 $LD_PRELOAD"
+LD_PRELOAD="/usr/lib/libnxredir.so.0:$LD_PRELOAD"
 export LD_PRELOAD
 
 # invoke the program with the args given
