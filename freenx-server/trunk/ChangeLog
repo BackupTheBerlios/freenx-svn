@@ -50,6 +50,10 @@ xx.01.2008 FreeNX 0.7.2
 	  (fabianx@bat.berlios.de)
 	* Added check for /tmp/.X11-unix/X*.
 	  (Yves-Gaël Chény <yves-gael.cheny at tranquil-it-systems.fr>)
+	* Fixed --send|--broadcast for load balancing case.
+	  Note: ssh is used, so you need to either insert your root ssh password 
+	  for the nodes again and again, use a public key + agent or use host keys.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 

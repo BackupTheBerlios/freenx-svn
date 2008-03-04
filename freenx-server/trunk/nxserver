@@ -1741,12 +1741,17 @@ cmd_send()
 			cmd_user=$(getparam userName)
 			cmd_type=$(getparam type)
 			cmd_status=$(getparam status)
+			cmd_host=$(getparam host)
 
 			# is it a "good" session?
 			if [ "$cmd_status" = "Running" ] && stringinstring "unix-" "$cmd_type"
 			then
-				su - "$cmd_user" -c "$PATH_BIN/nxdialog --dialog ok --caption \"NX Administrator Message\" --message \"$@\" -display \":$cmd_display\"" &
-				disown $!
+				if [ "$cmd_host" = "127.0.0.1" -o "$cmd_host" = "localhost" ]
+				then
+					su - "$cmd_user" -c "$PATH_BIN/nxdialog --dialog ok --caption \"NX Administrator Message\" --message \"$@\" -display \":$cmd_display\" &"
+				else
+					ssh $cmd_host su - "$cmd_user" -c "'$PATH_BIN/nxdialog --dialog ok --caption \"NX Administrator Message\" --message \"$@\" -display \":$cmd_display\" &'"
+				fi
 			fi
 	done
 	#nxnode_start --send "$CMD_PARAMS"
