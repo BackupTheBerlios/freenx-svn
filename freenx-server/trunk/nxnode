@@ -1362,7 +1362,14 @@ cmd_node_addprinter()
 			smbport=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/smbport" 2>/dev/null)
 			[ -z "$smbport" ] && smbport=139 # should not happen
 
-			DEVICE_URI="nxsmb://$username:$password@127.0.0.1:$port-$smbport/$share"
+			if [ "$smbport" = "445" ]
+			then
+				smbproto="cifs"
+			else
+				smbproto="smb"
+			fi
+
+			DEVICE_URI="nxsmb://$username:$password@127.0.0.1:$port/$smbproto/$share"
 		else
 			DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
 		fi
