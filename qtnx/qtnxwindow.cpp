@@ -55,10 +55,14 @@ QtNXWindow::QtNXWindow() :
 
     ui_lg.session->addItem(tr("Create new session"));
 
+    parseXML();
+
     connect(ui_lg.connectButton, SIGNAL(pressed()), this, SLOT(startConnect()));
     connect(ui_lg.password, SIGNAL(returnPressed()), this, SLOT(startConnect()));
 
     connect(ui_lg.configureButton, SIGNAL(pressed()), this, SLOT(configure()));
+
+    connect(ui_lg.session, SIGNAL(currentIndexChanged(QString)), this, SLOT(updateLinkType(QString)));
 
     connect(processProbe, SIGNAL(timeout()), this, SLOT(handleTimeout()));
 
@@ -78,6 +82,11 @@ QtNXWindow::QtNXWindow() :
     connect(&callback, SIGNAL(atCapacity()), this, SLOT(handleAtCapacity()));
 
     connect(&callback, SIGNAL(connectedSuccessfully()), this, SLOT(quit()));
+}
+
+void QtNXWindow::updateLinkType(QString sessionName)
+{
+    parseXML();
 }
 
 QtNXWindow::~QtNXWindow()
@@ -236,20 +245,23 @@ void QtNXWindow::startConnect()
 {
     string key = "";
 
-    NXParseXML handler;
-    handler.setData(&config);
+    parseXML();
 
-    QFile file(QDir::homePath() + "/.qtnx/" +
-            ui_lg.session->currentText() + ".nxml");
-
-    QXmlInputSource inputSource(&file);
-
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-    reader.parse(inputSource);
+    if (config.sessionType == "unix-application")
+        session.customCommand = config.customCommand;
 
     setDefaultData();
+
+    if (ui_lg.link->currentText() == tr("Modem"))
+        session.linkType = "modem";
+    else if (ui_lg.link->currentText() == tr("ISDN"))
+        session.linkType = "isdn";
+    else if (ui_lg.link->currentText() == tr("ADSL"))
+        session.linkType = "adsl";
+    else if (ui_lg.link->currentText() == tr("WAN"))
+        session.linkType = "wan";
+    else if (ui_lg.link->currentText() == tr("LAN"))
+        session.linkType = "lan";
 
     if (!config.key.empty()) {
         key = config.key;
@@ -348,6 +360,33 @@ void QtNXWindow::handleTimeout()
     } else {
         processProbe->stop();
     }
+}
+
+void QtNXWindow::parseXML()
+{
+    NXParseXML handler;
+    handler.setData(&config);
+
+    QFile file(QDir::homePath() + "/.qtnx/" +
+            ui_lg.session->currentText() + ".nxml");
+
+    QXmlInputSource inputSource(&file);
+
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    reader.parse(inputSource);
+
+    if (config.linkType == "modem")
+        ui_lg.link->setCurrentIndex(ui_lg.link->findText(tr("Modem")));
+    else if (config.linkType == "isdn")
+        ui_lg.link->setCurrentIndex(ui_lg.link->findText(tr("ISDN")));
+    else if (config.linkType == "adsl")
+        ui_lg.link->setCurrentIndex(ui_lg.link->findText(tr("ADSL")));
+    else if (config.linkType == "wan")
+        ui_lg.link->setCurrentIndex(ui_lg.link->findText(tr("WAN")));
+    else if (config.linkType == "lan")
+        ui_lg.link->setCurrentIndex(ui_lg.link->findText(tr("LAN")));
 }
 
 void QtNXWindow::configure()

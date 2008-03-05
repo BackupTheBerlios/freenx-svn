@@ -13,21 +13,6 @@
    <string>QtNX</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="spacing" >
-    <number>6</number>
-   </property>
-   <property name="leftMargin" >
-    <number>9</number>
-   </property>
-   <property name="topMargin" >
-    <number>9</number>
-   </property>
-   <property name="rightMargin" >
-    <number>9</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>9</number>
-   </property>
    <item>
     <widget class="QLabel" name="logo" >
      <property name="text" >
@@ -40,21 +25,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
-      <number>0</number>
-     </property>
      <item>
       <layout class="QVBoxLayout" >
        <property name="spacing" >
@@ -97,21 +67,6 @@
      </item>
      <item>
       <layout class="QVBoxLayout" >
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
-        <number>0</number>
-       </property>
        <item>
         <widget class="QLineEdit" name="username" >
          <property name="minimumSize" >
@@ -136,14 +91,47 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="session" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QComboBox" name="session" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="link" >
+           <item>
+            <property name="text" >
+             <string>Modem</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>ISDN</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>ADSL</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>WAN</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>LAN</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -151,21 +139,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
-      <number>0</number>
-     </property>
      <item>
       <widget class="QPushButton" name="configureButton" >
        <property name="text" >

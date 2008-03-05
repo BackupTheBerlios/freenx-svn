@@ -105,6 +105,7 @@ class QtNXWindow : public QMainWindow
         void startConnect();
         void configure();
         void configureClosed(QString);
+        void updateLinkType(QString);
 
         // Callback handlers
         void handleSuspendedSessions(QList<NXResumeData>);
@@ -127,6 +128,7 @@ class QtNXWindow : public QMainWindow
         void setupUI();
         void setDefaultData();
         void initialiseClient();
+        void parseXML();
         void reinitialiseClient();
 
         int getWidth();
