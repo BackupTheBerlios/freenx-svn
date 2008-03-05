@@ -11,8 +11,9 @@ clean:
 	rm -f *.o
 
 install: all
-	cp -a libnxredir.so.0 $(DESTDIR)/usr/lib
-	cp -a nxredir $(DESTDIR)/usr/bin
+	install -m755 libnxredir.so.0 $(DESTDIR)/usr/lib
+	install -m755 nxredir $(DESTDIR)/usr/bin
+	install -m755 nxsmb $(DESTDIR)/usr/lib/cups/backend/
 	ldconfig
 
 .PHONY: clean install
