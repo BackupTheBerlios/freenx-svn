@@ -1263,7 +1263,11 @@ NX> 707 SSL tunneling: $ssl_tunnel
 EOF
 
 # File-sharing port options
-[ "$samba" = "1" -a -n "$smbport" ] && echo "NX> 709 File-sharing port: $smbport"
+if [ "$samba" = "1" -a -n "$smbport" ]
+then
+	echo "NX> 709 File-sharing port: $smbport"
+	echo "$smbport" >"$USER_FAKE_HOME/.nx/C-$sess_id/scripts/smbport"
+fi
 
 # collection ...
 
@@ -1353,7 +1357,15 @@ cmd_node_addprinter()
 	
 	if [ "$type" = "smb" ]
 	then
-		DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
+		if [ -x "$CUPS_BACKEND/nxsmb" ]
+		then
+			smbport=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/smbport" 2>/dev/null)
+			[ -z "$smbport" ] && smbport=139 # should not happen
+
+			DEVICE_URI="nxsmb://$username:$password@127.0.0.1:$port-$smbport/$share"
+		else
+			DEVICE_URI="smb://$username:$password@127.0.0.1:$port/$share"
+		fi
 		NAME="$share"
 		ENABLE_CUPS_SEAMLESS="0"
 	else

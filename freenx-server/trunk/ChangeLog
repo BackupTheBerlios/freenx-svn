@@ -54,6 +54,10 @@ xx.01.2008 FreeNX 0.7.2
 	  Note: ssh is used, so you need to either insert your root ssh password 
 	  for the nodes again and again, use a public key + agent or use host keys.
 	  (fabianx@bat.berlios.de)
+	* Added possibility to use the new nxsmb backend. This enables us to support
+	  CIFS and SMB printing at the same time - without recompiling samba -
+	  via the nxredir preload library.
+	  (fabianx@bat.berlios.de)
 
 14.10.2007 FreeNX 0.7.1 "Hip Hop Edition"
 	* Fixed the issue that makes fonts look tiny and unreadable by default 
