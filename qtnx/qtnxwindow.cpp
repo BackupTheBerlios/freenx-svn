@@ -245,6 +245,13 @@ void QtNXWindow::startConnect()
 {
     string key = "";
 
+    if (ui_lg.session->currentText() == tr("Create new session")) {
+        QMessageBox::critical(this, tr("Unconfigured"),
+                tr("Please select a session profile to connect with, or configure one"), 
+                QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+        return;
+    }
+
     parseXML();
 
     if (config.sessionType == "unix-application")
